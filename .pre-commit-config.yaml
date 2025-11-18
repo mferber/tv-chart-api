@@ -1,5 +1,10 @@
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
+
+default_install_hook_types: 
+  - pre-commit
+  - post-checkout
+
 repos:
 
   # Basic checks
@@ -26,3 +31,9 @@ repos:
       additional_dependencies:
       - types-requests
       - types-PyYAML
+
+  # Clean up cached python files (__pycache__, *.py[co]) after switching branches
+  - repo: https://github.com/mferber/pre-commit-pycache-cleanup
+    rev: v0.0.1
+    hooks:
+    - id: clean-pycache
