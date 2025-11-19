@@ -1,0 +1,6 @@
+[pytest]
+minversion = "9.0"
+pythonpath = ["src"]
+testpaths = ["tests"]
+addopts = ["--strict-markers", "-ra", "--color=yes", "-v"]
+strict_xfail = "true"
