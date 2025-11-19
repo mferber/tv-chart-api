@@ -2,7 +2,7 @@
 DTOs for reading search results from TVmaze search response.
 
 See Also:
-    `Search API docs <https://www.tvmaze.com/api#show-search>`_
+    `Show Search API docs <https://www.tvmaze.com/api#show-search>`_
 """
 
 import datetime
@@ -33,7 +33,7 @@ class TVmazeSearchResultDTO(BaseModel):
     """
     Top level DTO encapsulating a search result. TVmaze results are given as
     an array of objects that contain a `score` (which we ignore) and a `show`.
-    See class methods for handling of the array.
+    See class method for handling of the array.
     """
 
     show: TVmazeSearchResultShowDTO
@@ -57,23 +57,21 @@ class TVmazeSearchResultDTO(BaseModel):
             image_url=self.show.image.medium if self.show.image else None,
         )
 
+
+class TVmazeSearchResultDTOs:
+    """
+    Placeholder for list of search result DTOs. Pydantic can't directly
+    model JSON arrays, so this helper class method fills in the gap.
+    """
+
     @classmethod
-    def list_from_tvmaze_response(
+    def model_from_tvmaze_response(
         cls, response_json: str
     ) -> list["TVmazeSearchResultDTO"]:
         """
-        Validates a JSON array of results from TVmaze into a list of DTOs.
+        Creates a SearchResults model from TVmaze response JSON.
         """
 
         adapter = TypeAdapter(list[TVmazeSearchResultDTO])
-        return adapter.validate_json(response_json)
-
-    @classmethod
-    def list_to_search_results(
-        cls, lst: list["TVmazeSearchResultDTO"]
-    ) -> SearchResults:
-        """
-        Creates a SearchResults model from list of DTOs.
-        """
-
+        lst = adapter.validate_json(response_json)
         return SearchResults(results=[dto.to_search_result() for dto in lst])

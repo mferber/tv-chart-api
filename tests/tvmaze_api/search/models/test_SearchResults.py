@@ -1,17 +1,15 @@
 import pytest
 
 from tvmaze_api.search.models import SearchResult, SearchResults
-from tvmaze_api.search.dtos import TVmazeSearchResultDTO
+from tvmaze_api.search.dtos import TVmazeSearchResultDTOs
 
-from ..sample_text.reader import read_sample
+from ..sample_results.reader import read_sample
 
 
 def test_overall_result_set_validation():
     result_json = read_sample("multiple_results.json")
-
-    responseDTOList = TVmazeSearchResultDTO.list_from_tvmaze_response(result_json)
-    resultsModel: SearchResults = TVmazeSearchResultDTO.list_to_search_results(
-        responseDTOList
+    resultsModel: SearchResults = TVmazeSearchResultDTOs.model_from_tvmaze_response(
+        result_json
     )
 
     assert len(resultsModel.results) == 2
