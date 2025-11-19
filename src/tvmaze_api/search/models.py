@@ -8,13 +8,13 @@ class SearchResult(BaseModel):
 
     tvmaze_id: int
     name: str
-    genres: list[str]
+    genres: list[str] | None
     start_year: int | None
     end_year: int | None
     network: str | None
     network_country: str | None
-    web_host: str | None
-    web_host_country: str | None
+    streaming_service: str | None
+    streaming_service_country: str | None
     summary_html: str | None
     image_url: HttpUrl | None
 

@@ -46,13 +46,19 @@ class TVmazeSearchResultDTO(BaseModel):
             start_year=self.show.premiered.year if self.show.premiered else None,
             end_year=self.show.ended.year if self.show.ended else None,
             network=self.show.network.name if self.show.network else None,
-            network_country=self.show.network.country.name
-            if self.show.network and self.show.network.country
-            else None,
-            web_host=self.show.webChannel.name if self.show.webChannel else None,
-            web_host_country=self.show.webChannel.country.name
-            if self.show.webChannel and self.show.webChannel.country
-            else None,
+            network_country=(
+                self.show.network.country.name
+                if self.show.network and self.show.network.country
+                else None
+            ),
+            streaming_service=(
+                self.show.webChannel.name if self.show.webChannel else None
+            ),
+            streaming_service_country=(
+                self.show.webChannel.country.name
+                if self.show.webChannel and self.show.webChannel.country
+                else None
+            ),
             summary_html=self.show.summary,
             image_url=self.show.image.medium if self.show.image else None,
         )
