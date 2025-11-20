@@ -7,9 +7,8 @@ See Also:
 
 import datetime
 
-from pydantic import BaseModel, TypeAdapter
+from pydantic import BaseModel
 
-from .models import SearchResults, SearchResult
 from ..dtos import TVmazeNetworkDTO, TVmazeWebChannelDTO, TVmazeImageDTO
 
 
@@ -37,47 +36,3 @@ class TVmazeSearchResultDTO(BaseModel):
     """
 
     show: TVmazeSearchResultShowDTO
-
-    def to_search_result(self) -> SearchResult:
-        return SearchResult(
-            tvmaze_id=self.show.id,
-            name=self.show.name,
-            genres=self.show.genres,
-            start_year=self.show.premiered.year if self.show.premiered else None,
-            end_year=self.show.ended.year if self.show.ended else None,
-            network=self.show.network.name if self.show.network else None,
-            network_country=(
-                self.show.network.country.name
-                if self.show.network and self.show.network.country
-                else None
-            ),
-            streaming_service=(
-                self.show.webChannel.name if self.show.webChannel else None
-            ),
-            streaming_service_country=(
-                self.show.webChannel.country.name
-                if self.show.webChannel and self.show.webChannel.country
-                else None
-            ),
-            summary_html=self.show.summary,
-            image_url=self.show.image.medium if self.show.image else None,
-        )
-
-
-class TVmazeSearchResultDTOs:
-    """
-    Placeholder for list of search result DTOs. Pydantic can't directly
-    model JSON arrays, so this helper class method fills in the gap.
-    """
-
-    @classmethod
-    def model_from_tvmaze_response(
-        cls, response_json: str
-    ) -> list["TVmazeSearchResultDTO"]:
-        """
-        Creates a SearchResults model from TVmaze response JSON.
-        """
-
-        adapter = TypeAdapter(list[TVmazeSearchResultDTO])
-        lst = adapter.validate_json(response_json)
-        return SearchResults(results=[dto.to_search_result() for dto in lst])

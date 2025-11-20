@@ -1,16 +1,21 @@
-[
-  {
+{
+  "score": 1.2042967,
+  "show": {
     "id": 166,
     "url": "https://www.tvmaze.com/shows/166/battlestar-galactica",
     "name": "Battlestar Galactica",
     "type": "Scripted",
     "language": "English",
-    "genres": null,
+    "genres": [
+      "Drama",
+      "Science-Fiction",
+      "War"
+    ],
     "status": "Ended",
     "runtime": 60,
     "averageRuntime": 61,
-    "premiered": null,
-    "ended": null,
+    "premiered": "2003-12-08",
+    "ended": "2009-10-27",
     "officialSite": "http://www.syfy.com/battlestargalactica",
     "schedule": {
       "time": "22:00",
@@ -22,7 +27,16 @@
       "average": 8.7
     },
     "weight": 99,
-    "network": null,
+    "network": {
+      "id": 16,
+      "name": "Syfy",
+      "country": {
+        "name": "United States",
+        "code": "US",
+        "timezone": "America/New_York"
+      },
+      "officialSite": null
+    },
     "webChannel": null,
     "dvdCountry": null,
     "externals": {
@@ -31,10 +45,10 @@
       "imdb": "tt0407362"
     },
     "image": {
-      "medium": null,
+      "medium": "https://static.tvmaze.com/uploads/images/medium_portrait/0/2313.jpg",
       "original": "https://static.tvmaze.com/uploads/images/original_untouched/0/2313.jpg"
     },
-    "summary": null,
+    "summary": "<p>Summary 1 truncated</p>",
     "updated": 1757822009,
     "_links": {
       "self": {
@@ -46,4 +60,4 @@
       }
     }
   }
-]
+}
