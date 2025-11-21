@@ -11,17 +11,29 @@ repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v2.3.0
     hooks:
-      - id: check-toml
-      - id: check-yaml
-      - id: detect-private-key
-      - id: end-of-file-fixer
+    - id: check-toml
+    - id: check-yaml
+    - id: detect-private-key
+    - id: end-of-file-fixer
 
   # Ruff
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.14.5
     hooks:
-      - id: ruff-check   # linter
-      - id: ruff-format  # formatter
+    - id: ruff-check   # linter
+    - id: ruff-format  # formatter
+
+  # reorder-python-imports
+  - repo: https://github.com/asottile/reorder-python-imports
+    rev: v3.16.0
+    hooks:
+    - id: reorder-python-imports
+
+  # Clean up cached python files (__pycache__, *.py[co]) after switching branches
+  - repo: https://github.com/mferber/pre-commit-pycache-cleanup
+    rev: v0.0.1
+    hooks:
+    - id: clean-pycache
 
   # Mypy
   - repo: https://github.com/pre-commit/mirrors-mypy
@@ -29,11 +41,6 @@ repos:
     hooks:
     - id: mypy
       additional_dependencies:
+      - tokenize-rt
       - types-requests
       - types-PyYAML
-
-  # Clean up cached python files (__pycache__, *.py[co]) after switching branches
-  - repo: https://github.com/mferber/pre-commit-pycache-cleanup
-    rev: v0.0.1
-    hooks:
-    - id: clean-pycache
