@@ -1,8 +1,7 @@
 from enum import StrEnum
 from typing import Final
 
-from httpx import AsyncClient
-from httpx import HTTPError
+from httpx import AsyncClient, HTTPError
 
 
 class TVmazeAPIClient:
