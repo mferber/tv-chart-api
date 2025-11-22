@@ -1,10 +1,16 @@
 import datetime
+
+import pydantic
 import pytest
+from pydantic import HttpUrl
 
-from pydantic import HttpUrl, ValidationError
+from tvmaze_api.dtos.common_dtos import (
+    TVmazeCountryDTO,
+    TVmazeImageDTO,
+    TVmazeNetworkDTO,
+)
+from tvmaze_api.dtos.search_dtos import TVmazeSearchResultDTO
 
-from tvmaze_api.dtos import TVmazeNetworkDTO, TVmazeCountryDTO, TVmazeImageDTO
-from tvmaze_api.search.dtos import TVmazeSearchResultDTO
 from ..sample_tvmaze_results.reader import read_sample
 
 
@@ -34,6 +40,6 @@ def test_response_validation():
 
 
 def test_response_validation_failure():
-    with pytest.raises(ValidationError):
+    with pytest.raises(pydantic.ValidationError):
         response_json = read_sample("result_invalid.json")
         _ = TVmazeSearchResultDTO.model_validate_json(response_json)
