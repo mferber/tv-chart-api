@@ -106,7 +106,7 @@ async def test_search_request(mocked_get):
     # verify TVmaze was called correctly
     mocked_get.assert_called_once()
     get_args = mocked_get.call_args
-    assert get_args.args == ("https://api.tvmaze.com/show/search",)
+    assert get_args.args == ("https://api.tvmaze.com/search/shows",)
     assert get_args.kwargs["params"] == {"q": "query"}
 
     # verify we extracted the expected pydantic model

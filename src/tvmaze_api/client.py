@@ -14,7 +14,7 @@ class TVmazeAPIClient:
     BASE_URL: Final[str] = "https://api.tvmaze.com"
 
     class UrlPaths(StrEnum):
-        SEARCH = "/show/search"
+        SEARCH = "/search/shows"
 
     async def _get(self, relative_url: str, params: dict[str, str]) -> str:
         """Make a GET request to TVmaze.
