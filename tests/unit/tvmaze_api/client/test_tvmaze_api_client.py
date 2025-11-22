@@ -62,7 +62,7 @@ def mock_httpx_async_client(
 
     # patch AsyncClient to return our mock client as a context manager
     mocker.patch(
-        "tvmaze_api.client.AsyncClient",
+        "httpx.AsyncClient",
         return_value=mocker.AsyncMock(
             __aenter__=mocker.AsyncMock(return_value=mock_client),
             __aexit__=mocker.AsyncMock(return_value=None),
@@ -91,6 +91,26 @@ def mocked_get_with_network_failure(mocker):
 
     return mock_httpx_async_client(
         mocker, 0, response_text_name="", exception=httpx.NetworkError("fake")
+    )
+
+
+@pytest.fixture
+def mocked_get_with_rate_limiting_failure(mocker):
+    """Sets up a mock request that simulates repeated 429 Too Many Requests errors."""
+
+    # reduce the backoff time to something negligible for testing
+    mocker.patch.object(TVmazeAPIClient, "RETRY_BACKOFF_FACTOR", new=0.01)
+
+    mock_response = mocker.Mock(
+        spec=httpx.Response, status_code=httpx.codes.TOO_MANY_REQUESTS
+    )
+    too_many_requests_exception = httpx.HTTPStatusError(
+        "simulated 429", request=mocker.Mock(), response=mock_response
+    )
+    mock_response.raise_for_status.side_effect = too_many_requests_exception
+
+    return mock_httpx_async_client(
+        mocker, httpx.codes.TOO_MANY_REQUESTS, response_text_name=""
     )
 
 
@@ -144,7 +164,29 @@ async def test_failing_request_raises(mocked_get):
 async def test_network_error_raises(mocked_get_with_network_failure):
     with pytest.raises(tvmaze_api.exceptions.ConnectionError):
         client = TVmazeAPIClient()
-        await client.search_shows("query")
+        try:
+            await client.search_shows("query")
+        except Exception:
+            mocked_get_with_network_failure.assert_called_once()
+            raise
+
+
+@pytest.mark.asyncio
+async def test_rate_limited_request_raises_after_using_up_attempts(
+    mocked_get_with_rate_limiting_failure,
+):
+    """TVmaze throttles use of its free API so this could happen."""
+
+    with pytest.raises(tvmaze_api.exceptions.RateLimitedError):
+        client = TVmazeAPIClient()
+        try:
+            await client.search_shows("query")
+        except Exception:
+            assert (
+                mocked_get_with_rate_limiting_failure.call_count
+                == TVmazeAPIClient.RETRY_LIMIT
+            )
+            raise
 
 
 @pytest.mark.asyncio
