@@ -19,7 +19,7 @@ class TVmazeAPIClient:
         Make a GET request to TVmaze.
 
         Args:
-            url: URL to fetch
+            relative_url: URL to fetch, relative to `BASE_URL`
             params: query params
 
         Returns:
