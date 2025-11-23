@@ -82,14 +82,14 @@ def mocked_get(mocker, request):
     """
 
     code, response_text_name = request.param
-    return mock_httpx_async_client(mocker, code, response_text_name=response_text_name)
+    yield mock_httpx_async_client(mocker, code, response_text_name=response_text_name)
 
 
 @pytest.fixture
 def mocked_get_with_network_failure(mocker):
     """Sets up a mock request that simulates a network failure."""
 
-    return mock_httpx_async_client(
+    yield mock_httpx_async_client(
         mocker, 0, response_text_name="", exception=httpx.NetworkError("fake")
     )
 
@@ -109,7 +109,7 @@ def mocked_get_with_rate_limiting_failure(mocker):
     )
     mock_response.raise_for_status.side_effect = too_many_requests_exception
 
-    return mock_httpx_async_client(
+    yield mock_httpx_async_client(
         mocker, httpx.codes.TOO_MANY_REQUESTS, response_text_name=""
     )
 
