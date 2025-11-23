@@ -9,7 +9,7 @@ import pytest
 
 from services.search.models import SearchResult, SearchResults
 
-from .sample_tvmaze_responses.reader import get_TVmaze_response_DTOs_from_json
+from ..sample_tvmaze_responses.reader import get_TVmaze_response_DTOs_from_json
 
 
 def test_valid_result_set():
