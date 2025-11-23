@@ -8,7 +8,6 @@ the service layer, where we also test conversion to app domain models.
 """
 
 import datetime
-from unittest.mock import AsyncMock
 
 import httpx
 import pytest
@@ -22,78 +21,11 @@ from tvmaze_api.dtos.common_dtos import (
     TVmazeNetworkDTO,
 )
 from tvmaze_api.dtos.search_dtos import TVmazeSearchResultDTO, TVmazeSearchResultShowDTO
+from unit.common.fixture_helpers.httpx import create_mock_httpx_async_client
 
 from .sample_tvmaze_responses.reader import read_sample
 
 # --- Fixtures ---
-
-
-def mock_httpx_async_client(
-    mocker,
-    status_code: int,
-    /,
-    response_text: str,
-    exception: Exception | None = None,
-) -> AsyncMock:
-    """Helper: patches `AsyncClient.get` to return a mocked response.
-
-    Requires the `httpx` module to be imported (`import httpx`) rather than
-    just the client (`from httpx import AsyncClient` won't allow patching).
-
-    Args:
-        status_code: response status code to mock
-        response_text: body of the mocked response
-        exception: exception to raise instead of mocking a response
-    """
-
-    mock_client = mocker.AsyncMock()
-
-    if exception is None:
-        mock_response = httpx.Response(
-            status_code=status_code, text=response_text, request=mocker.Mock()
-        )
-        mock_client.get.return_value = mock_response
-    else:
-        mock_client.get.side_effect = exception
-
-    # patch AsyncClient to return our mock client as a context manager
-    mocker.patch(
-        "httpx.AsyncClient",
-        return_value=mocker.AsyncMock(
-            __aenter__=mocker.AsyncMock(return_value=mock_client),
-            __aexit__=mocker.AsyncMock(return_value=None),
-        ),
-    )
-    return mock_client.get
-
-
-@pytest.fixture
-def mocked_get(mocker, request):
-    """Patches `httpx.AsyncClient.get` to return a mocked response.
-
-    Takes parameters `(code, response_text)` where `code` is the status code to
-    return and `response_text` is the text to use
-    as the response.
-
-    Requires the `httpx` module to be imported (`import httpx`) rather than
-    just the client (`from httpx import AsyncClient` won't allow patching).
-    """
-
-    code, response_text = request.param
-    yield mock_httpx_async_client(mocker, code, response_text)
-
-
-@pytest.fixture
-def mocked_get_with_network_failure(mocker):
-    """Patches `httpx.AsyncClient.get` to simulate a network failure.
-
-    Requires the `httpx` module to be imported (`import httpx`) rather than
-    just the client (`from httpx import AsyncClient` won't allow patching).
-    """
-
-    yield mock_httpx_async_client(
-        mocker, 0, response_text="", exception=httpx.NetworkError("fake")
-    )
 
 
 @pytest.fixture
@@ -111,7 +43,7 @@ def mocked_get_with_rate_limiting_failure(mocker):
     )
     mock_response.raise_for_status.side_effect = too_many_requests_exception
 
-    yield mock_httpx_async_client(
+    yield create_mock_httpx_async_client(
         mocker, httpx.codes.TOO_MANY_REQUESTS, response_text=""
     )
 
