@@ -1,0 +1,128 @@
+[
+  {
+    "score": 1.2042967,
+    "INVALID KEY HERE show": {
+      "id": 166,
+      "url": "https://www.tvmaze.com/shows/166/battlestar-galactica",
+      "name": "Battlestar Galactica",
+      "type": "Scripted",
+      "language": "English",
+      "genres": [
+        "Drama",
+        "Science-Fiction",
+        "War"
+      ],
+      "status": "Ended",
+      "runtime": 60,
+      "averageRuntime": 61,
+      "premiered": "2003-12-08",
+      "ended": "2009-10-27",
+      "officialSite": "http://www.syfy.com/battlestargalactica",
+      "schedule": {
+        "time": "22:00",
+        "days": [
+          "Friday"
+        ]
+      },
+      "rating": {
+        "average": 8.7
+      },
+      "weight": 99,
+      "network": {
+        "id": 16,
+        "name": "Syfy",
+        "country": {
+          "name": "United States",
+          "code": "US",
+          "timezone": "America/New_York"
+        },
+        "officialSite": null
+      },
+      "webChannel": null,
+      "dvdCountry": null,
+      "externals": {
+        "tvrage": 2730,
+        "thetvdb": 73545,
+        "imdb": "tt0407362"
+      },
+      "image": {
+        "medium": "https://static.tvmaze.com/uploads/images/medium_portrait/0/2313.jpg",
+        "original": "https://static.tvmaze.com/uploads/images/original_untouched/0/2313.jpg"
+      },
+      "summary": "<p>Summary 1 truncated</p>",
+      "updated": 1757822009,
+      "_links": {
+        "self": {
+          "href": "https://api.tvmaze.com/shows/166"
+        },
+        "previousepisode": {
+          "href": "https://api.tvmaze.com/episodes/11888",
+          "name": "Battlestar Galactica: The Plan"
+        }
+      }
+    }
+  },
+  {
+    "score": 1.2023659,
+    "show": {
+      "id": 1059,
+      "url": "https://www.tvmaze.com/shows/1059/battlestar-galactica",
+      "name": "Battlestar Galactica",
+      "type": "Scripted",
+      "language": "English",
+      "genres": [
+        "Action",
+        "Adventure",
+        "Science-Fiction"
+      ],
+      "status": "Ended",
+      "runtime": 60,
+      "averageRuntime": 60,
+      "premiered": "1978-09-17",
+      "ended": "1979-04-29",
+      "officialSite": null,
+      "schedule": {
+        "time": "20:00",
+        "days": [
+          "Sunday"
+        ]
+      },
+      "rating": {
+        "average": 7.9
+      },
+      "weight": 94,
+      "network": {
+        "id": 3,
+        "name": "ABC",
+        "country": {
+          "name": "United States",
+          "code": "US",
+          "timezone": "America/New_York"
+        },
+        "officialSite": "https://abc.com/"
+      },
+      "webChannel": null,
+      "dvdCountry": null,
+      "externals": {
+        "tvrage": 2729,
+        "thetvdb": 71173,
+        "imdb": "tt0076984"
+      },
+      "image": {
+        "medium": "https://static.tvmaze.com/uploads/images/medium_portrait/6/17017.jpg",
+        "original": "https://static.tvmaze.com/uploads/images/original_untouched/6/17017.jpg"
+      },
+      "summary": "<p>Summary 2 truncated</p>",
+      "updated": 1727135232,
+      "_links": {
+        "self": {
+          "href": "https://api.tvmaze.com/shows/1059"
+        },
+        "previousepisode": {
+          "href": "https://api.tvmaze.com/episodes/101887",
+          "name": "The Hand of God"
+        }
+      }
+    }
+  }
+]

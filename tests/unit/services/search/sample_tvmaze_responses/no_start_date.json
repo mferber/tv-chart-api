@@ -1,0 +1,58 @@
+[
+  {
+    "score": 1.2015572,
+    "show": {
+      "id": 184,
+      "url": "https://www.tvmaze.com/shows/184/bojack-horseman",
+      "name": "BoJack Horseman",
+      "type": "Animation",
+      "language": "English",
+      "genres": [
+        "Drama",
+        "Comedy"
+      ],
+      "status": "Ended",
+      "runtime": null,
+      "averageRuntime": 26,
+      "premiered": null,
+      "ended": "2020-01-31",
+      "officialSite": "https://www.netflix.com/title/70300800",
+      "schedule": {
+        "time": "",
+        "days": []
+      },
+      "rating": {
+        "average": 7.9
+      },
+      "weight": 91,
+      "network": null,
+      "webChannel": {
+        "id": 1,
+        "name": "Netflix",
+        "country": null,
+        "officialSite": "https://www.netflix.com/"
+      },
+      "dvdCountry": null,
+      "externals": {
+        "tvrage": 39470,
+        "thetvdb": 282254,
+        "imdb": "tt3398228"
+      },
+      "image": {
+        "medium": "https://static.tvmaze.com/uploads/images/medium_portrait/405/1012627.jpg",
+        "original": "https://static.tvmaze.com/uploads/images/original_untouched/405/1012627.jpg"
+      },
+      "summary": "<p>Meet the most beloved sitcom horse of the '90s, 20 years later. He's a curmudgeon with a heart of... not quite gold... but something like gold. Copper?</p>",
+      "updated": 1740064716,
+      "_links": {
+        "self": {
+          "href": "https://api.tvmaze.com/shows/184"
+        },
+        "previousepisode": {
+          "href": "https://api.tvmaze.com/episodes/1722488",
+          "name": "Nice While It Lasted"
+        }
+      }
+    }
+  }
+]
