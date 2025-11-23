@@ -32,29 +32,25 @@ def mock_httpx_async_client(
     mocker,
     status_code: int,
     /,
-    response_text_name: str,
+    response_text: str,
     exception: Exception | None = None,
 ) -> AsyncMock:
-    """Helper: mocks AsyncClient to return a fake response.
+    """Helper: patches `AsyncClient.get` to return a mocked response.
+
+    Requires the `httpx` module to be imported (`import httpx`) rather than
+    just the client (`from httpx import AsyncClient` won't allow patching).
 
     Args:
         status_code: response status code to mock
-        response_text_name: file name from `sample_tvmaze_responses` to use for mock
-            content; if file doesn't exist, the name will be used as the literal
-            response content
+        response_text: body of the mocked response
         exception: exception to raise instead of mocking a response
     """
-
-    try:
-        text = read_sample(response_text_name)
-    except Exception:
-        text = response_text_name
 
     mock_client = mocker.AsyncMock()
 
     if exception is None:
         mock_response = httpx.Response(
-            status_code=status_code, text=text, request=mocker.Mock()
+            status_code=status_code, text=response_text, request=mocker.Mock()
         )
         mock_client.get.return_value = mock_response
     else:
@@ -73,24 +69,30 @@ def mock_httpx_async_client(
 
 @pytest.fixture
 def mocked_get(mocker, request):
-    """Sets up a mock request.
+    """Patches `httpx.AsyncClient.get` to return a mocked response.
 
-    Takes parameters `(code, response_text_name)` where `code` is the status code to
-    return and `response_text_name` is the filename from sample_tvmaze_responses to use
-    as the response. If the file doesn't exist, the value of `response_text_name` is
-    used as the literal response.
+    Takes parameters `(code, response_text)` where `code` is the status code to
+    return and `response_text` is the text to use
+    as the response.
+
+    Requires the `httpx` module to be imported (`import httpx`) rather than
+    just the client (`from httpx import AsyncClient` won't allow patching).
     """
 
-    code, response_text_name = request.param
-    yield mock_httpx_async_client(mocker, code, response_text_name=response_text_name)
+    code, response_text = request.param
+    yield mock_httpx_async_client(mocker, code, response_text)
 
 
 @pytest.fixture
 def mocked_get_with_network_failure(mocker):
-    """Sets up a mock request that simulates a network failure."""
+    """Patches `httpx.AsyncClient.get` to simulate a network failure.
+
+    Requires the `httpx` module to be imported (`import httpx`) rather than
+    just the client (`from httpx import AsyncClient` won't allow patching).
+    """
 
     yield mock_httpx_async_client(
-        mocker, 0, response_text_name="", exception=httpx.NetworkError("fake")
+        mocker, 0, response_text="", exception=httpx.NetworkError("fake")
     )
 
 
@@ -110,7 +112,7 @@ def mocked_get_with_rate_limiting_failure(mocker):
     mock_response.raise_for_status.side_effect = too_many_requests_exception
 
     yield mock_httpx_async_client(
-        mocker, httpx.codes.TOO_MANY_REQUESTS, response_text_name=""
+        mocker, httpx.codes.TOO_MANY_REQUESTS, response_text=""
     )
 
 
@@ -118,7 +120,9 @@ def mocked_get_with_rate_limiting_failure(mocker):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mocked_get", [(200, "multiple_results.json")], indirect=True)
+@pytest.mark.parametrize(
+    "mocked_get", [(200, read_sample("multiple_results.json"))], indirect=True
+)
 async def test_search_request(mocked_get):
     client = TVmazeAPIClient()
     rsp = await client.search_shows("query")
