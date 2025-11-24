@@ -5,8 +5,9 @@ description = "Backend API for TV chart tracker"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "html-sanitizer>=2.6.0",
     "httpx>=0.28.1",
-    "litestar[standard,pydantic]>=2.18.0"
+    "litestar[standard,pydantic]>=2.18.0",
 ]
 
 [dependency-groups]

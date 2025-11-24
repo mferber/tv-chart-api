@@ -20,5 +20,4 @@ class SearchService:
             tvmazeDtos = await TVmazeAPIClient().search_shows(query)
             return SearchResults.from_tvmaze_dto_list(tvmazeDtos)
         except Exception as e:
-            print("Exception", e)
             raise SearchError from e

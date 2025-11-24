@@ -1,8 +1,35 @@
 """Domain models for TV show search results."""
 
+from html_sanitizer import Sanitizer
 from pydantic import BaseModel, HttpUrl
 
 from tvmaze_api.dtos.search_dtos import TVmazeSearchResultDTO
+
+# Set up HTML sanitizer for show summaries (we don't trust TVmaze, do we?)
+configured_html_sanitizer = Sanitizer(
+    {
+        "tags": {  # tags retained in sanitized html; defaults minus <a>
+            "h1",
+            "h2",
+            "h3",
+            "strong",
+            "em",
+            "p",
+            "ul",
+            "ol",
+            "li",
+            "br",
+            "sub",
+            "sup",
+            "hr",
+        },
+        "attributes": {},
+        "empty": {"hr", "br"},  # tags retained even if empty
+        "separate": {"p", "li"},  # will not be merged with siblings
+        "whitespace": set(),
+        "keep_typographic_whitespace": True,
+    }
+)
 
 
 class SearchResult(BaseModel):
@@ -24,6 +51,12 @@ class SearchResult(BaseModel):
 
     @classmethod
     def from_tvmaze_dto(cls, dto: TVmazeSearchResultDTO):
+        sanitized_summary_html = None
+        if dto.show.summary:
+            sanitized_summary_html = configured_html_sanitizer.sanitize(
+                dto.show.summary
+            )
+
         return SearchResult(
             tvmaze_id=dto.show.id,
             name=dto.show.name,
@@ -44,7 +77,7 @@ class SearchResult(BaseModel):
                 if dto.show.webChannel and dto.show.webChannel.country
                 else None
             ),
-            summary_html=dto.show.summary,
+            summary_html=sanitized_summary_html,
             image_url=dto.show.image.medium if dto.show.image else None,
         )
 

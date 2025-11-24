@@ -1,0 +1,52 @@
+[
+  {
+    "score": 0.0,
+    "show": {
+      "id": 166,
+      "url": "https://www.tvmaze.com/shows/166/battlestar-galactica",
+      "name": "Battlestar Galactica",
+      "type": "Scripted",
+      "language": "English",
+      "genres": null,
+      "status": "Ended",
+      "runtime": 60,
+      "averageRuntime": 61,
+      "premiered": null,
+      "ended": null,
+      "officialSite": "http://www.syfy.com/battlestargalactica",
+      "schedule": {
+        "time": "22:00",
+        "days": [
+          "Friday"
+        ]
+      },
+      "rating": {
+        "average": 8.7
+      },
+      "weight": 99,
+      "network": null,
+      "webChannel": null,
+      "dvdCountry": null,
+      "externals": {
+        "tvrage": 2730,
+        "thetvdb": 73545,
+        "imdb": "tt0407362"
+      },
+      "image": {
+        "medium": null,
+        "original": "https://static.tvmaze.com/uploads/images/original_untouched/0/2313.jpg"
+      },
+      "summary": "<p>Paragraph 1<script>document.write('this is a major security flaw!')</script></p><p>Paragraph 2 <a href=\"https://dangerous.site.com/\">link text</a></p><p>Paragraph 3 <b><i>bold + italic</i></b> plain <span style=\"font-weight: bold\">bold css</span> <span style=\"font-style: italic\">italic css</span> <span style=\"margin: 10px\">margin css</span></p><p>Paragraph 4 <iframe src=\"https://dangerous.site.com\"></iframe></p><p>Paragraph 5 <img src=\"https://dangerous.site.com\"></p><p>Paragraph 6 bare ampersand & more text</p>",
+      "updated": 1757822009,
+      "_links": {
+        "self": {
+          "href": "https://api.tvmaze.com/shows/166"
+        },
+        "previousepisode": {
+          "href": "https://api.tvmaze.com/episodes/11888",
+          "name": "Battlestar Galactica: The Plan"
+        }
+      }
+    }
+  }
+]

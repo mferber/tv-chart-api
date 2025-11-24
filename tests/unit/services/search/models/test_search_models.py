@@ -162,3 +162,20 @@ def test_result_with_no_end_date():
     result = model.results[0]
     assert result.start_year is not None
     assert result.end_year is None
+
+
+def test_summary_html_is_sanitized():
+    result_dtos = get_TVmaze_response_DTOs_from_json("unsafe_html_summary.json")
+
+    model = SearchResults.from_tvmaze_dto_list(result_dtos)
+
+    assert len(model.results) == 1
+    result = model.results[0]
+    assert (
+        result.summary_html == """<p>Paragraph 1</p>"""
+        """<p>Paragraph 2 link text</p>"""
+        """<p>Paragraph 3 <strong><em>bold + italic</em></strong> plain <strong>bold css</strong> <em>italic css</em> margin css</p>"""
+        """<p>Paragraph 4 </p>"""
+        """<p>Paragraph 5 </p>"""
+        """<p>Paragraph 6 bare ampersand &amp; more text</p>"""
+    )
