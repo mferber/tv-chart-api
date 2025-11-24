@@ -5,7 +5,7 @@ from .models import SearchResults
 
 
 class SearchService:
-    async def search(self, query: str) -> str:  # SearchResults:
+    async def search(self, query: str) -> SearchResults:
         """Search for TV shows matching the query.
 
         Returns:
