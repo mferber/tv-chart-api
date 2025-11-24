@@ -7,7 +7,7 @@ expected.
 import pydantic
 import pytest
 
-from services.search.models import SearchResult, SearchResults
+from services.search import SearchResult, SearchResults
 
 from ..sample_tvmaze_responses.reader import get_TVmaze_response_DTOs_from_json
 
