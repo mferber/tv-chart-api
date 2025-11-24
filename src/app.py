@@ -1,9 +1,12 @@
 from litestar import Litestar, get
 
-
-@get("/")
-async def hello_world() -> str:
-    return "hello world"
+from services.search import SearchResults, SearchService
 
 
-app = Litestar(route_handlers=[hello_world])
+@get("/search")
+async def search(q: str) -> SearchResults:
+    result = await SearchService().search(q)
+    return result
+
+
+app = Litestar(route_handlers=[search])
