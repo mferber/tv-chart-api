@@ -1,6 +1,5 @@
 from advanced_alchemy.extensions.litestar.plugins import SQLAlchemyInitPlugin
-from litestar.middleware.session.server_side import ServerSideSessionConfig
-from litestar.security.session_auth import SessionAuth
+from litestar.security.jwt import JWTAuth
 from litestar_users import LitestarUsersConfig, LitestarUsersPlugin
 from litestar_users.config import (
     AuthHandlerConfig,
@@ -16,19 +15,13 @@ from .models import User
 from .services import UserService
 from .startup import get_litestar_sqlalchemy_async_config
 
-# if TYPE_CHECKING:
-#     from litestar.connection import ASGIConnection
-#     from litestar.handlers.base import BaseRouteHandler
 
-ENCODING_SECRET = "1234567890abcdef"  # TODO: env var with secrets management
-
-
-def configure_litestar_users_plugin():
+def configure_litestar_users_plugin(jwt_encoding_secret):
     return LitestarUsersPlugin(
         config=LitestarUsersConfig(
-            auth_backend_class=SessionAuth,
-            session_backend_config=ServerSideSessionConfig(),
-            secret=ENCODING_SECRET,
+            auth_backend_class=JWTAuth,
+            require_verification_on_registration=False,  # for now assume emails are fine
+            secret=jwt_encoding_secret,
             user_model=User,
             user_read_dto=UserReadDTO,
             user_registration_dto=UserRegistrationDTO,

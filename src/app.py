@@ -6,7 +6,10 @@ from litestar import Litestar, get
 
 import setup.litestar_users.plugins as litestar_users_plugins
 import setup.litestar_users.startup as litestar_users_startup
+from exceptions import ConfigurationError
 from services.search import SearchResults, SearchService
+
+# --- configuration and initialization ---
 
 DATABASE_URL = (
     f"{os.getenv('DEV_DB_DRIVER')}://"
@@ -14,6 +17,10 @@ DATABASE_URL = (
     f"@{os.getenv('DEV_DB_HOST')}:{os.getenv('DEV_DB_PORT')}/"
     f"{os.getenv('DEV_DB_NAME')}"
 )
+
+JWT_ENCODING_SECRET = os.getenv("JWT_ENCODING_SECRET")
+if JWT_ENCODING_SECRET is None:
+    raise ConfigurationError("JWT_ENCODING_SECRET must be set in the environment")
 
 
 async def on_startup() -> None:
@@ -37,7 +44,7 @@ app = Litestar(
     on_startup=[on_startup],
     plugins=[
         litestar_users_plugins.get_litestar_users_sqlalchemy_init_plugin(DATABASE_URL),
-        litestar_users_plugins.configure_litestar_users_plugin(),
+        litestar_users_plugins.configure_litestar_users_plugin(JWT_ENCODING_SECRET),
     ],
     route_handlers=[search],
 )

@@ -9,6 +9,7 @@ DEV_DB_PORT = "5432"
 DEV_DB_USER = "postgres"
 DEV_DB_PASS = "postgres"
 DEV_DB_NAME = "tvchartdb"
+JWT_ENCODING_SECRET = "bb1e88b2478ea94c3bede32df63bb972"
 
 [tasks]
 devup = "cd src; litestar run --reload"
