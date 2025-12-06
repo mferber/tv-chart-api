@@ -1,6 +1,6 @@
 """Domain models for TV show search results."""
 
-from html_sanitizer import Sanitizer
+from html_sanitizer import Sanitizer  # type: ignore[import]
 from pydantic import BaseModel, HttpUrl
 
 from tvmaze_api.dtos.search_dtos import TVmazeSearchResultDTO
