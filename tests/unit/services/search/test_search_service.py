@@ -13,7 +13,7 @@ from .sample_tvmaze_responses.reader import read_sample
 async def test_search_service(mocked_get):
     svc = SearchService()
     result = await svc.search("Battlestar Galactica")
-    print(result)
+    print(result)  # TODO
 
 
 @pytest.mark.asyncio
@@ -22,4 +22,4 @@ async def test_search_service_server_error(mocked_get):
     with pytest.raises(services.search.exceptions.SearchError):
         svc = SearchService()
         result = await svc.search("Battlestar Galactica")
-        print(result)
+        print(result)  # TODO
