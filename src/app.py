@@ -11,11 +11,32 @@ from services.search import SearchResults, SearchService
 
 # --- configuration and initialization ---
 
+
+def get_db_config() -> dict[str, str]:
+    attrs = {}
+    for env_name in [
+        "DEV_DB_DRIVER",
+        "DEV_DB_USER",
+        "DEV_DB_PASS",
+        "DEV_DB_HOST",
+        "DEV_DB_PORT",
+        "DEV_DB_NAME",
+    ]:
+        value = os.getenv(env_name)
+        if value is None:
+            raise ConfigurationError(
+                f"Database configuration must be fully set in the environment ({env_name} is missing)"
+            )
+        attrs[env_name] = value
+    return attrs
+
+
+db_config = get_db_config()
 DATABASE_URL = (
-    f"{os.getenv('DEV_DB_DRIVER')}://"
-    f"{os.getenv('DEV_DB_USER')}:{os.getenv('DEV_DB_PASS')}"
-    f"@{os.getenv('DEV_DB_HOST')}:{os.getenv('DEV_DB_PORT')}/"
-    f"{os.getenv('DEV_DB_NAME')}"
+    f"{db_config['DEV_DB_DRIVER']}://"
+    f"{db_config['DEV_DB_USER']}:{db_config['DEV_DB_PASS']}"
+    f"@{db_config['DEV_DB_HOST']}:{db_config['DEV_DB_PORT']}/"
+    f"{db_config['DEV_DB_NAME']}"
 )
 
 JWT_ENCODING_SECRET = os.getenv("JWT_ENCODING_SECRET")
