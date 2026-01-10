@@ -4,6 +4,8 @@ from advanced_alchemy.extensions.litestar.plugins import SQLAlchemyAsyncConfig
 
 
 def get_litestar_sqlalchemy_async_config(db_url):
+    """Gets a SQLAlchemyAsyncConfig set up the way litestar-users wants it"""
+
     return SQLAlchemyAsyncConfig(
         connection_string=db_url,
         session_dependency_key="session",
