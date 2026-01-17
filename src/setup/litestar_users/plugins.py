@@ -15,7 +15,7 @@ from .services import UserService
 from .startup import get_litestar_sqlalchemy_async_config
 
 
-def configure_litestar_users_plugin(jwt_encoding_secret):
+def configure_litestar_users_plugin(jwt_encoding_secret: str) -> LitestarUsersPlugin:
     """Creates main litestar-users plugin object with many, many configuration options
 
     Args:
@@ -58,7 +58,7 @@ def configure_litestar_users_plugin(jwt_encoding_secret):
     )
 
 
-def get_litestar_users_sqlalchemy_init_plugin(db_url):
+def get_litestar_users_sqlalchemy_init_plugin(db_url: str) -> SQLAlchemyInitPlugin:
     """Creates litestar-users auxiliary plugin that initializes SQLAlchemy
 
     Args:

@@ -40,7 +40,7 @@ def get_db_config() -> dict[str, str]:
     return attrs
 
 
-def construct_db_url():
+def construct_db_url() -> str:
     db_config = get_db_config()
     return (
         f"{db_config['DEV_DB_DRIVER']}://"

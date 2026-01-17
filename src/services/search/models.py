@@ -1,5 +1,7 @@
 """Domain models for TV show search results."""
 
+from typing import Self
+
 from html_sanitizer import Sanitizer  # type: ignore[import]
 from pydantic import BaseModel, HttpUrl
 
@@ -50,7 +52,7 @@ class SearchResult(BaseModel):
     image_url: HttpUrl | None
 
     @classmethod
-    def from_tvmaze_dto(cls, dto: TVmazeSearchResultDTO):
+    def from_tvmaze_dto(cls, dto: TVmazeSearchResultDTO) -> Self:
         sanitized_summary_html = None
         if dto.show.summary:
             sanitized_summary_html = configured_html_sanitizer.sanitize(
