@@ -8,9 +8,9 @@ def get_litestar_sqlalchemy_async_config(db_url: str) -> SQLAlchemyAsyncConfig:
 
     return SQLAlchemyAsyncConfig(
         connection_string=db_url,
-        session_dependency_key="session",
+        session_dependency_key="db_session",
         session_config=AsyncSessionConfig(expire_on_commit=False),
-        before_send_handler="autocommit",
+        before_send_handler="autocommit",  # required by litestar-users; good practice anyway
     )
 
 
