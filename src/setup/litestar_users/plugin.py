@@ -1,4 +1,3 @@
-from advanced_alchemy.extensions.litestar.plugins import SQLAlchemyInitPlugin
 from litestar.security.jwt import JWTAuth
 from litestar_users import LitestarUsersConfig, LitestarUsersPlugin
 from litestar_users.config import (
@@ -12,11 +11,10 @@ from litestar_users.config import (
 from .dtos import UserReadDTO, UserRegistrationDTO, UserUpdateDTO
 from .models import User
 from .services import UserService
-from .startup import get_litestar_sqlalchemy_async_config
 
 
 def configure_litestar_users_plugin(jwt_encoding_secret: str) -> LitestarUsersPlugin:
-    """Creates main litestar-users plugin object with many, many configuration options
+    """Creates main litestar-users plugin object with many, many configuration options.
 
     Args:
       jwt_encoding_secret: signing secret for JWTs
@@ -56,13 +54,3 @@ def configure_litestar_users_plugin(jwt_encoding_secret: str) -> LitestarUsersPl
             user_management_handler_config=UserManagementHandlerConfig("/auth/users"),
         )
     )
-
-
-def get_litestar_users_sqlalchemy_init_plugin(db_url: str) -> SQLAlchemyInitPlugin:
-    """Creates litestar-users auxiliary plugin that initializes SQLAlchemy
-
-    Args:
-      db_url: database engine connection string
-    """
-
-    return SQLAlchemyInitPlugin(config=get_litestar_sqlalchemy_async_config(db_url))

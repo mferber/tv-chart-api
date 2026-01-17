@@ -2,10 +2,15 @@ from __future__ import annotations
 
 import os
 
+from advanced_alchemy.base import UUIDBase
+from advanced_alchemy.config import AsyncSessionConfig
+from advanced_alchemy.extensions.litestar.plugins import (
+    SQLAlchemyAsyncConfig,
+    SQLAlchemyInitPlugin,
+)
 from litestar import Litestar, get
 
-import setup.litestar_users.plugins as litestar_users_plugins
-import setup.litestar_users.startup as litestar_users_startup
+import setup.litestar_users.plugin
 from exceptions import ConfigurationError
 from services.search import SearchResults, SearchService
 
@@ -21,7 +26,8 @@ Defines globals:
 # --- configuration and initialization ---
 
 
-def get_db_config() -> dict[str, str]:
+def _get_db_url() -> str:
+    """Construct DB url from environment vars"""
     attrs = {}
     for env_name in [
         "DEV_DB_DRIVER",
@@ -37,36 +43,44 @@ def get_db_config() -> dict[str, str]:
                 f"Database configuration must be fully set in the environment ({env_name} is missing)"
             )
         attrs[env_name] = value
-    return attrs
-
-
-def construct_db_url() -> str:
-    db_config = get_db_config()
     return (
-        f"{db_config['DEV_DB_DRIVER']}://"
-        f"{db_config['DEV_DB_USER']}:{db_config['DEV_DB_PASS']}"
-        f"@{db_config['DEV_DB_HOST']}:{db_config['DEV_DB_PORT']}/"
-        f"{db_config['DEV_DB_NAME']}"
+        f"{attrs['DEV_DB_DRIVER']}://"
+        f"{attrs['DEV_DB_USER']}:{attrs['DEV_DB_PASS']}"
+        f"@{attrs['DEV_DB_HOST']}:{attrs['DEV_DB_PORT']}/"
+        f"{attrs['DEV_DB_NAME']}"
     )
 
 
 # get database url from environment variables
-DATABASE_URL = construct_db_url()
+DATABASE_URL = _get_db_url()
 
 # get JWT signing secret from environment variable
 JWT_ENCODING_SECRET = os.getenv("JWT_ENCODING_SECRET")
 if JWT_ENCODING_SECRET is None:
     raise ConfigurationError("JWT_ENCODING_SECRET must be set in the environment")
 
+# SQLAlchemy config
+_sqlAlchemyConfig = SQLAlchemyAsyncConfig(
+    connection_string=DATABASE_URL,
+    # note: litestar-users appears to create its own sessions instead of using dependency
+    session_dependency_key="db_session",
+    session_config=AsyncSessionConfig(expire_on_commit=False),
+    before_send_handler="autocommit",  # semi-required by litestar-users; good practice anyway
+)
 
-async def on_startup() -> None:
-    # Litestar-users db initialization: creates its own db objects
-    await litestar_users_startup.on_startup_init_db(DATABASE_URL)
+
+# Database initialization at startup
+async def _on_startup() -> None:
+    # FIXME: this should be replaced with proper Alembic use for production (example comes from simple litestar-users example app)
+    engine = _sqlAlchemyConfig.get_engine()
+    async with engine.begin() as conn:
+        await conn.run_sync(UUIDBase.metadata.create_all)
 
 
 # --- routes ---
 
 
+# FIXME: move somewhere appropriate when route structure is in place
 @get("/search")
 async def search(q: str) -> SearchResults:
     result = await SearchService().search(q)
@@ -78,12 +92,13 @@ async def search(q: str) -> SearchResults:
 
 app = Litestar(
     debug=True,
-    on_startup=[on_startup],
+    on_startup=[_on_startup],
     plugins=[
-        # configures application for use with SQLAlchemy
-        litestar_users_plugins.get_litestar_users_sqlalchemy_init_plugin(DATABASE_URL),
-        # sets up actual litestar-users plugin
-        litestar_users_plugins.configure_litestar_users_plugin(JWT_ENCODING_SECRET),
+        SQLAlchemyInitPlugin(config=_sqlAlchemyConfig),
+        # litestar-users plugin implements user management and authentication endpoints
+        setup.litestar_users.plugin.configure_litestar_users_plugin(
+            JWT_ENCODING_SECRET
+        ),
     ],
     route_handlers=[search],
 )
