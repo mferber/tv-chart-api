@@ -11,8 +11,18 @@ DEV_DB_PASS = "postgres"
 DEV_DB_NAME = "tvchartdb"
 JWT_ENCODING_SECRET = "bb1e88b2478ea94c3bede32df63bb972"
 
-[tasks]
-devup = "cd src; litestar run --reload"
-dbup = "docker run --name $DEV_DB_NAME -e POSTGRES_DB=tvchartdb -e POSTGRES_PASSWORD=$DEV_DB_PASS -d -p $DEV_DB_PORT:$DEV_DB_PORT postgres"  # no persistent volume yet
-dbdown = "docker stop tvchartdb && docker rm tvchartdb"
-psql = "docker exec -it $DEV_DB_NAME psql -U $DEV_DB_USER tvchartdb"
+[tasks.devup]
+description = "Start the development webapp running locally, with --reload"
+run = "cd src; litestar run --reload"
+
+[tasks.dbup]
+description = "Start a PostgreSQL instance in a docker container"
+run = "docker run --name $DEV_DB_NAME -e POSTGRES_DB=tvchartdb -e POSTGRES_PASSWORD=$DEV_DB_PASS -d -p $DEV_DB_PORT:$DEV_DB_PORT postgres"  # no persistent volume yet
+
+[tasks.dbdown]
+description = "Stop and remove the PostgreSQL docker container"
+run = "docker stop tvchartdb && docker rm tvchartdb"
+
+[tasks.psql]
+description = "Run psql inside the PostgreSQL docker container"
+run = "docker exec -it $DEV_DB_NAME psql -U $DEV_DB_USER tvchartdb"
