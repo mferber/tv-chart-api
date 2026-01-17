@@ -36,6 +36,7 @@ repos:
     rev: v1.18.2
     hooks:
     - id: mypy
+      args: [--disallow-untyped-defs]
       additional_dependencies:
       - tokenize-rt
       - types-requests
