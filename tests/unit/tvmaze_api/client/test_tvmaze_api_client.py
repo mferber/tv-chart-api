@@ -8,10 +8,13 @@ the service layer, where we also test conversion to app domain models.
 """
 
 import datetime
+from typing import Generator
+from unittest.mock import AsyncMock
 
 import httpx
 import pytest
 from pydantic import HttpUrl
+from pytest_mock import MockerFixture
 
 import tvmaze_api.exceptions
 from tvmaze_api.client import TVmazeAPIClient
@@ -29,7 +32,9 @@ from .sample_tvmaze_responses.reader import read_sample
 
 
 @pytest.fixture
-def mocked_get_with_rate_limiting_failure(mocker):
+def mocked_get_with_rate_limiting_failure(
+    mocker: MockerFixture,
+) -> Generator[httpx.AsyncClient, None, None]:
     """Sets up a mock request that simulates repeated 429 Too Many Requests errors."""
 
     # reduce the backoff time to something negligible for testing
@@ -55,7 +60,7 @@ def mocked_get_with_rate_limiting_failure(mocker):
 @pytest.mark.parametrize(
     "mocked_get", [(200, read_sample("multiple_results.json"))], indirect=True
 )
-async def test_search_request(mocked_get):
+async def test_search_request(mocked_get: AsyncMock) -> None:
     client = TVmazeAPIClient()
     rsp = await client.search_shows("query")
 
@@ -74,7 +79,7 @@ async def test_search_request(mocked_get):
 @pytest.mark.parametrize(
     "mocked_get", [(200, "multiple_results_invalid.json")], indirect=True
 )
-async def test_invalid_response_raises(mocked_get):
+async def test_invalid_response_raises(mocked_get: AsyncMock) -> None:
     with pytest.raises(tvmaze_api.exceptions.InvalidResponseError):
         client = TVmazeAPIClient()
         try:
@@ -86,7 +91,7 @@ async def test_invalid_response_raises(mocked_get):
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("mocked_get", [(500, "content doesn't matter")], indirect=True)
-async def test_failing_request_raises(mocked_get):
+async def test_failing_request_raises(mocked_get: AsyncMock) -> None:
     with pytest.raises(tvmaze_api.exceptions.ConnectionError):
         client = TVmazeAPIClient()
         try:
@@ -97,7 +102,7 @@ async def test_failing_request_raises(mocked_get):
 
 
 @pytest.mark.asyncio
-async def test_network_error_raises(mocked_get_with_network_failure):
+async def test_network_error_raises(mocked_get_with_network_failure: AsyncMock) -> None:
     with pytest.raises(tvmaze_api.exceptions.ConnectionError):
         client = TVmazeAPIClient()
         try:
@@ -109,8 +114,8 @@ async def test_network_error_raises(mocked_get_with_network_failure):
 
 @pytest.mark.asyncio
 async def test_rate_limited_request_raises_after_using_up_attempts(
-    mocked_get_with_rate_limiting_failure,
-):
+    mocked_get_with_rate_limiting_failure: AsyncMock,
+) -> None:
     """TVmaze throttles use of its free API so this could happen."""
 
     with pytest.raises(tvmaze_api.exceptions.RateLimitedError):
@@ -127,14 +132,14 @@ async def test_rate_limited_request_raises_after_using_up_attempts(
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("mocked_get", [(500, "content doesn't matter")], indirect=True)
-async def test_request_exception_raises(mocked_get):
+async def test_request_exception_raises(mocked_get: AsyncMock) -> None:
     pass
 
 
 # --- Helpers ---
 
 
-def pydantic_model_battlestar_galactica():
+def pydantic_model_battlestar_galactica() -> list[TVmazeSearchResultDTO]:
     return [
         TVmazeSearchResultDTO(
             show=TVmazeSearchResultShowDTO(

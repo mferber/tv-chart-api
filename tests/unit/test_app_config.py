@@ -3,7 +3,7 @@ import pytest
 from exceptions import ConfigurationError
 
 
-def test_env_jwt_secret_is_required(monkeypatch):
+def test_env_jwt_secret_is_required(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("JWT_ENCODING_SECRET")
     with pytest.raises(ConfigurationError):
         from app import app  # noqa F401
@@ -20,7 +20,9 @@ def test_env_jwt_secret_is_required(monkeypatch):
         "DEV_DB_NAME",
     ],
 )
-def test_env_db_settings_are_required(env_var, monkeypatch):
+def test_env_db_settings_are_required(
+    env_var: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
     monkeypatch.delenv(env_var)
     with pytest.raises(ConfigurationError):
         from app import app  # noqa F401

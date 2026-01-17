@@ -1,13 +1,19 @@
 """Fixtures for mocking `httpx` responses."""
 
+from typing import Generator
+from unittest.mock import AsyncMock
+
 import httpx
 import pytest
+from pytest_mock import MockerFixture
 
 from unit.common.fixture_helpers.httpx import create_mock_httpx_async_client
 
 
 @pytest.fixture
-def mocked_get(mocker, request):
+def mocked_get(
+    mocker: MockerFixture, request: pytest.FixtureRequest
+) -> Generator[AsyncMock, None, None]:
     """Patches `httpx.AsyncClient.get` to return a mocked response.
 
     Included by import in conftest.py — do not import directly!
@@ -27,7 +33,9 @@ def mocked_get(mocker, request):
 
 
 @pytest.fixture
-def mocked_get_with_network_failure(mocker):
+def mocked_get_with_network_failure(
+    mocker: MockerFixture,
+) -> Generator[AsyncMock, None, None]:
     """Patches `httpx.AsyncClient.get` to simulate a network failure.
 
     Included by import in conftest.py — do not import directly!

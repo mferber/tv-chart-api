@@ -59,7 +59,7 @@ class SearchResult(BaseModel):
                 dto.show.summary
             )
 
-        return SearchResult(
+        return cls(
             tvmaze_id=dto.show.id,
             name=dto.show.name,
             genres=dto.show.genres,

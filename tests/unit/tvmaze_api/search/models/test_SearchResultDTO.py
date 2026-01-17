@@ -14,7 +14,7 @@ from tvmaze_api.dtos.search_dtos import TVmazeSearchResultDTO
 from ..sample_tvmaze_results.reader import read_sample
 
 
-def test_response_validation():
+def test_response_validation() -> None:
     response_json = read_sample("result.json")
     r = TVmazeSearchResultDTO.model_validate_json(response_json)
 
@@ -39,7 +39,7 @@ def test_response_validation():
     assert show.summary == "<p>Summary 1 truncated</p>"
 
 
-def test_response_validation_failure():
+def test_response_validation_failure() -> None:
     with pytest.raises(pydantic.ValidationError):
         response_json = read_sample("result_invalid.json")
         _ = TVmazeSearchResultDTO.model_validate_json(response_json)

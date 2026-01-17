@@ -1,10 +1,11 @@
 from unittest.mock import AsyncMock
 
 import httpx
+from pytest_mock import MockerFixture
 
 
 def create_mock_httpx_async_client(
-    mocker,
+    mocker: MockerFixture,
     status_code: int,
     /,
     response_text: str,
