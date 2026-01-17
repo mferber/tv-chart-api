@@ -1350,7 +1350,7 @@ dependencies = [
     { name = "asyncpg" },
     { name = "html-sanitizer" },
     { name = "httpx" },
-    { name = "litestar", extra = ["pydantic", "standard"] },
+    { name = "litestar", extra = ["pydantic", "sqlalchemy", "standard"] },
     { name = "litestar-users" },
 ]
 
@@ -1369,7 +1369,7 @@ requires-dist = [
     { name = "asyncpg", specifier = ">=0.31.0" },
     { name = "html-sanitizer", specifier = ">=2.6.0" },
     { name = "httpx", specifier = ">=0.28.1" },
-    { name = "litestar", extras = ["standard", "pydantic"], specifier = ">=2.18.0" },
+    { name = "litestar", extras = ["standard", "pydantic", "sqlalchemy"], specifier = ">=2.18.0" },
     { name = "litestar-users", specifier = ">=1.7.0" },
 ]
 

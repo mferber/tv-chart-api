@@ -2,7 +2,7 @@
 
 from typing import Self
 
-from html_sanitizer import Sanitizer  # type: ignore[import]
+from html_sanitizer import Sanitizer  # type: ignore[import-untyped]
 from pydantic import BaseModel, HttpUrl
 
 from tvmaze_api.dtos.search_dtos import TVmazeSearchResultDTO

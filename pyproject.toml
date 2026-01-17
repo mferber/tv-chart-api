@@ -9,7 +9,7 @@ dependencies = [
     "html-sanitizer>=2.6.0",
     "httpx>=0.28.1",
     "litestar-users>=1.7.0",
-    "litestar[standard,pydantic]>=2.18.0",
+    "litestar[standard,pydantic,sqlalchemy]>=2.18.0",
 ]
 
 [dependency-groups]
@@ -23,4 +23,4 @@ dev = [
 ]
 
 [tool.mypy]
-disallow_untyped_defs = true
+strict = true

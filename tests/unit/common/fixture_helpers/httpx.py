@@ -1,4 +1,4 @@
-from unittest.mock import AsyncMock
+from typing import Any
 
 import httpx
 from pytest_mock import MockerFixture
@@ -10,7 +10,7 @@ def create_mock_httpx_async_client(
     /,
     response_text: str,
     exception: Exception | None = None,
-) -> AsyncMock:
+) -> Any:
     """Helper: patches `AsyncClient.get` to return a mocked response.
 
     Requires the `httpx` module to be imported (`import httpx`) rather than
