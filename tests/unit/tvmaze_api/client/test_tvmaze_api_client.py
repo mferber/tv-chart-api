@@ -23,7 +23,10 @@ from tvmaze_api.dtos.common_dtos import (
     TVmazeImageDTO,
     TVmazeNetworkDTO,
 )
-from tvmaze_api.dtos.search_dtos import TVmazeSearchResultDTO, TVmazeSearchResultShowDTO
+from tvmaze_api.dtos.search_dtos import (
+    TVmazeSearchResultDTO,
+    TVmazeSearchResultShowDTO,
+)
 from unit.common.fixture_helpers.httpx import create_mock_httpx_async_client
 
 from .sample_tvmaze_responses.reader import read_sample
