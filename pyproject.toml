@@ -26,3 +26,10 @@ dev = [
 strict = true
 mypy_path = "src,tests"
 explicit_package_bases = true
+
+[tool.pytest]
+minversion = "9.0"
+pythonpath = ["src"]
+testpaths = ["tests"]
+addopts = ["--strict-markers", "-ra", "--color=yes", "-v"]
+strict_xfail = true
