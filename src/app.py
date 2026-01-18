@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import logging
 import os
+from typing import Any
 
 from advanced_alchemy.base import UUIDBase
 from advanced_alchemy.config import AsyncSessionConfig
@@ -8,7 +10,9 @@ from advanced_alchemy.extensions.litestar.plugins import (
     SQLAlchemyAsyncConfig,
     SQLAlchemyInitPlugin,
 )
-from litestar import Litestar, get
+from litestar import Litestar, Request, Response, get
+from litestar.exceptions import NotAuthorizedException
+from litestar.status_codes import HTTP_401_UNAUTHORIZED
 
 import setup.litestar_users.plugin
 from exceptions import ConfigurationError
@@ -77,7 +81,36 @@ async def _on_startup() -> None:
         await conn.run_sync(UUIDBase.metadata.create_all)
 
 
+# --- Log authorization failure details ---
+# (temporary: help get visibility into litestar-users)
+
+logger = logging.getLogger(__name__)
+
+
+def unauthorized_exception_handler(
+    request: Request[Any, Any, Any], exc: NotAuthorizedException
+) -> Response[Any]:
+    logger.warning(
+        f"Unauthorized request: "
+        f"Path={request.url.path}, "
+        f"Method={request.method}, "
+        f"Headers={dict(request.headers)}, "
+        f"Reason={str(exc)}"
+    )
+
+    return Response(
+        content={"detail": str(exc)},
+        status_code=HTTP_401_UNAUTHORIZED,
+    )
+
+
 # --- routes ---
+
+
+# FIXME: dummy endpoint to test authentication
+@get("/hello")
+async def hello() -> dict[str, str]:
+    return {"hello": "world"}
 
 
 # FIXME: move somewhere appropriate when route structure is in place
@@ -91,6 +124,9 @@ async def search(q: str) -> SearchResults:
 
 
 app = Litestar(
+    exception_handlers={
+        NotAuthorizedException: unauthorized_exception_handler,
+    },
     debug=True,
     on_startup=[_on_startup],
     plugins=[
@@ -100,5 +136,5 @@ app = Litestar(
             JWT_ENCODING_SECRET
         ),
     ],
-    route_handlers=[search],
+    route_handlers=[search, hello],  # FIXME
 )
