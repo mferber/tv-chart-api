@@ -76,6 +76,9 @@ _sqlAlchemyConfig = SQLAlchemyAsyncConfig(
 # Database initialization at startup
 async def _on_startup() -> None:
     # FIXME: this should be replaced with proper Alembic use for production (example comes from simple litestar-users example app)
+
+    from db.models import Show  # noqa: F401
+
     engine = _sqlAlchemyConfig.get_engine()
     async with engine.begin() as conn:
         await conn.run_sync(UUIDBase.metadata.create_all)
