@@ -8,7 +8,7 @@ from advanced_alchemy.base import UUIDBase
 from advanced_alchemy.config import AsyncSessionConfig
 from advanced_alchemy.extensions.litestar.plugins import (
     SQLAlchemyAsyncConfig,
-    SQLAlchemyInitPlugin,
+    SQLAlchemyPlugin,
 )
 from litestar import Litestar, Request, Response, get
 from litestar.exceptions import NotAuthorizedException
@@ -66,8 +66,6 @@ if JWT_ENCODING_SECRET is None:
 # SQLAlchemy config
 _sqlAlchemyConfig = SQLAlchemyAsyncConfig(
     connection_string=DATABASE_URL,
-    # note: litestar-users appears to create its own sessions instead of using dependency
-    session_dependency_key="db_session",
     session_config=AsyncSessionConfig(expire_on_commit=False),
     before_send_handler="autocommit",  # semi-required by litestar-users; good practice anyway
 )
@@ -133,7 +131,7 @@ app = Litestar(
     debug=True,
     on_startup=[_on_startup],
     plugins=[
-        SQLAlchemyInitPlugin(config=_sqlAlchemyConfig),
+        SQLAlchemyPlugin(config=_sqlAlchemyConfig),
         # litestar-users plugin implements user management and authentication endpoints
         setup.litestar_users.plugin.configure_litestar_users_plugin(
             JWT_ENCODING_SECRET
