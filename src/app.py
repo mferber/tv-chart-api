@@ -112,8 +112,8 @@ def unauthorized_exception_handler(
 
 # FIXME: dummy endpoint to test authentication
 @get("/hello")
-async def hello() -> dict[str, str]:
-    return {"hello": "world"}
+async def hello(request: Request) -> dict[str, str]:
+    return {"hello": "world", "you": request.user.email}
 
 
 # FIXME: move somewhere appropriate when route structure is in place
