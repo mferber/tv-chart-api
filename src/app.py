@@ -10,8 +10,13 @@ from advanced_alchemy.extensions.litestar.plugins import (
     SQLAlchemyPlugin,
 )
 from litestar import Litestar, Request, Response, get
+from litestar.di import Provide
 from litestar.exceptions import NotAuthorizedException
 from litestar.status_codes import HTTP_401_UNAUTHORIZED
+from litestar_users.dependencies import provide_user_service
+from litestar_users.service import BaseUserService
+from sqlalchemy import delete
+from sqlalchemy.ext.asyncio import AsyncSession
 
 import setup.litestar_users.plugin
 from exceptions import ConfigurationError
@@ -113,6 +118,26 @@ async def hello(request: Request) -> dict[str, str]:
     return {"hello": "world", "you": request.user.email}
 
 
+# development endpoint to populate minimal database
+@get(
+    path="/init",
+    dependencies={"user_service": Provide(provide_user_service, sync_to_thread=False)},
+    exclude_from_auth=True,
+)
+async def init(
+    db_session: AsyncSession, request: Request, user_service: BaseUserService
+) -> dict:
+    from db.models import Show
+    from setup.litestar_users.models import User
+
+    await db_session.execute(delete(Show))
+    await db_session.execute(delete(User))
+
+    data: dict[str, str] = {"email": "test@example.com", "password": "password"}
+    await user_service.register(data, request)
+    return {"message": "created"}
+
+
 # FIXME: move somewhere appropriate when route structure is in place
 @get("/search")
 async def search(q: str) -> SearchResults:
@@ -136,5 +161,5 @@ app = Litestar(
             JWT_ENCODING_SECRET
         ),
     ],
-    route_handlers=[search, hello],  # FIXME
+    route_handlers=[search, hello, init],  # FIXME
 )
