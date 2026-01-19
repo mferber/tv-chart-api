@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import Any
 
 from advanced_alchemy.base import UUIDBase
 from advanced_alchemy.config import AsyncSessionConfig
@@ -90,7 +89,7 @@ logger = logging.getLogger(__name__)
 
 def unauthorized_exception_handler(
     request: Request, exc: NotAuthorizedException
-) -> Response[Any]:
+) -> Response:
     logger.warning(
         f"Unauthorized request: "
         f"Path={request.url.path}, "
