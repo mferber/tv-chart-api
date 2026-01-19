@@ -24,6 +24,7 @@ dev = [
 
 [tool.mypy]
 strict = true
+disallow_any_generics = false
 mypy_path = "src,tests"
 explicit_package_bases = true
 

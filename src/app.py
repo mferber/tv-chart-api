@@ -91,7 +91,7 @@ logger = logging.getLogger(__name__)
 
 
 def unauthorized_exception_handler(
-    request: Request[Any, Any, Any], exc: NotAuthorizedException
+    request: Request, exc: NotAuthorizedException
 ) -> Response[Any]:
     logger.warning(
         f"Unauthorized request: "
