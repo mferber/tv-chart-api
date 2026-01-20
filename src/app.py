@@ -72,12 +72,6 @@ def unauthorized_exception_handler(
 # --- routes ---
 
 
-# FIXME: dummy endpoint to test authentication
-@get("/hello")
-async def hello(request: Request) -> dict[str, str]:
-    return {"hello": "world", "you": request.user.email}
-
-
 # development endpoint to populate minimal database
 @get(
     path="/init",
@@ -173,5 +167,5 @@ app = Litestar(
             app_config.JWT_ENCODING_SECRET
         ),
     ],
-    route_handlers=[search, hello, init],  # FIXME
+    route_handlers=[search, init],
 )
