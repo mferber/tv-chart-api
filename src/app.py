@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import logging
-import os
 
 from advanced_alchemy.base import UUIDBase
 from advanced_alchemy.config import AsyncSessionConfig
@@ -18,58 +17,19 @@ from litestar_users.service import BaseUserService
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+import app_config
 import setup.litestar_users.plugin
-from exceptions import ConfigurationError
 from services.search import SearchResults, SearchService
 
 """
 Main app: API backend for TV tracker
-
-Defines globals:
-- DATABASE_URL: db connection string, constructed from environment variables
-- JWT_ENCODING_SECRET: for signing JWTs
-
 """
 
 # --- configuration and initialization ---
 
-
-def _get_db_url() -> str:
-    """Construct DB url from environment vars"""
-    attrs = {}
-    for env_name in [
-        "DEV_DB_DRIVER",
-        "DEV_DB_USER",
-        "DEV_DB_PASS",
-        "DEV_DB_HOST",
-        "DEV_DB_PORT",
-        "DEV_DB_NAME",
-    ]:
-        value = os.getenv(env_name)
-        if value is None:
-            raise ConfigurationError(
-                f"Database configuration must be fully set in the environment ({env_name} is missing)"
-            )
-        attrs[env_name] = value
-    return (
-        f"{attrs['DEV_DB_DRIVER']}://"
-        f"{attrs['DEV_DB_USER']}:{attrs['DEV_DB_PASS']}"
-        f"@{attrs['DEV_DB_HOST']}:{attrs['DEV_DB_PORT']}/"
-        f"{attrs['DEV_DB_NAME']}"
-    )
-
-
-# get database url from environment variables
-DATABASE_URL = _get_db_url()
-
-# get JWT signing secret from environment variable
-JWT_ENCODING_SECRET = os.getenv("JWT_ENCODING_SECRET")
-if JWT_ENCODING_SECRET is None:
-    raise ConfigurationError("JWT_ENCODING_SECRET must be set in the environment")
-
 # SQLAlchemy config
 _sqlAlchemyConfig = SQLAlchemyAsyncConfig(
-    connection_string=DATABASE_URL,
+    connection_string=app_config.DATABASE_URL,
     session_config=AsyncSessionConfig(expire_on_commit=False),
     before_send_handler="autocommit",  # semi-required by litestar-users; good practice anyway
 )
@@ -210,7 +170,7 @@ app = Litestar(
         SQLAlchemyPlugin(config=_sqlAlchemyConfig),
         # litestar-users plugin implements user management and authentication endpoints
         setup.litestar_users.plugin.configure_litestar_users_plugin(
-            JWT_ENCODING_SECRET
+            app_config.JWT_ENCODING_SECRET
         ),
     ],
     route_handlers=[search, hello, init],  # FIXME
