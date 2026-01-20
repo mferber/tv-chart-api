@@ -1,24 +1,27 @@
+import datetime
 import uuid
 
-from db.models import EpisodeInfo, SeasonInfo, Show
+from db.models import Show
 
 
 def test_show_as_text_representation() -> None:
     show = Show(
-        owner_id=uuid.uuid4(),
+        id=uuid.uuid4(),
+        user_id=uuid.uuid4(),
+        created_at=datetime.datetime.now(),
+        updated_at=datetime.datetime.now(),
         title="Pluribus",
         source="Apple TV",
         duration=60,
         seasons=[
-            SeasonInfo(
-                number=1,
-                episodes=[
-                    EpisodeInfo(season=1, index=0, type="episode", watched=True),
-                    EpisodeInfo(season=1, index=1, type="episode", watched=False),
-                    EpisodeInfo(season=1, index=2, type="episode", watched=False),
-                    EpisodeInfo(season=1, index=3, type="special", watched=False),
+            {
+                "episodes": [
+                    {"type": "episode", "watched": True},
+                    {"type": "episode", "watched": False},
+                    {"type": "episode", "watched": False},
+                    {"type": "special", "watched": False},
                 ],
-            )
+            }
         ],
     )
     text_repr = show.as_text()
