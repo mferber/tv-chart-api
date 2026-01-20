@@ -1,7 +1,7 @@
 from typing import Literal, TypedDict
 
 from advanced_alchemy.base import UUIDAuditBase
-from sqlalchemy import ForeignKey, Integer, String
+from sqlalchemy import ForeignKey, String
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.mutable import MutableList
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -24,15 +24,16 @@ class SeasonInfo(TypedDict):
 class Show(UUIDAuditBase):
     __tablename__ = "show"
 
-    owner_id: Mapped[int] = mapped_column(ForeignKey("user_account.id"))
+    user_id: Mapped[int] = mapped_column(ForeignKey("user_account.id"))
+    tvmaze_id: Mapped[int]
     title: Mapped[str] = mapped_column(String(100))
     source: Mapped[str] = mapped_column(String(50), nullable=True)
-    duration: Mapped[int] = mapped_column(Integer, nullable=True)
+    duration: Mapped[int] = mapped_column(nullable=True)
     seasons: Mapped[list[SeasonInfo]] = mapped_column(
         MutableList.as_mutable(JSONB), default=list
     )
 
-    owner: Mapped["User"] = relationship()
+    user: Mapped["User"] = relationship()
 
     def as_text(self) -> str:
         itms = [f"{self.title}"]

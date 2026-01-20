@@ -15,7 +15,7 @@ from litestar.exceptions import NotAuthorizedException
 from litestar.status_codes import HTTP_401_UNAUTHORIZED
 from litestar_users.dependencies import provide_user_service
 from litestar_users.service import BaseUserService
-from sqlalchemy import delete
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import setup.litestar_users.plugin
@@ -126,7 +126,7 @@ async def hello(request: Request) -> dict[str, str]:
 )
 async def init(
     db_session: AsyncSession, request: Request, user_service: BaseUserService
-) -> dict:
+) -> str:
     from db.models import Show
     from setup.litestar_users.models import User
 
@@ -135,7 +135,59 @@ async def init(
 
     data: dict[str, str] = {"email": "test@example.com", "password": "password"}
     await user_service.register(data, request)
-    return {"message": "created"}
+
+    createdUser: User | None = await db_session.scalar(select(User))
+    if createdUser is None:
+        raise ValueError("Apparently failed to create user")
+    print(repr(createdUser))
+
+    def make_episode(season: int, index: int, special: bool, watched: bool) -> dict:
+        return {
+            "season": season,
+            "index": index,
+            "type": "special" if special else "episode",
+            "watched": watched,
+        }
+
+    pluribus_seasons = [
+        {
+            "number": 1,
+            "episodes": [make_episode(1, i, False, i < 8) for i in range(0, 9)],
+        }
+    ]
+
+    pluribus = Show(
+        user_id=createdUser.id,
+        tvmaze_id=86175,
+        title="Pluribus",
+        source="Apple TV",
+        duration=60,
+        seasons=pluribus_seasons,
+    )
+    db_session.add(pluribus)
+
+    def all_creatures_season(sn: int) -> dict:
+        return {
+            "number": sn,
+            "episodes": [
+                make_episode(season=sn, index=i, special=(i == 6), watched=sn <= 2)
+                for i in range(0, 7)
+            ],
+        }
+
+    all_creatures_seasons = [all_creatures_season(s) for s in range(1, 5)]
+
+    all_creatures = Show(
+        user_id=createdUser.id,
+        tvmaze_id=42836,
+        title="All Creatures Great & Small",
+        source="PBS",
+        duration=60,
+        seasons=all_creatures_seasons,
+    )
+    db_session.add(all_creatures)
+
+    return "Created"
 
 
 # FIXME: move somewhere appropriate when route structure is in place
