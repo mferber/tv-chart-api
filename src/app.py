@@ -1,16 +1,18 @@
 from __future__ import annotations
 
 import logging
-from typing import Sequence
+from typing import Annotated, Sequence
 
 from advanced_alchemy.base import UUIDBase
 from advanced_alchemy.config import AsyncSessionConfig
+from advanced_alchemy.extensions.litestar.dto import SQLAlchemyDTO
 from advanced_alchemy.extensions.litestar.plugins import (
     SQLAlchemyAsyncConfig,
     SQLAlchemyPlugin,
 )
 from litestar import Litestar, Request, Response, get
 from litestar.di import Provide
+from litestar.dto import DTOConfig
 from litestar.exceptions import NotAuthorizedException
 from litestar.status_codes import HTTP_401_UNAUTHORIZED
 from litestar_users.dependencies import provide_user_service
@@ -150,8 +152,15 @@ async def search(q: str) -> SearchResults:
 
 
 # FIXME move to service; move endpoint somewhere
-@get(path="/shows")
-async def shows(db_session: AsyncSession) -> Sequence[Show]:
+@get(
+    path="/shows",
+    return_dto=SQLAlchemyDTO[
+        Annotated[Show, DTOConfig(exclude={"user_id", "created_at", "updated_at"})]
+    ],
+)
+async def shows(
+    db_session: AsyncSession,
+) -> Sequence[Show]:
     return (await db_session.scalars(select(Show))).all()
 
 
