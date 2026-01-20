@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from typing import Sequence
 
 from advanced_alchemy.base import UUIDBase
 from advanced_alchemy.config import AsyncSessionConfig
@@ -19,6 +20,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 import app_config
 import setup.litestar_users.plugin
+from db.models import Show
 from services.search import SearchResults, SearchService
 
 """
@@ -95,18 +97,15 @@ async def init(
         raise ValueError("Apparently failed to create user")
     print(repr(createdUser))
 
-    def make_episode(season: int, index: int, special: bool, watched: bool) -> dict:
+    def make_episode(index: int, special: bool, watched: bool) -> dict:
         return {
-            "season": season,
-            "index": index,
             "type": "special" if special else "episode",
             "watched": watched,
         }
 
     pluribus_seasons = [
         {
-            "number": 1,
-            "episodes": [make_episode(1, i, False, i < 8) for i in range(0, 9)],
+            "episodes": [make_episode(i, False, i < 8) for i in range(0, 9)],
         }
     ]
 
@@ -122,9 +121,8 @@ async def init(
 
     def all_creatures_season(sn: int) -> dict:
         return {
-            "number": sn,
             "episodes": [
-                make_episode(season=sn, index=i, special=(i == 6), watched=sn <= 2)
+                make_episode(index=i, special=(i == 6), watched=sn <= 2)
                 for i in range(0, 7)
             ],
         }
@@ -151,6 +149,12 @@ async def search(q: str) -> SearchResults:
     return result
 
 
+# FIXME move to service; move endpoint somewhere
+@get(path="/shows")
+async def shows(db_session: AsyncSession) -> Sequence[Show]:
+    return (await db_session.scalars(select(Show))).all()
+
+
 # --- app ---
 
 
@@ -167,5 +171,5 @@ app = Litestar(
             app_config.JWT_ENCODING_SECRET
         ),
     ],
-    route_handlers=[search, init],
+    route_handlers=[search, shows, init],
 )

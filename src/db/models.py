@@ -1,24 +1,8 @@
-from typing import Literal, TypedDict
-
 from advanced_alchemy.base import UUIDAuditBase
+from advanced_alchemy.types import JsonB
 from sqlalchemy import ForeignKey, String
-from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.mutable import MutableList
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-
-from setup.litestar_users.models import User
-
-
-class EpisodeInfo(TypedDict):
-    season: int
-    index: int
-    type: Literal["special", "episode"]
-    watched: bool
-
-
-class SeasonInfo(TypedDict):
-    number: int
-    episodes: list[EpisodeInfo]
+from sqlalchemy.orm import Mapped, mapped_column
 
 
 class Show(UUIDAuditBase):
@@ -29,11 +13,9 @@ class Show(UUIDAuditBase):
     title: Mapped[str] = mapped_column(String(100))
     source: Mapped[str] = mapped_column(String(50), nullable=True)
     duration: Mapped[int] = mapped_column(nullable=True)
-    seasons: Mapped[list[SeasonInfo]] = mapped_column(
-        MutableList.as_mutable(JSONB), default=list
+    seasons: Mapped[list[dict]] = mapped_column(
+        MutableList.as_mutable(JsonB), default=list
     )
-
-    user: Mapped["User"] = relationship()
 
     def as_text(self) -> str:
         itms = [f"{self.title}"]
