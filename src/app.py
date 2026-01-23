@@ -76,6 +76,12 @@ def unauthorized_exception_handler(
 # --- routes ---
 
 
+# health check
+@get(path="/health", exclude_from_auth=True)
+async def health() -> str:
+    return "OK"
+
+
 # development endpoint to populate minimal database
 @get(
     path="/init",
@@ -180,5 +186,5 @@ app = Litestar(
             app_config.JWT_ENCODING_SECRET
         ),
     ],
-    route_handlers=[search, shows, init],
+    route_handlers=[health, search, shows, init],
 )
