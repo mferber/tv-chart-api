@@ -3,6 +3,7 @@ uv = "0.9.9"
 
 [env]
 _.python.venv = { path = ".venv" }
+APP_ENV = "development"
 DEV_DB_DRIVER = "postgresql+asyncpg"
 DEV_DB_HOST = "localhost"
 DEV_DB_PORT = "5432"

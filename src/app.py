@@ -82,6 +82,12 @@ async def health() -> str:
     return "OK"
 
 
+# Get active app environment
+@get(path="/env", exclude_from_auth=True)
+async def env() -> str:
+    return app_config.APP_ENV
+
+
 # development endpoint to populate minimal database
 @get(
     path="/init",
@@ -186,5 +192,5 @@ app = Litestar(
             app_config.JWT_ENCODING_SECRET
         ),
     ],
-    route_handlers=[health, search, shows, init],
+    route_handlers=[health, env, search, shows, init],
 )

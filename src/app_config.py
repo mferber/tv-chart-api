@@ -9,6 +9,11 @@ import os
 from exceptions import ConfigurationError
 
 
+def _get_app_env() -> str:
+    """Read app environment from environment vars"""
+    return os.getenv("APP_ENV") or "production"
+
+
 def _get_db_url() -> str:
     """Construct DB url from environment vars"""
     attrs = {}
@@ -41,8 +46,7 @@ def _get_jwt_encoding_secret() -> str:
     return secret
 
 
-# get database url from environment variables
+# Set exported variables
+APP_ENV = _get_app_env()
 DATABASE_URL = _get_db_url()
-
-# get JWT signing secret from environment variable
 JWT_ENCODING_SECRET = _get_jwt_encoding_secret()
