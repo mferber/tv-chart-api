@@ -18,12 +18,12 @@ def _get_db_url() -> str:
     """Construct DB url from environment vars"""
     attrs = {}
     for env_name in [
-        "DEV_DB_DRIVER",
-        "DEV_DB_USER",
-        "DEV_DB_PASS",
-        "DEV_DB_HOST",
-        "DEV_DB_PORT",
-        "DEV_DB_NAME",
+        "DB_DRIVER",
+        "DB_USER",
+        "DB_PASS",
+        "DB_HOST",
+        "DB_PORT",
+        "DB_NAME",
     ]:
         value = os.getenv(env_name)
         if value is None:
@@ -32,10 +32,10 @@ def _get_db_url() -> str:
             )
         attrs[env_name] = value
     return (
-        f"{attrs['DEV_DB_DRIVER']}://"
-        f"{attrs['DEV_DB_USER']}:{attrs['DEV_DB_PASS']}"
-        f"@{attrs['DEV_DB_HOST']}:{attrs['DEV_DB_PORT']}/"
-        f"{attrs['DEV_DB_NAME']}"
+        f"{attrs['DB_DRIVER']}://"
+        f"{attrs['DB_USER']}:{attrs['DB_PASS']}"
+        f"@{attrs['DB_HOST']}:{attrs['DB_PORT']}/"
+        f"{attrs['DB_NAME']}"
     )
 
 
