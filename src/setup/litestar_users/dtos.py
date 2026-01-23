@@ -17,7 +17,15 @@ class UserRegistrationDTO(DataclassDTO[UserRegistrationSchema]):
 
 
 class UserReadDTO(SQLAlchemyDTO[User]):
-    config = SQLAlchemyDTOConfig(exclude={"password_hash"})
+    config = SQLAlchemyDTOConfig(
+        exclude={
+            "password_hash",
+            "is_active",
+            "is_verified",
+            "created_at",
+            "updated_at",
+        }
+    )
 
 
 class UserUpdateDTO(SQLAlchemyDTO[User]):
