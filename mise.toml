@@ -27,3 +27,7 @@ run = "docker stop tvchartdb && docker rm tvchartdb"
 [tasks.psql]
 description = "Run psql inside the PostgreSQL docker container"
 run = "docker exec -it $DB_NAME psql -U $DB_USER tvchartdb"
+
+[tasks.seed]
+description = "Seeds the database with a few sample records (db must be running)"
+run = "cd src; python -m scripts.seed_db"

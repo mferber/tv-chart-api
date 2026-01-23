@@ -11,13 +11,10 @@ from advanced_alchemy.extensions.litestar.plugins import (
     SQLAlchemyPlugin,
 )
 from litestar import Litestar, Request, Response, get
-from litestar.di import Provide
 from litestar.dto import DTOConfig
 from litestar.exceptions import NotAuthorizedException
 from litestar.status_codes import HTTP_401_UNAUTHORIZED
-from litestar_users.dependencies import provide_user_service
-from litestar_users.service import BaseUserService
-from sqlalchemy import delete, select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import app_config
@@ -88,74 +85,6 @@ async def env() -> str:
     return app_config.APP_ENV
 
 
-# development endpoint to populate minimal database
-@get(
-    path="/init",
-    dependencies={"user_service": Provide(provide_user_service, sync_to_thread=False)},
-    exclude_from_auth=True,
-)
-async def init(
-    db_session: AsyncSession, request: Request, user_service: BaseUserService
-) -> str:
-    from db.models import Show
-    from setup.litestar_users.models import User
-
-    await db_session.execute(delete(Show))
-    await db_session.execute(delete(User))
-
-    data: dict[str, str] = {"email": "test@example.com", "password": "password"}
-    await user_service.register(data, request)
-
-    createdUser: User | None = await db_session.scalar(select(User))
-    if createdUser is None:
-        raise ValueError("Apparently failed to create user")
-    print(repr(createdUser))
-
-    def make_episode(index: int, special: bool, watched: bool) -> dict:
-        return {
-            "type": "special" if special else "episode",
-            "watched": watched,
-        }
-
-    pluribus_seasons = [
-        {
-            "episodes": [make_episode(i, False, i < 8) for i in range(0, 9)],
-        }
-    ]
-
-    pluribus = Show(
-        user_id=createdUser.id,
-        tvmaze_id=86175,
-        title="Pluribus",
-        source="Apple TV",
-        duration=60,
-        seasons=pluribus_seasons,
-    )
-    db_session.add(pluribus)
-
-    def all_creatures_season(sn: int) -> dict:
-        return {
-            "episodes": [
-                make_episode(index=i, special=(i == 6), watched=sn <= 2)
-                for i in range(0, 7)
-            ],
-        }
-
-    all_creatures_seasons = [all_creatures_season(s) for s in range(1, 5)]
-
-    all_creatures = Show(
-        user_id=createdUser.id,
-        tvmaze_id=42836,
-        title="All Creatures Great & Small",
-        source="PBS",
-        duration=60,
-        seasons=all_creatures_seasons,
-    )
-    db_session.add(all_creatures)
-
-    return "Created"
-
-
 # FIXME: move somewhere appropriate when route structure is in place
 @get("/search")
 async def search(q: str) -> SearchResults:
@@ -192,5 +121,5 @@ app = Litestar(
             app_config.JWT_ENCODING_SECRET
         ),
     ],
-    route_handlers=[health, env, search, shows, init],
+    route_handlers=[health, env, search, shows],
 )
