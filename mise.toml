@@ -3,14 +3,6 @@ uv = "0.9.9"
 
 [env]
 _.python.venv = { path = ".venv" }
-APP_ENV = "development"
-DB_DRIVER = "postgresql+asyncpg"
-DB_HOST = "localhost"
-DB_PORT = "5432"
-DB_USER = "postgres"
-DB_PASS = "postgres"
-DB_NAME = "tvchartdb"
-JWT_ENCODING_SECRET = "bb1e88b2478ea94c3bede32df63bb972"
 
 [tasks.devup]
 description = "Start the development webapp running locally, with --reload"

@@ -10,6 +10,7 @@ dependencies = [
     "httpx>=0.28.1",
     "litestar-users>=1.7.0",
     "litestar[standard,pydantic,sqlalchemy]>=2.18.0",
+    "python-dotenv>=1.2.1",
 ]
 
 [dependency-groups]

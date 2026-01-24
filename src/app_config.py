@@ -6,7 +6,11 @@ Defines:
 
 import os
 
+from dotenv import load_dotenv
+
 from exceptions import ConfigurationError
+
+load_dotenv()
 
 
 def _get_app_env() -> str:

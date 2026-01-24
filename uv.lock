@@ -1358,6 +1358,7 @@ dependencies = [
     { name = "httpx" },
     { name = "litestar", extra = ["pydantic", "sqlalchemy", "standard"] },
     { name = "litestar-users" },
+    { name = "python-dotenv" },
 ]
 
 [package.dev-dependencies]
@@ -1377,6 +1378,7 @@ requires-dist = [
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "litestar", extras = ["standard", "pydantic", "sqlalchemy"], specifier = ">=2.18.0" },
     { name = "litestar-users", specifier = ">=1.7.0" },
+    { name = "python-dotenv", specifier = ">=1.2.1" },
 ]
 
 [package.metadata.requires-dev]
