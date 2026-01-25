@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import logging
 from typing import Annotated, Sequence
 
 from advanced_alchemy.base import UUIDBase
@@ -10,10 +9,8 @@ from advanced_alchemy.extensions.litestar.plugins import (
     SQLAlchemyAsyncConfig,
     SQLAlchemyPlugin,
 )
-from litestar import Litestar, Request, Response, get
+from litestar import Litestar, get
 from litestar.dto import DTOConfig
-from litestar.exceptions import NotAuthorizedException
-from litestar.status_codes import HTTP_401_UNAUTHORIZED
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -45,29 +42,6 @@ async def _on_startup() -> None:
     engine = _sqlAlchemyConfig.get_engine()
     async with engine.begin() as conn:
         await conn.run_sync(UUIDBase.metadata.create_all)
-
-
-# --- Log authorization failure details ---
-# (temporary: help get visibility into litestar-users)
-
-logger = logging.getLogger(__name__)
-
-
-def unauthorized_exception_handler(
-    request: Request, exc: NotAuthorizedException
-) -> Response:
-    logger.warning(
-        f"Unauthorized request: "
-        f"Path={request.url.path}, "
-        f"Method={request.method}, "
-        f"Headers={dict(request.headers)}, "
-        f"Reason={str(exc)}"
-    )
-
-    return Response(
-        content={"detail": str(exc)},
-        status_code=HTTP_401_UNAUTHORIZED,
-    )
 
 
 # --- routes ---
@@ -109,9 +83,6 @@ async def shows(
 
 
 app = Litestar(
-    exception_handlers={
-        NotAuthorizedException: unauthorized_exception_handler,
-    },
     debug=True,
     on_startup=[_on_startup],
     plugins=[
