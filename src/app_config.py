@@ -50,7 +50,15 @@ def _get_jwt_encoding_secret() -> str:
     return secret
 
 
+def _get_csrf_secret() -> str:
+    secret = os.getenv("CSRF_SECRET")
+    if secret is None:
+        raise ConfigurationError("CSRF_SECRET must be set in the environment")
+    return secret
+
+
 # Set exported variables
 APP_ENV = _get_app_env()
 DATABASE_URL = _get_db_url()
 JWT_ENCODING_SECRET = _get_jwt_encoding_secret()
+CSRF_SECRET = _get_csrf_secret()

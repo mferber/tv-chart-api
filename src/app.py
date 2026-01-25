@@ -10,6 +10,7 @@ from advanced_alchemy.extensions.litestar.plugins import (
     SQLAlchemyPlugin,
 )
 from litestar import Litestar, get
+from litestar.config.csrf import CSRFConfig
 from litestar.dto import DTOConfig
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -81,7 +82,6 @@ async def shows(
 
 # --- app ---
 
-
 app = Litestar(
     debug=True,
     on_startup=[_on_startup],
@@ -92,5 +92,6 @@ app = Litestar(
             app_config.JWT_ENCODING_SECRET
         ),
     ],
+    csrf_config=CSRFConfig(secret=app_config.CSRF_SECRET),
     route_handlers=[health, env, search, shows],
 )
