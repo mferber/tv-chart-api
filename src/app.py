@@ -9,7 +9,7 @@ from advanced_alchemy.extensions.litestar.plugins import (
     SQLAlchemyAsyncConfig,
     SQLAlchemyPlugin,
 )
-from litestar import Litestar, get
+from litestar import Litestar, Response, get
 from litestar.config.csrf import CSRFConfig
 from litestar.dto import DTOConfig
 from sqlalchemy import select
@@ -60,6 +60,15 @@ async def env() -> str:
     return app_config.APP_ENV
 
 
+# "Log out" by deleting current JWT cookie: for some reason, this is not provided
+# by litestar-users
+@get(path="/auth/logout", exclude_from_auth=True)
+async def logout() -> Response[str]:
+    response = Response("logout complete")
+    response.delete_cookie(key="token")
+    return response
+
+
 # FIXME: move somewhere appropriate when route structure is in place
 @get("/search")
 async def search(q: str) -> SearchResults:
@@ -92,10 +101,10 @@ app = Litestar(
             app_config.JWT_ENCODING_SECRET
         ),
     ],
-    route_handlers=[health, env, search, shows],
     csrf_config=CSRFConfig(
         secret=app_config.CSRF_SECRET,
         cookie_name="csrftoken",  # default, but make it explicit for ease of reference
         header_name="x-csrftoken",  # ditto
     ),
+    route_handlers=[health, env, logout, search, shows],
 )
