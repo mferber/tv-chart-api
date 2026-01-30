@@ -92,6 +92,10 @@ app = Litestar(
             app_config.JWT_ENCODING_SECRET
         ),
     ],
-    csrf_config=CSRFConfig(secret=app_config.CSRF_SECRET),
     route_handlers=[health, env, search, shows],
+    csrf_config=CSRFConfig(
+        secret=app_config.CSRF_SECRET,
+        cookie_name="csrftoken",  # default, but make it explicit for ease of reference
+        header_name="x-csrftoken",  # ditto
+    ),
 )
