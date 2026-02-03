@@ -1,0 +1,24 @@
+
+[pre-commit]
+piped = true
+fail_on_changes = "always"
+
+[[pre-commit.jobs]]
+name = "typecheck"
+run = "uv run mypy {staged_files}"
+glob = "*.py"
+
+[[pre-commit.jobs]]
+name = "lint"
+run = "uv run ruff check {staged_files}"
+glob = "*.py"
+
+[[pre-commit.jobs]]
+name = "reformat"
+run = "uv run ruff format {staged_files}"
+glob = "*.py"
+
+[[pre-commit.jobs]]
+name = "reorder imports"
+run = "echo 'imports'; uv run ruff check --select I --fix-only {staged_files}"
+glob = "*.py"
