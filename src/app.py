@@ -1,24 +1,17 @@
 from __future__ import annotations
 
-from typing import Annotated, Sequence
-
 from advanced_alchemy.base import UUIDBase
 from advanced_alchemy.config import AsyncSessionConfig
-from advanced_alchemy.extensions.litestar.dto import SQLAlchemyDTO
 from advanced_alchemy.extensions.litestar.plugins import (
     SQLAlchemyAsyncConfig,
     SQLAlchemyPlugin,
 )
-from litestar import Litestar, Response, get
+from litestar import Litestar
 from litestar.config.csrf import CSRFConfig
-from litestar.dto import DTOConfig
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 
 import app_config
 import setup.litestar_users.plugin
-from db.models import Show
-from services.search import SearchResults, SearchService
+from routes import env, health, logout, search, shows
 
 """
 Main app: API backend for TV tracker
@@ -43,50 +36,6 @@ async def _on_startup() -> None:
     engine = _sqlAlchemyConfig.get_engine()
     async with engine.begin() as conn:
         await conn.run_sync(UUIDBase.metadata.create_all)
-
-
-# --- routes ---
-
-
-# Health check
-@get(path="/health", exclude_from_auth=True)
-async def health() -> str:
-    return "OK"
-
-
-# Get active app environment
-@get(path="/env", exclude_from_auth=True)
-async def env() -> str:
-    return app_config.APP_ENV
-
-
-# "Log out" by deleting current JWT cookie: for some reason, this is not provided
-# by litestar-users
-@get(path="/auth/logout", exclude_from_auth=True)
-async def logout() -> Response[str]:
-    response = Response("logout complete")
-    response.delete_cookie(key="token")
-    return response
-
-
-# FIXME: move somewhere appropriate when route structure is in place
-@get("/search")
-async def search(q: str) -> SearchResults:
-    result = await SearchService().search(q)
-    return result
-
-
-# FIXME move to service; move endpoint somewhere
-@get(
-    path="/shows",
-    return_dto=SQLAlchemyDTO[
-        Annotated[Show, DTOConfig(exclude={"user_id", "created_at", "updated_at"})]
-    ],
-)
-async def shows(
-    db_session: AsyncSession,
-) -> Sequence[Show]:
-    return (await db_session.scalars(select(Show))).all()
 
 
 # --- app ---
