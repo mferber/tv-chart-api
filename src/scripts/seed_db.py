@@ -6,11 +6,12 @@ from litestar_users.password import PasswordManager
 from sqlalchemy import delete
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 
-from app_config import DATABASE_URL
+import app_config
 from db.models import Show
 from setup.litestar_users.models import User
 
-engine = create_async_engine(DATABASE_URL)
+app_config.load()
+engine = create_async_engine(app_config.get_db_url())
 password_manager = PasswordManager()
 
 
