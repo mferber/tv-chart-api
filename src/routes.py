@@ -20,7 +20,7 @@ async def health() -> str:
 # Get active app environment
 @get(path="/env", exclude_from_auth=True)
 async def env() -> str:
-    return app_config.APP_ENV
+    return app_config.get_app_env()
 
 
 # "Log out" by deleting current JWT cookie: for some reason, this is not provided
