@@ -10,17 +10,34 @@ from dotenv import load_dotenv
 
 from exceptions import ConfigurationError
 
-load_dotenv()
+# tests may monkeypatch this to True to suppress loading environment settings, if
+# they call load() themselves (e.g. when testing behavior with missing env vars)
+_loaded = False
 
 
-def _get_app_env() -> str:
+def load() -> None:
+    global _loaded
+
+    if (not _loaded):
+        load_dotenv()
+    _loaded = True
+
+
+def _check_loaded() -> None:
+    if not _loaded:
+        raise ConfigurationError("Tried to get configuration settings before loading")
+
+
+def get_app_env() -> str:
     """Read app environment from environment vars"""
+    _check_loaded()
     return os.getenv("APP_ENV") or "production"
 
 
-def _get_db_url() -> str:
+def get_db_url() -> str:
     """Construct DB url from environment vars"""
-    attrs = {}
+    _check_loaded()
+    attrs: dict[str, str] = {}
     for env_name in [
         "DB_DRIVER",
         "DB_USER",
@@ -43,22 +60,17 @@ def _get_db_url() -> str:
     )
 
 
-def _get_jwt_encoding_secret() -> str:
+def get_jwt_encoding_secret() -> str:
+    _check_loaded()
     secret = os.getenv("JWT_ENCODING_SECRET")
     if secret is None:
         raise ConfigurationError("JWT_ENCODING_SECRET must be set in the environment")
     return secret
 
 
-def _get_csrf_secret() -> str:
+def get_csrf_secret() -> str:
+    _check_loaded()
     secret = os.getenv("CSRF_SECRET")
     if secret is None:
         raise ConfigurationError("CSRF_SECRET must be set in the environment")
     return secret
-
-
-# Set exported variables
-APP_ENV = _get_app_env()
-DATABASE_URL = _get_db_url()
-JWT_ENCODING_SECRET = _get_jwt_encoding_secret()
-CSRF_SECRET = _get_csrf_secret()

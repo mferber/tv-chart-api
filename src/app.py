@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from advanced_alchemy.base import UUIDBase
 from advanced_alchemy.config import AsyncSessionConfig
 from advanced_alchemy.extensions.litestar.plugins import (
@@ -20,11 +18,12 @@ Main app: API backend for TV tracker
 # --- configuration and initialization ---
 
 # SQLAlchemy config
-_sqlAlchemyConfig = SQLAlchemyAsyncConfig(
-    connection_string=app_config.DATABASE_URL,
-    session_config=AsyncSessionConfig(expire_on_commit=False),
-    before_send_handler="autocommit",  # semi-required by litestar-users; good practice anyway
-)
+def _getSQLAlchemyConfig() -> SQLAlchemyAsyncConfig:
+    return SQLAlchemyAsyncConfig(
+        connection_string=app_config.get_db_url(),
+        session_config=AsyncSessionConfig(expire_on_commit=False),
+        before_send_handler="autocommit",  # semi-required by litestar-users; good practice anyway
+    )
 
 
 # Database initialization at startup
@@ -33,25 +32,27 @@ async def _on_startup() -> None:
 
     from db.models import Show  # noqa: F401
 
-    engine = _sqlAlchemyConfig.get_engine()
+    engine = _getSQLAlchemyConfig().get_engine()
     async with engine.begin() as conn:
         await conn.run_sync(UUIDBase.metadata.create_all)
 
 
 # --- app ---
 
+app_config.load()
+
 app = Litestar(
     debug=True,
     on_startup=[_on_startup],
     plugins=[
-        SQLAlchemyPlugin(config=_sqlAlchemyConfig),
+        SQLAlchemyPlugin(config=_getSQLAlchemyConfig()),
         # litestar-users plugin implements user management and authentication endpoints
         setup.litestar_users.plugin.configure_litestar_users_plugin(
-            app_config.JWT_ENCODING_SECRET
+            app_config.get_jwt_encoding_secret()
         ),
     ],
     csrf_config=CSRFConfig(
-        secret=app_config.CSRF_SECRET,
+        secret=app_config.get_csrf_secret(),
         cookie_name="csrftoken",  # default, but make it explicit for ease of reference
         header_name="x-csrftoken",  # ditto
     ),
