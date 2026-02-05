@@ -12,11 +12,11 @@ def _omit_from_env(env_var_name: str, monkeypatch: pytest.MonkeyPatch) -> None:
     import app_config
 
     load_dotenv()
-    
+
     # prevent config reloading at app startup
-    monkeypatch.setattr(
-        app_config, "_loaded", True
-    )  
+    monkeypatch.setattr(app_config, "load", lambda: None)
+    monkeypatch.setattr(app_config, "check_loaded", lambda: None)
+
     os.environ.pop(env_var_name, None)
 
 
@@ -42,5 +42,5 @@ def test_env_db_settings_are_required(
     env_var: str, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     _omit_from_env(env_var, monkeypatch)
-    with pytest.raises(ConfigurationError):
+    with pytest.raises(ConfigurationError, match=env_var):
         from app import app  # noqa F401
