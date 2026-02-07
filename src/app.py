@@ -17,6 +17,10 @@ Main app: API backend for TV tracker
 
 # --- configuration and initialization ---
 
+# These are the defaults, but making it explicit for ease of reference
+CSRF_COOKIE_NAME = "csrftoken"
+CSRF_HEADER_NAME = "X-CSRFToken"
+
 
 # SQLAlchemy config
 def _getSQLAlchemyConfig() -> SQLAlchemyAsyncConfig:
@@ -56,8 +60,8 @@ def create_app() -> Litestar:
         ],
         csrf_config=CSRFConfig(
             secret=app_config.get_csrf_secret(),
-            cookie_name="csrftoken",  # default, but make it explicit for ease of reference
-            header_name="x-csrftoken",  # ditto
+            cookie_name=CSRF_COOKIE_NAME,
+            header_name=CSRF_HEADER_NAME,
         ),
         route_handlers=[health, env, logout, search, shows],
     )

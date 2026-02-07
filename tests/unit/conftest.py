@@ -10,6 +10,9 @@ from unit.common.fixtures.test_app import (
 
     # Litestar TestClient for testing routes
     test_client,
+
+    # Fetches CSRF token for unsafe queries by fetching /env
+    csrf_token_header,
 )
 
 from unit.common.fixtures.httpx import (
