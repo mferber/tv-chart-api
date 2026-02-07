@@ -6,6 +6,7 @@ from litestar.testing import TestClient
 from testcontainers.postgres import PostgresContainer  # type: ignore
 
 from app import create_app
+from unit.common.db.test_db import seed_test_db
 from unit.common.utils.os_utils import temporarily_modified_environ
 from unit.common.utils.req_utils import make_csrf_token_header
 
@@ -26,6 +27,7 @@ def test_db_container() -> Generator[PostgresContainer, None, None]:
     """
 
     with PostgresContainer(f"postgres:{TESTCONTAINER_POSTGRES_VERSION}") as postgres:
+        seed_test_db(postgres)
         yield postgres
 
 

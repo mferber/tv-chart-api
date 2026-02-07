@@ -32,3 +32,23 @@ def test_invalid_login(
         headers=csrf_token_header,
     )
     assert rsp.status_code == HTTP_401_UNAUTHORIZED
+
+
+def test_valid_login(
+    test_client: TestClient[Litestar], csrf_token_header: dict[str, str]
+) -> None:
+    rsp = test_client.post(
+        "/auth/login",
+        json={"email": "testuser1@example.com", "password": "password1"},
+        headers=csrf_token_header,
+    )
+
+    # Litestar-users should probably return 200 OK on successful login, but it
+    # returns 201 Created for some reason; so let's just verify it was a success
+    # code
+    rsp.raise_for_status()
+
+    # Litestar-users weirdly provides a JWT cookie that includes the Bearer prefix
+    # more usually associated with Authorization headers, and of necessity the whole
+    # thing is then quoted (because of the whitespace between Bearer and the token)
+    assert rsp.cookies["token"].startswith('"Bearer ')
