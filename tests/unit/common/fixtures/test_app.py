@@ -1,7 +1,8 @@
-from typing import Generator
+from typing import Generator, Iterator
 
 import pytest
 from litestar import Litestar
+from litestar.testing import TestClient
 from testcontainers.postgres import PostgresContainer  # type: ignore
 
 from app import create_app
@@ -34,3 +35,11 @@ def test_app(test_db_container: PostgresContainer) -> Generator[Litestar, None, 
         DB_NAME=test_db_container.dbname,
     ):
         yield create_app()
+
+
+@pytest.fixture
+def test_client(test_app: Litestar) -> Iterator[TestClient[Litestar]]:
+    """Yields a TestClient set up to test the app instance provided by test_app"""
+
+    with TestClient(app=test_app) as client:
+        yield client

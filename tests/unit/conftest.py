@@ -7,6 +7,9 @@ from unit.common.fixtures.test_app import (
 
     # Postgres testcontainer, used by test_app
     test_db_container,
+
+    # Litestar TestClient for testing routes
+    test_client,
 )
 
 from unit.common.fixtures.httpx import (
