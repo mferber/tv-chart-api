@@ -1,6 +1,14 @@
 # ruff: noqa I
 # fmt: off
 
+from unit.common.fixtures.test_app import (
+    # testable app configured with Postgres running in a testcontainer
+    test_app,
+
+    # Postgres testcontainer
+    test_db_container,
+)
+
 from unit.common.fixtures.httpx import (
 
     # patch httpx.AsyncClient.get to return a fixed response

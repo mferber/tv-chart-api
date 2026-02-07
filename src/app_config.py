@@ -1,5 +1,6 @@
 """
 Defines:
+- APP_ENV: string designating the current backend environment; fetchable via /env
 - DATABASE_URL: db connection string, constructed from environment variables
 - JWT_ENCODING_SECRET: for signing JWTs
 """

@@ -17,6 +17,7 @@ Main app: API backend for TV tracker
 
 # --- configuration and initialization ---
 
+
 # SQLAlchemy config
 def _getSQLAlchemyConfig() -> SQLAlchemyAsyncConfig:
     return SQLAlchemyAsyncConfig(
@@ -39,22 +40,27 @@ async def _on_startup() -> None:
 
 # --- app ---
 
-app_config.load()
 
-app = Litestar(
-    debug=True,
-    on_startup=[_on_startup],
-    plugins=[
-        SQLAlchemyPlugin(config=_getSQLAlchemyConfig()),
-        # litestar-users plugin implements user management and authentication endpoints
-        setup.litestar_users.plugin.configure_litestar_users_plugin(
-            app_config.get_jwt_encoding_secret()
+def create_app() -> Litestar:
+    app_config.load()
+
+    return Litestar(
+        debug=True,
+        on_startup=[_on_startup],
+        plugins=[
+            SQLAlchemyPlugin(config=_getSQLAlchemyConfig()),
+            # litestar-users plugin implements user management and authentication endpoints
+            setup.litestar_users.plugin.configure_litestar_users_plugin(
+                app_config.get_jwt_encoding_secret()
+            ),
+        ],
+        csrf_config=CSRFConfig(
+            secret=app_config.get_csrf_secret(),
+            cookie_name="csrftoken",  # default, but make it explicit for ease of reference
+            header_name="x-csrftoken",  # ditto
         ),
-    ],
-    csrf_config=CSRFConfig(
-        secret=app_config.get_csrf_secret(),
-        cookie_name="csrftoken",  # default, but make it explicit for ease of reference
-        header_name="x-csrftoken",  # ditto
-    ),
-    route_handlers=[health, env, logout, search, shows],
-)
+        route_handlers=[health, env, logout, search, shows],
+    )
+
+
+app = create_app()
