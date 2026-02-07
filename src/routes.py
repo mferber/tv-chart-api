@@ -1,7 +1,7 @@
 from typing import Annotated, Sequence
 
 from advanced_alchemy.extensions.litestar.dto import SQLAlchemyDTO
-from litestar import Response, get
+from litestar import Request, Response, get
 from litestar.dto import DTOConfig
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -47,6 +47,10 @@ async def search(q: str) -> SearchResults:
     ],
 )
 async def shows(
+    request: Request,
     db_session: AsyncSession,
 ) -> Sequence[Show]:
-    return (await db_session.scalars(select(Show))).all()
+    current_user_id = request.user.id
+    return (
+        await db_session.scalars(select(Show).where(Show.user_id == current_user_id))
+    ).all()
