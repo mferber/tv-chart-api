@@ -10,7 +10,7 @@ run = "cd src; litestar run --reload"
 
 [tasks.dbup]
 description = "Start a PostgreSQL instance in a docker container"
-run = "docker run --name $DB_NAME -e POSTGRES_DB=tvchartdb -e POSTGRES_PASSWORD=$DB_PASS -d -p $DB_PORT:$DB_PORT postgres"  # no persistent volume yet
+run = "dotenv run sh -c 'docker run --name $DB_NAME -e POSTGRES_DB=tvchartdb -e POSTGRES_PASSWORD=$DB_PASS -d -p $DB_PORT:$DB_PORT postgres'"  # no persistent volume yet
 
 [tasks.dbdown]
 description = "Stop and remove the PostgreSQL docker container"
@@ -18,7 +18,7 @@ run = "docker stop tvchartdb && docker rm tvchartdb"
 
 [tasks.psql]
 description = "Run psql inside the PostgreSQL docker container"
-run = "docker exec -it $DB_NAME psql -U $DB_USER tvchartdb"
+run = "dotenv run sh -c 'docker exec -it $DB_NAME psql -U $DB_USER tvchartdb'"
 
 [tasks.seed]
 description = "Seeds the database with a few sample records (db must be running)"
