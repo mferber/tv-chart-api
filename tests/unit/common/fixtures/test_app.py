@@ -10,10 +10,8 @@ from unit.common.utils.utils import temporarily_modified_environ
 TESTCONTAINER_POSTGRES_VERSION = 18
 
 
-@pytest.fixture
-def test_db_container(
-    scope: str = "session",
-) -> Generator[PostgresContainer, None, None]:
+@pytest.fixture(scope="session")
+def test_db_container() -> Generator[PostgresContainer, None, None]:
     """Creates a testcontainer running Postgres and yields its corresponding
     PostgresContainer object"""
 
