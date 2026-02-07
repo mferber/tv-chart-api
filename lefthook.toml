@@ -10,7 +10,7 @@ glob = "*.py"
 
 [[pre-commit.jobs]]
 name = "lint"
-run = "uv run ruff check {staged_files}"
+run = "uv run ruff check --fix {staged_files}"
 glob = "*.py"
 
 [[pre-commit.jobs]]
