@@ -1,12 +1,10 @@
 import os
 from contextlib import contextmanager
-from typing import Any, Generator
+from typing import Iterator
 
 
 @contextmanager
-def temporarily_modified_environ(
-    *remove: str, **update: str
-) -> Generator[None, Any, None]:
+def temporarily_modified_environ(*remove: str, **update: str) -> Iterator[None]:
     """
     Temporarily updates the ``os.environ`` dictionary in-place.
 

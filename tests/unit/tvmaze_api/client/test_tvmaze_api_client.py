@@ -8,7 +8,7 @@ the service layer, where we also test conversion to app domain models.
 """
 
 import datetime
-from typing import Generator
+from typing import Iterator
 from unittest.mock import AsyncMock
 
 import httpx
@@ -37,7 +37,7 @@ from .sample_tvmaze_responses.reader import read_sample
 @pytest.fixture
 def mocked_get_with_rate_limiting_failure(
     mocker: MockerFixture,
-) -> Generator[httpx.AsyncClient, None, None]:
+) -> Iterator[httpx.AsyncClient]:
     """Sets up a mock request that simulates repeated 429 Too Many Requests errors."""
 
     # reduce the backoff time to something negligible for testing
