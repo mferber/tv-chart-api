@@ -5,7 +5,7 @@ from unit.common.fixtures.test_app import (
     # testable app configured with Postgres running in a testcontainer
     test_app,
 
-    # Postgres testcontainer
+    # Postgres testcontainer, used by test_app
     test_db_container,
 )
 
