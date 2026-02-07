@@ -1,25 +1,79 @@
+from collections.abc import Callable
+from uuid import UUID
+
 from advanced_alchemy.base import UUIDAuditBase
 from litestar_users.password import PasswordManager
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from testcontainers.postgres import PostgresContainer  # type: ignore
 
+from db.models import Show
 from setup.litestar_users.models import User
 
 _EMAIL_1 = "testuser1@example.com"
 _PASSWORD_1 = "password1"
+_EMAIL_2 = "testuser2@example.com"
+_PASSWORD_2 = "password2"
 
 
-def _add_user(db_session: Session, email: str, password: str) -> None:
+def _add_user(db_session: Session, email: str, password: str) -> UUID:
+    """Adds user with given email and password, and returns its UUID"""
+
     hashed_pw = PasswordManager().hash(password)
+    user = User(
+        email=email,
+        password_hash=hashed_pw,
+        is_active=True,
+        is_verified=True,
+    )
+    db_session.add(user)
+    db_session.flush()
+    return user.id
+
+
+def _add_show(
+    db_session: Session,
+    *,
+    user_id: UUID,
+    title: str,
+    tvmaze_id: int,
+    source: str,
+    duration: int,
+    season_lengths: list[int],
+    is_special: Callable[[int, int], bool],
+    is_watched: Callable[[int, int], bool],
+) -> None:
+    """Adds a show to the database.
+
+    Args:
+        is_special: callback receiving the season number and episode index (0-based); returns
+            true if this episode is a special.
+        is_watched: similar callback; returns true if this episode should be marked watched.
+    """
+    seasons = []
+    for season_idx, season_length in enumerate(season_lengths):
+        season = season_idx + 1
+        season_contents = []
+        for ep_idx in range(0, season_length):
+            season_contents.append(
+                {
+                    "type": "special" if is_special(season, ep_idx) else "episode",
+                    "watched": is_watched(season, ep_idx),
+                }
+            )
+        seasons.append(season_contents)
+
     db_session.add(
-        User(
-            email=email,
-            password_hash=hashed_pw,
-            is_active=True,
-            is_verified=True,
+        Show(
+            user_id=user_id,
+            tvmaze_id=tvmaze_id,
+            title=title,
+            source=source,
+            duration=duration,
+            seasons=seasons,
         )
     )
+    db_session.flush()
 
 
 def seed_test_db(test_db_container: PostgresContainer) -> None:
@@ -27,5 +81,35 @@ def seed_test_db(test_db_container: PostgresContainer) -> None:
     UUIDAuditBase.metadata.create_all(engine)
 
     with Session(engine) as db_session:
-        _add_user(db_session, _EMAIL_1, _PASSWORD_1)
+        user1_id = _add_user(db_session, _EMAIL_1, _PASSWORD_1)
+        user2_id = _add_user(db_session, _EMAIL_2, _PASSWORD_2)
+
+        # user 1 is watching "All Creatures Great & Small"
+        _add_show(
+            db_session,
+            user_id=user1_id,
+            title="All Creatures Great & Small",
+            tvmaze_id=42836,
+            source="PBS",
+            duration=60,
+            season_lengths=[7, 7, 7, 7],
+            # final episode of every season is a special
+            is_special=lambda season, ep_idx: ep_idx == 6,
+            # mark first season as watched
+            is_watched=lambda season, ep_idx: season == 1,
+        )
+
+        # user 2 has just started "Pluribus"
+        _add_show(
+            db_session,
+            user_id=user2_id,
+            title="Pluribus",
+            tvmaze_id=86175,
+            source="Apple TV",
+            duration=60,
+            season_lengths=[9],
+            is_special=lambda season, ep_idx: False,
+            is_watched=lambda season, ep_idx: season == 1 and ep_idx == 0,
+        )
+
         db_session.commit()
