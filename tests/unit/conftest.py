@@ -13,6 +13,9 @@ from unit.common.fixtures.test_app import (
 
     # Fetches CSRF token for unsafe queries by fetching /env
     csrf_token_header,
+
+    # Logs in as one or more usrs before running test
+    login_as_user
 )
 
 from unit.common.fixtures.httpx import (

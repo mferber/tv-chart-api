@@ -7,6 +7,7 @@ from testcontainers.postgres import PostgresContainer  # type: ignore
 
 from app import create_app
 from unit.common.db.test_db import seed_test_db
+from unit.common.test_users import test_users
 from unit.common.utils.os_utils import temporarily_modified_environ
 from unit.common.utils.req_utils import make_csrf_token_header
 
@@ -66,3 +67,43 @@ def csrf_token_header(test_client: TestClient[Litestar]) -> dict[str, str]:
 
     rsp = test_client.get("/env")  # automatically stores the cookie
     return make_csrf_token_header(rsp.cookies["csrftoken"])
+
+
+@pytest.fixture
+def login_as_user(
+    test_client: TestClient[Litestar],
+    csrf_token_header: dict[str, str],
+    request: pytest.FixtureRequest,
+) -> None:
+    """Logs in as one or more users before running the attached test.
+
+    Parametrize the test as follows:
+
+    ```
+    @pytest.mark.parametrize('login_as_user', ["test_user1"], indirect=True)
+    def test...():
+        ...
+    ```
+
+    Test users (`test_user1` in this example) are defined in `tests/unit/common/test_users.py`.
+
+    If the test should be run for more than one user, include multiple test user ids in the list.
+
+    Note about the way parametrized fixtures work: the parameter value is made available to
+    the fixture via the `request` parameter, specifically in `request.param`. This is confusing.
+    """
+
+    test_user_id = request.param
+    test_user_info = test_users.get(request.param)
+    if test_user_info is None:
+        raise Exception(f"Unrecognized test user: {test_user_id}")
+
+    [email, password] = test_user_info
+
+    # successfully accessing this endpoint yields JWT cookie for future requests
+    rsp = test_client.post(
+        "/auth/login",
+        json={"email": email, "password": password},
+        headers=csrf_token_header,
+    )
+    rsp.raise_for_status()
