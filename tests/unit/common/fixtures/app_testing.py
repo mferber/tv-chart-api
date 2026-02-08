@@ -13,9 +13,12 @@ from unit.common.utils.req_utils import make_csrf_token_header
 
 """Fixtures that provide:
 
-* A test app in a fixture, configured to use a Postgres database running
-  in a testcontainer
+* A test app instance, configured to use a Postgres database running in a testcontainer
+* The Postgres testcontainer itself
 * A CSRF header for use in unsafe requests
+* A Litestar TestClient for testing Litestar routes, pointing at the test app instance
+* A CSRF token header that must be included with all "unsafe" app requests for validation
+* A logged-in user; parametrizable to specify which user (see test_users.py)
 """
 
 TESTCONTAINER_POSTGRES_VERSION = 18
