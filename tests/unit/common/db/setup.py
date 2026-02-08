@@ -3,6 +3,7 @@ from uuid import UUID
 
 from advanced_alchemy.base import UUIDAuditBase
 from litestar_users.password import PasswordManager
+from sqlalchemy import NullPool
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from testcontainers.postgres import PostgresContainer  # type: ignore
 from unit.common.test_users import test_users
@@ -72,7 +73,9 @@ async def _add_show(
 
 
 async def seed_test_db(test_db_container: PostgresContainer) -> None:
-    engine = create_async_engine(test_db_container.get_connection_url())
+    engine = create_async_engine(
+        test_db_container.get_connection_url(), poolclass=NullPool
+    )
     async with engine.begin() as conn:
         await conn.run_sync(UUIDAuditBase.metadata.create_all)
 
