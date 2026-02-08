@@ -6,7 +6,7 @@ from litestar.testing import TestClient
 from testcontainers.postgres import PostgresContainer  # type: ignore
 
 from app import create_app
-from unit.common.db.test_db import seed_test_db
+from unit.common.db.setup import seed_test_db
 from unit.common.test_users import test_users
 from unit.common.utils.os_utils import temporarily_modified_environ
 from unit.common.utils.req_utils import make_csrf_token_header
