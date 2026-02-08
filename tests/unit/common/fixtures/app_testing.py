@@ -1,5 +1,5 @@
 import asyncio
-from typing import Generator, Iterator
+from typing import Iterator
 
 import pytest
 from litestar import Litestar
@@ -26,7 +26,7 @@ TESTCONTAINER_POSTGRES_VERSION = 18
 
 
 @pytest.fixture(scope="session")
-def test_db_container() -> Generator[PostgresContainer, None, None]:
+def test_db_container() -> Iterator[PostgresContainer]:
     """Creates a testcontainer running Postgres and yields its corresponding
     PostgresContainer object
     """
@@ -39,7 +39,7 @@ def test_db_container() -> Generator[PostgresContainer, None, None]:
 
 
 @pytest.fixture
-def test_app(test_db_container: PostgresContainer) -> Generator[Litestar, None, None]:
+def test_app(test_db_container: PostgresContainer) -> Iterator[Litestar]:
     """Yields a testable app instance using a Postgres testcontainer as its db, overriding
     .env
     """
