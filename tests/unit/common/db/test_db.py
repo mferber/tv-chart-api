@@ -6,14 +6,10 @@ from litestar_users.password import PasswordManager
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from testcontainers.postgres import PostgresContainer  # type: ignore
+from unit.common.test_users import test_users
 
 from db.models import Show
 from setup.litestar_users.models import User
-
-_EMAIL_1 = "testuser1@example.com"
-_PASSWORD_1 = "password1"
-_EMAIL_2 = "testuser2@example.com"
-_PASSWORD_2 = "password2"
 
 
 def _add_user(db_session: Session, email: str, password: str) -> UUID:
@@ -81,13 +77,15 @@ def seed_test_db(test_db_container: PostgresContainer) -> None:
     UUIDAuditBase.metadata.create_all(engine)
 
     with Session(engine) as db_session:
-        user1_id = _add_user(db_session, _EMAIL_1, _PASSWORD_1)
-        user2_id = _add_user(db_session, _EMAIL_2, _PASSWORD_2)
+        db_user_ids: dict[str, UUID] = {}
+        for test_user_id, user_info in test_users.items():
+            [email, password] = user_info
+            db_user_ids[test_user_id] = _add_user(db_session, email, password)
 
         # user 1 is watching "All Creatures Great & Small"
         _add_show(
             db_session,
-            user_id=user1_id,
+            user_id=db_user_ids["test_user1"],
             title="All Creatures Great & Small",
             tvmaze_id=42836,
             source="PBS",
@@ -102,7 +100,7 @@ def seed_test_db(test_db_container: PostgresContainer) -> None:
         # user 2 has just started "Pluribus"
         _add_show(
             db_session,
-            user_id=user2_id,
+            user_id=db_user_ids["test_user2"],
             title="Pluribus",
             tvmaze_id=86175,
             source="Apple TV",
