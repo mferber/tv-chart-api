@@ -1,3 +1,4 @@
+import asyncio
 from typing import Generator, Iterator
 
 import pytest
@@ -30,8 +31,10 @@ def test_db_container() -> Generator[PostgresContainer, None, None]:
     PostgresContainer object
     """
 
-    with PostgresContainer(f"postgres:{TESTCONTAINER_POSTGRES_VERSION}") as postgres:
-        seed_test_db(postgres)
+    with PostgresContainer(
+        f"postgres:{TESTCONTAINER_POSTGRES_VERSION}", driver="asyncpg"
+    ) as postgres:
+        asyncio.run(seed_test_db(postgres))
         yield postgres
 
 

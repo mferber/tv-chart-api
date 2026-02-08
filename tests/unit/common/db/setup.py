@@ -3,8 +3,7 @@ from uuid import UUID
 
 from advanced_alchemy.base import UUIDAuditBase
 from litestar_users.password import PasswordManager
-from sqlalchemy import create_engine
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from testcontainers.postgres import PostgresContainer  # type: ignore
 from unit.common.test_users import test_users
 
@@ -12,7 +11,7 @@ from db.models import Show
 from setup.litestar_users.models import User
 
 
-def _add_user(db_session: Session, email: str, password: str) -> UUID:
+async def _add_user(db_session: AsyncSession, email: str, password: str) -> UUID:
     """Adds user with given email and password, and returns its UUID"""
 
     hashed_pw = PasswordManager().hash(password)
@@ -23,12 +22,12 @@ def _add_user(db_session: Session, email: str, password: str) -> UUID:
         is_verified=True,
     )
     db_session.add(user)
-    db_session.flush()
+    await db_session.flush()
     return user.id
 
 
-def _add_show(
-    db_session: Session,
+async def _add_show(
+    db_session: AsyncSession,
     *,
     user_id: UUID,
     title: str,
@@ -69,21 +68,22 @@ def _add_show(
             seasons=seasons,
         )
     )
-    db_session.flush()
+    await db_session.flush()
 
 
-def seed_test_db(test_db_container: PostgresContainer) -> None:
-    engine = create_engine(test_db_container.get_connection_url())
-    UUIDAuditBase.metadata.create_all(engine)
+async def seed_test_db(test_db_container: PostgresContainer) -> None:
+    engine = create_async_engine(test_db_container.get_connection_url())
+    async with engine.begin() as conn:
+        await conn.run_sync(UUIDAuditBase.metadata.create_all)
 
-    with Session(engine) as db_session:
+    async with AsyncSession(engine) as db_session:
         db_user_ids: dict[str, UUID] = {}
         for test_user_id, user_info in test_users.items():
             [email, password] = user_info
-            db_user_ids[test_user_id] = _add_user(db_session, email, password)
+            db_user_ids[test_user_id] = await _add_user(db_session, email, password)
 
         # user 1 is watching "All Creatures Great & Small"
-        _add_show(
+        await _add_show(
             db_session,
             user_id=db_user_ids["test_user1"],
             title="All Creatures Great & Small",
@@ -98,7 +98,7 @@ def seed_test_db(test_db_container: PostgresContainer) -> None:
         )
 
         # user 2 has just started "Pluribus"
-        _add_show(
+        await _add_show(
             db_session,
             user_id=db_user_ids["test_user2"],
             title="Pluribus",
@@ -110,4 +110,4 @@ def seed_test_db(test_db_container: PostgresContainer) -> None:
             is_watched=lambda season, ep_idx: season == 1 and ep_idx == 0,
         )
 
-        db_session.commit()
+        await db_session.commit()
