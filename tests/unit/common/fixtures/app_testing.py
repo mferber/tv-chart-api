@@ -9,6 +9,7 @@ from testcontainers.postgres import PostgresContainer  # type: ignore
 from app import create_app
 from unit.common.db.setup import seed_test_db
 from unit.common.test_users import test_users
+from unit.common.testing_types import TestUser
 from unit.common.utils.os_utils import temporarily_modified_environ
 from unit.common.utils.req_utils import make_csrf_token_header
 
@@ -80,8 +81,9 @@ def login_as_user(
     test_client: TestClient[Litestar],
     csrf_token_header: dict[str, str],
     request: pytest.FixtureRequest,
-) -> None:
-    """Logs in as one or more users before running the attached test.
+) -> TestUser:
+    """Logs in as one or more users before running the attached test; provides the
+    user's email and id as a named tuple.
 
     Parametrize the test as follows:
 
@@ -112,4 +114,8 @@ def login_as_user(
         json={"email": email, "password": password},
         headers=csrf_token_header,
     )
+
     rsp.raise_for_status()
+
+    test_user = TestUser(**rsp.json())
+    return test_user
