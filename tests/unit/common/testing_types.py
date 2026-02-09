@@ -1,6 +1,6 @@
 from typing import NamedTuple
 
 
-class TestUser(NamedTuple):
+class FakeUser(NamedTuple):
     email: str
     id: str
