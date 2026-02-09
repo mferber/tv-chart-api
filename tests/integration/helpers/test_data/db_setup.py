@@ -2,11 +2,11 @@ from collections.abc import Callable
 from uuid import UUID
 
 from advanced_alchemy.base import UUIDAuditBase
+from integration.helpers.test_data.test_users import test_users
 from litestar_users.password import PasswordManager
 from sqlalchemy import NullPool
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from testcontainers.postgres import PostgresContainer  # type: ignore
-from unit.common.test_users import test_users
 
 from db.models import Show
 from setup.litestar_users.models import User

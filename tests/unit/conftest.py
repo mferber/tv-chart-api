@@ -1,28 +1,55 @@
 # ruff: noqa I
 # fmt: off
 
-from unit.common.fixtures.app_testing import (
-    # testable app configured with Postgres running in a testcontainer
-    test_app,
+import pytest
 
-    # Postgres testcontainer, used by test_app
-    test_db_container,
+from typing import Iterator
+from unittest.mock import AsyncMock
 
-    # Litestar TestClient for testing routes
-    test_client,
+import httpx
+import pytest
+from pytest_mock import MockerFixture
 
-    # Fetches CSRF token for unsafe queries by fetching /env
-    csrf_token_header,
+from unit.common.fixture_helpers.httpx import create_mock_httpx_async_client
 
-    # Logs in as one or more users before running test
-    login_as_user
-)
 
-from unit.common.fixtures.httpx import (
+@pytest.fixture
+def mocked_get(
+    mocker: MockerFixture, request: pytest.FixtureRequest
+) -> Iterator[AsyncMock]:
+    """Patches `httpx.AsyncClient.get` to return a mocked response.
 
-    # patch httpx.AsyncClient.get to return a fixed response
-    mocked_get,
-    
-    # patch httpx.AsyncClient.get to throw an exception
-    mocked_get_with_network_failure,
-)
+    Included by import in conftest.py — do not import directly!
+
+    Takes parameters `(code, response_text)` where `code` is the status code to
+    return and `response_text` is the text to use as the response.
+
+    Requires the `httpx` module to be imported (`import httpx`) rather than
+    just the client (`from httpx import AsyncClient` won't allow patching).
+
+    Yields:
+        Patched `get` method mock; can be checked for calls
+    """
+
+    code, response_text = request.param
+    yield create_mock_httpx_async_client(mocker, code, response_text)
+
+
+@pytest.fixture
+def mocked_get_with_network_failure(
+    mocker: MockerFixture,
+) -> Iterator[AsyncMock]:
+    """Patches `httpx.AsyncClient.get` to simulate a network failure.
+
+    Included by import in conftest.py — do not import directly!
+
+    Requires the `httpx` module to be imported (`import httpx`) rather than
+    just the client (`from httpx import AsyncClient` won't allow patching).
+
+    Yields:
+        Patched `get` method mock; can be checked for calls
+    """
+
+    yield create_mock_httpx_async_client(
+        mocker, 0, response_text="", exception=httpx.NetworkError("fake")
+    )

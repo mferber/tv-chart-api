@@ -7,21 +7,11 @@ from litestar.testing import TestClient
 from testcontainers.postgres import PostgresContainer  # type: ignore
 
 from app import create_app
-from unit.common.db.setup import seed_test_db
-from unit.common.test_users import test_users
-from unit.common.testing_types import FakeUser
-from unit.common.utils.os_utils import temporarily_modified_environ
-from unit.common.utils.req_utils import make_csrf_token_header
-
-"""Fixtures that provide:
-
-* A test app instance, configured to use a Postgres database running in a testcontainer
-* The Postgres testcontainer itself
-* A CSRF header for use in unsafe requests
-* A Litestar TestClient for testing Litestar routes, pointing at the test app instance
-* A CSRF token header that must be included with all "unsafe" app requests for validation
-* A logged-in user; parametrizable to specify which user (see test_users.py)
-"""
+from integration.helpers.test_data.db_setup import seed_test_db
+from integration.helpers.test_data.test_users import test_users
+from integration.helpers.test_data.types import FakeUser
+from integration.helpers.utils.os_utils import temporarily_modified_environ
+from integration.helpers.utils.req_utils import make_csrf_token_header
 
 TESTCONTAINER_POSTGRES_VERSION = 18
 
@@ -54,7 +44,8 @@ def test_app(test_db_container: PostgresContainer) -> Iterator[Litestar]:
         DB_PORT=str(test_db_container.get_exposed_port(5432)),
         DB_NAME=test_db_container.dbname,
     ):
-        yield create_app()
+        app = create_app()
+        yield app
 
 
 @pytest.fixture
@@ -83,7 +74,7 @@ def login_as_user(
     request: pytest.FixtureRequest,
 ) -> FakeUser:
     """Logs in as one or more users before running the attached test; provides the
-    user's email and id as a named tuple.
+    user's email and id as a `FakeUser`.
 
     Parametrize the test as follows:
 
@@ -114,7 +105,6 @@ def login_as_user(
         json={"email": email, "password": password},
         headers=csrf_token_header,
     )
-
     rsp.raise_for_status()
 
     test_user = FakeUser(**rsp.json())
