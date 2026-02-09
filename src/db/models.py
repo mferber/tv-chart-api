@@ -1,6 +1,9 @@
+from uuid import UUID
+
 from advanced_alchemy.base import UUIDAuditBase
 from advanced_alchemy.types import JsonB
 from sqlalchemy import ForeignKey, String
+from sqlalchemy.dialects.postgresql import UUID as SQLA_UUID
 from sqlalchemy.ext.mutable import MutableList
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -8,7 +11,9 @@ from sqlalchemy.orm import Mapped, mapped_column
 class Show(UUIDAuditBase):
     __tablename__ = "show"
 
-    user_id: Mapped[int] = mapped_column(ForeignKey("user_account.id"))
+    user_id: Mapped[UUID] = mapped_column(
+        SQLA_UUID(as_uuid=True), ForeignKey("user_account.id")
+    )
     tvmaze_id: Mapped[int]
     title: Mapped[str] = mapped_column(String(100))
     source: Mapped[str] = mapped_column(String(50), nullable=True)
