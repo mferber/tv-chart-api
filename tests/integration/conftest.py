@@ -2,8 +2,17 @@ import asyncio
 from typing import Iterator
 
 import pytest
+from advanced_alchemy.extensions.litestar.plugins import (
+    SQLAlchemyAsyncConfig,
+    SQLAlchemyPlugin,
+)
 from litestar import Litestar
 from litestar.testing import TestClient
+from sqlalchemy.ext.asyncio import (
+    AsyncSession,
+    AsyncSessionTransaction,
+    async_sessionmaker,
+)
 from testcontainers.postgres import PostgresContainer  # type: ignore
 
 from app import create_app
@@ -109,3 +118,111 @@ def login_as_user(
 
     test_user = FakeUser(**rsp.json())
     return test_user
+
+
+@pytest.fixture(autouse=True)
+def transactional_test(
+    test_client: TestClient[Litestar], monkeypatch: pytest.MonkeyPatch
+) -> Iterator[None]:
+    """Run each test inside an outer DB transaction created in the app loop.
+
+    The TestClient runs the app in a separate event loop (blocking portal).
+    To avoid cross-loop connection affinity errors we create the connection
+    and outer transaction inside that portal, then monkeypatch the app's
+    session maker (stored in app.state by the SQLAlchemy plugin) to bind to
+    the test connection. Requests in the test will commit into the outer
+    transaction; at teardown we rollback the outer transaction which is fast
+    and leaves the database clean for the next test.
+
+    This fixture provided directly by @LonelyVikingMichael, a maintainer of
+    litestar-users, via Litestar support Discord. Used almost verbatim with
+    minimal changes, such as defining app and db_config and adding type hints.
+    """
+
+    app = test_client.app
+    db_config: SQLAlchemyAsyncConfig = app.plugins.get(SQLAlchemyPlugin).config[0]
+
+    # We'll wrap the session maker to start a nested SAVEPOINT for every
+    # session created. This avoids global event listeners and works with
+    # AsyncSession by using the underlying sync_session.begin_nested when
+    # available (it's synchronous), otherwise we schedule the async
+    # session.begin_nested coroutine on the running loop.
+
+    def _start_transaction() -> None:
+        async def _() -> None:
+            # Get engine and create a connection and transaction in the app loop
+            engine = app.state[db_config.engine_app_state_key]
+            conn = await engine.connect()
+            tx = await conn.begin()
+
+            # Build a session maker that binds sessions to this connection
+            session_kws = dict(db_config.session_config_dict)
+            session_kws.setdefault("bind", conn)
+            base_session_maker: async_sessionmaker[AsyncSession] = (
+                db_config.session_maker_class(**session_kws)
+            )
+
+            # Wrap the session maker so each created AsyncSession starts a
+            # nested transaction (SAVEPOINT). Prefer sync_session.begin_nested()
+            # when present because it's synchronous and immediate.
+            def session_factory() -> AsyncSession:
+                sess = base_session_maker()
+                sync = getattr(sess, "sync_session", None)
+                if sync is not None:
+                    # Start nested savepoint synchronously on the underlying
+                    # sync Session so request handlers see the savepoint.
+                    sync.begin_nested()
+                else:
+                    # Fallback: schedule the async begin_nested coroutine.
+                    coro: AsyncSessionTransaction = sess.begin_nested()
+                    try:
+                        import asyncio
+
+                        # not clear how coro can be passed to create_task when it's not
+                        # actually a coroutine
+                        asyncio.get_running_loop().create_task(coro)  # type: ignore[arg-type]
+                    except Exception:
+                        pass
+                return sess
+
+            test_session_maker = session_factory
+
+            # Replace session maker in app.state so provide_session() uses it.
+            monkeypatch.setitem(
+                app.state, db_config.session_maker_app_state_key, test_session_maker
+            )
+
+            # Store test-specific objects for teardown
+            app.state["_test_conn"] = conn
+            app.state["_test_tx"] = tx
+
+        return test_client.blocking_portal.call(_)
+
+    # start transaction in app loop
+    _start_transaction()
+
+    try:
+        yield
+    finally:
+
+        def _rollback_transaction() -> None:
+            async def _() -> None:
+                # rollback and close test connection
+                tx = app.state.pop("_test_tx", None)
+                conn = app.state.pop("_test_conn", None)
+                if tx is not None:
+                    try:
+                        await tx.rollback()
+                    except Exception:
+                        # Rollback can fail if the connection is already closed due
+                        # to a test error, so we catch and ignore exceptions here.
+                        pass
+                if conn is not None:
+                    try:
+                        await conn.close()
+                    except Exception:
+                        pass
+
+            return test_client.blocking_portal.call(_)
+
+        _rollback_transaction()
