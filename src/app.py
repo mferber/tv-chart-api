@@ -27,8 +27,6 @@ CSRF_HEADER_NAME = "X-CSRFToken"
 def create_app() -> Litestar:
     app_config.load()
 
-    from routes import postShowTESTONLY
-
     return Litestar(
         debug=True,
         plugins=[
@@ -49,7 +47,7 @@ def create_app() -> Litestar:
             cookie_name=CSRF_COOKIE_NAME,
             header_name=CSRF_HEADER_NAME,
         ),
-        route_handlers=[health, env, logout, search, shows, postShowTESTONLY],
+        route_handlers=[health, env, logout, search, shows],
     )
 
 
