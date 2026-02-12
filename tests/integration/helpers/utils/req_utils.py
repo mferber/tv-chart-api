@@ -1,4 +1,4 @@
-from app import CSRF_HEADER_NAME
+from create_app import CSRF_HEADER_NAME
 
 
 def make_csrf_token_header(csrf_token: str) -> dict[str, str]:

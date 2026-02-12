@@ -15,7 +15,7 @@ from sqlalchemy.ext.asyncio import (
 )
 from testcontainers.postgres import PostgresContainer  # type: ignore
 
-from app import create_app
+from create_app import create_app
 from integration.helpers.test_data.db_setup import seed_test_db
 from integration.helpers.test_data.test_users import test_users
 from integration.helpers.test_data.types import FakeUser
