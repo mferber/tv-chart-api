@@ -7,7 +7,8 @@ expected.
 import pytest
 from pydantic import HttpUrl, ValidationError
 
-from services.search import SearchResult, SearchResults
+from models.search import SearchResult
+from tvmaze_api.dtos.search_dtos import TVmazeSearchResultDTO
 
 from ..sample_tvmaze_responses.reader import get_TVmaze_response_DTOs_from_json
 
@@ -15,7 +16,7 @@ from ..sample_tvmaze_responses.reader import get_TVmaze_response_DTOs_from_json
 def test_valid_result_set() -> None:
     result_dtos = get_TVmaze_response_DTOs_from_json("multiple_results.json")
 
-    model = SearchResults.from_tvmaze_dto_list(result_dtos)
+    model = TVmazeSearchResultDTO.to_search_results_model(result_dtos)
 
     assert len(model.results) == 2
     assert model.results[0] == SearchResult(
@@ -62,13 +63,13 @@ def test_invalid_result_set_fails_validation() -> None:
             "multiple_results_invalid.json"
         )
 
-        _ = SearchResults.from_tvmaze_dto_list(result_dtos)
+        _ = TVmazeSearchResultDTO.to_search_results_model(result_dtos)
 
 
 def test_result_with_all_optional_fields_missing() -> None:
     result_dtos = get_TVmaze_response_DTOs_from_json("optional_fields_missing.json")
 
-    model = SearchResults.from_tvmaze_dto_list(result_dtos)
+    model = TVmazeSearchResultDTO.to_search_results_model(result_dtos)
 
     assert len(model.results) == 1
     result = model.results[0]
@@ -87,7 +88,7 @@ def test_result_with_all_optional_fields_missing() -> None:
 def test_result_with_US_network() -> None:
     result_dtos = get_TVmaze_response_DTOs_from_json("us_network.json")
 
-    model = SearchResults.from_tvmaze_dto_list(result_dtos)
+    model = TVmazeSearchResultDTO.to_search_results_model(result_dtos)
 
     assert len(model.results) == 1
     result = model.results[0]
@@ -98,7 +99,7 @@ def test_result_with_US_network() -> None:
 def test_result_with_foreign_network() -> None:
     result_dtos = get_TVmaze_response_DTOs_from_json("foreign_network.json")
 
-    model = SearchResults.from_tvmaze_dto_list(result_dtos)
+    model = TVmazeSearchResultDTO.to_search_results_model(result_dtos)
 
     assert len(model.results) == 1
     result = model.results[0]
@@ -110,7 +111,7 @@ def test_result_with_network_with_no_country() -> None:
     # probably won't occur in real data
     result_dtos = get_TVmaze_response_DTOs_from_json("network_no_country.json")
 
-    model = SearchResults.from_tvmaze_dto_list(result_dtos)
+    model = TVmazeSearchResultDTO.to_search_results_model(result_dtos)
 
     assert len(model.results) == 1
     result = model.results[0]
@@ -121,7 +122,7 @@ def test_result_with_network_with_no_country() -> None:
 def test_result_with_streaming_service_with_country() -> None:
     result_dtos = get_TVmaze_response_DTOs_from_json("streaming_service.json")
 
-    model = SearchResults.from_tvmaze_dto_list(result_dtos)
+    model = TVmazeSearchResultDTO.to_search_results_model(result_dtos)
 
     assert len(model.results) == 1
     result = model.results[0]
@@ -134,7 +135,7 @@ def test_result_with_streaming_service_with_no_country() -> None:
         "streaming_service_no_country.json"
     )
 
-    model = SearchResults.from_tvmaze_dto_list(result_dtos)
+    model = TVmazeSearchResultDTO.to_search_results_model(result_dtos)
 
     assert len(model.results) == 1
     result = model.results[0]
@@ -145,7 +146,7 @@ def test_result_with_streaming_service_with_no_country() -> None:
 def test_result_with_no_start_or_end_date() -> None:  # unlikely in real data
     result_dtos = get_TVmaze_response_DTOs_from_json("no_start_or_end_date.json")
 
-    model = SearchResults.from_tvmaze_dto_list(result_dtos)
+    model = TVmazeSearchResultDTO.to_search_results_model(result_dtos)
 
     assert len(model.results) == 1
     result = model.results[0]
@@ -156,7 +157,7 @@ def test_result_with_no_start_or_end_date() -> None:  # unlikely in real data
 def test_result_with_no_start_date() -> None:  # unlikely in real data
     result_dtos = get_TVmaze_response_DTOs_from_json("no_start_date.json")
 
-    model = SearchResults.from_tvmaze_dto_list(result_dtos)
+    model = TVmazeSearchResultDTO.to_search_results_model(result_dtos)
 
     assert len(model.results) == 1
     result = model.results[0]
@@ -167,7 +168,7 @@ def test_result_with_no_start_date() -> None:  # unlikely in real data
 def test_result_with_no_end_date() -> None:
     result_dtos = get_TVmaze_response_DTOs_from_json("no_end_date.json")
 
-    model = SearchResults.from_tvmaze_dto_list(result_dtos)
+    model = TVmazeSearchResultDTO.to_search_results_model(result_dtos)
 
     assert len(model.results) == 1
     result = model.results[0]
@@ -178,7 +179,7 @@ def test_result_with_no_end_date() -> None:
 def test_summary_html_is_sanitized() -> None:
     result_dtos = get_TVmaze_response_DTOs_from_json("unsafe_html_summary.json")
 
-    model = SearchResults.from_tvmaze_dto_list(result_dtos)
+    model = TVmazeSearchResultDTO.to_search_results_model(result_dtos)
 
     assert len(model.results) == 1
     result = model.results[0]

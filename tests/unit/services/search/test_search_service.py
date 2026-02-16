@@ -4,7 +4,7 @@ import pytest
 from pydantic import HttpUrl
 
 import services.search.exceptions
-from services.search import SearchService
+from services.search.search_service import SearchService
 
 from .sample_tvmaze_responses.reader import read_sample
 
