@@ -8,7 +8,7 @@ from litestar.config.csrf import CSRFConfig
 
 import app_config
 import setup.litestar_users.plugin
-from routes import env, health, logout, search, shows
+from routes import all_routes
 
 """
 Main app: API backend for TV tracker
@@ -47,5 +47,5 @@ def create_app() -> Litestar:
             cookie_name=CSRF_COOKIE_NAME,
             header_name=CSRF_HEADER_NAME,
         ),
-        route_handlers=[health, env, logout, search, shows],
+        route_handlers=all_routes,
     )

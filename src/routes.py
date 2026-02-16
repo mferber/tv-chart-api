@@ -54,3 +54,6 @@ async def shows(
     return (
         await db_session.scalars(select(Show).where(Show.user_id == current_user_id))
     ).all()
+
+
+all_routes = [health, env, logout, search, shows]
