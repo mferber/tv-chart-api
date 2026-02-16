@@ -28,8 +28,11 @@ async def test_search_service(mocked_get: AsyncMock) -> None:
     assert newBattlestar.network_country == "United States"
     assert newBattlestar.streaming_service is None
     assert newBattlestar.streaming_service_country is None
-    assert newBattlestar.image_url == HttpUrl(
+    assert newBattlestar.image_sm_url == HttpUrl(
         "https://static.tvmaze.com/uploads/images/medium_portrait/0/2313.jpg"
+    )
+    assert newBattlestar.image_lg_url == HttpUrl(
+        "https://static.tvmaze.com/uploads/images/original_untouched/0/2313.jpg"
     )
     assert newBattlestar.summary_html == "<p>Summary 1 truncated</p>"
 
@@ -43,8 +46,11 @@ async def test_search_service(mocked_get: AsyncMock) -> None:
     assert oldBattlestar.network_country == "United States"
     assert oldBattlestar.streaming_service is None
     assert oldBattlestar.streaming_service_country is None
-    assert oldBattlestar.image_url == HttpUrl(
+    assert oldBattlestar.image_sm_url == HttpUrl(
         "https://static.tvmaze.com/uploads/images/medium_portrait/6/17017.jpg"
+    )
+    assert oldBattlestar.image_lg_url == HttpUrl(
+        "https://static.tvmaze.com/uploads/images/original_untouched/6/17017.jpg"
     )
     assert oldBattlestar.summary_html == "<p>Summary 2 truncated</p>"
 

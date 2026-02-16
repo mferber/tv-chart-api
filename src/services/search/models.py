@@ -49,7 +49,8 @@ class SearchResult(BaseModel):
     streaming_service: str | None
     streaming_service_country: str | None
     summary_html: str | None
-    image_url: HttpUrl | None
+    image_sm_url: HttpUrl | None
+    image_lg_url: HttpUrl | None
 
     @classmethod
     def from_tvmaze_dto(cls, dto: TVmazeSearchResultDTO) -> Self:
@@ -80,7 +81,8 @@ class SearchResult(BaseModel):
                 else None
             ),
             summary_html=sanitized_summary_html,
-            image_url=dto.show.image.medium if dto.show.image else None,
+            image_sm_url=dto.show.image.medium if dto.show.image else None,
+            image_lg_url=dto.show.image.original if dto.show.image else None,
         )
 
 

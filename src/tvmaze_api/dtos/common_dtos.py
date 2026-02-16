@@ -21,3 +21,4 @@ class TVmazeWebChannelDTO(BaseModel):
 
 class TVmazeImageDTO(BaseModel):
     medium: HttpUrl | None
+    original: HttpUrl | None

@@ -127,7 +127,10 @@ def pydantic_model_battlestar_galactica() -> list[TVmazeSearchResultDTO]:
                 image=TVmazeImageDTO(
                     medium=HttpUrl(
                         "https://static.tvmaze.com/uploads/images/medium_portrait/0/2313.jpg"
-                    )
+                    ),
+                    original=HttpUrl(
+                        "https://static.tvmaze.com/uploads/images/original_untouched/0/2313.jpg"
+                    ),
                 ),
                 summary="<p>Summary 1 truncated</p>",
             )
@@ -146,7 +149,10 @@ def pydantic_model_battlestar_galactica() -> list[TVmazeSearchResultDTO]:
                 image=TVmazeImageDTO(
                     medium=HttpUrl(
                         "https://static.tvmaze.com/uploads/images/medium_portrait/6/17017.jpg"
-                    )
+                    ),
+                    original=HttpUrl(
+                        "https://static.tvmaze.com/uploads/images/original_untouched/6/17017.jpg"
+                    ),
                 ),
                 summary="<p>Summary 2 truncated</p>",
             )

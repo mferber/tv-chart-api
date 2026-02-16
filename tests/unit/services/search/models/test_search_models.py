@@ -29,8 +29,11 @@ def test_valid_result_set() -> None:
         streaming_service=None,
         streaming_service_country=None,
         summary_html="<p>Summary 1 truncated</p>",
-        image_url=HttpUrl(
+        image_sm_url=HttpUrl(
             "https://static.tvmaze.com/uploads/images/medium_portrait/0/2313.jpg"
+        ),
+        image_lg_url=HttpUrl(
+            "https://static.tvmaze.com/uploads/images/original_untouched/0/2313.jpg"
         ),
     )
     assert model.results[1] == SearchResult(
@@ -44,8 +47,11 @@ def test_valid_result_set() -> None:
         streaming_service=None,
         streaming_service_country=None,
         summary_html="<p>Summary 2 truncated</p>",
-        image_url=HttpUrl(
+        image_sm_url=HttpUrl(
             "https://static.tvmaze.com/uploads/images/medium_portrait/6/17017.jpg"
+        ),
+        image_lg_url=HttpUrl(
+            "https://static.tvmaze.com/uploads/images/original_untouched/6/17017.jpg"
         ),
     )
 
@@ -74,7 +80,8 @@ def test_result_with_all_optional_fields_missing() -> None:
     assert result.streaming_service is None
     assert result.streaming_service_country is None
     assert result.summary_html is None
-    assert result.image_url is None
+    assert result.image_sm_url is None
+    assert result.image_lg_url is None
 
 
 def test_result_with_US_network() -> None:

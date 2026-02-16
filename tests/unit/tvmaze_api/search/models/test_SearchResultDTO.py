@@ -34,7 +34,10 @@ def test_response_validation() -> None:
     assert show.image == TVmazeImageDTO(
         medium=HttpUrl(
             "https://static.tvmaze.com/uploads/images/medium_portrait/0/2313.jpg"
-        )
+        ),
+        original=HttpUrl(
+            "https://static.tvmaze.com/uploads/images/original_untouched/0/2313.jpg"
+        ),
     )
     assert show.summary == "<p>Summary 1 truncated</p>"
 
