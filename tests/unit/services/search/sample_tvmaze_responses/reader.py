@@ -10,6 +10,6 @@ def read_sample(fname: str) -> str:
 
 
 def get_TVmaze_response_DTOs_from_json(fname: str) -> list[TVmazeSearchResultDTO]:
-    json = (Path(__file__).parent / fname).read_text()
+    json = read_sample(fname)
     adapter = TypeAdapter(list[TVmazeSearchResultDTO])
     return adapter.validate_json(json)
