@@ -7,7 +7,7 @@ from sqlalchemy import delete
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 
 import app_config
-from db.models import Show
+from db.models import DbShow
 from setup.litestar_users.models import User
 
 app_config.load()
@@ -46,7 +46,7 @@ def create_shows(db_session: AsyncSession, owning_user: User) -> None:
         }
     ]
 
-    pluribus = Show(
+    pluribus = DbShow(
         user_id=owning_user.id,
         tvmaze_id=86175,
         title="Pluribus",
@@ -66,7 +66,7 @@ def create_shows(db_session: AsyncSession, owning_user: User) -> None:
 
     all_creatures_seasons = [all_creatures_season(s) for s in range(1, 5)]
 
-    all_creatures = Show(
+    all_creatures = DbShow(
         user_id=owning_user.id,
         tvmaze_id=42836,
         title="All Creatures Great & Small",
@@ -80,7 +80,7 @@ def create_shows(db_session: AsyncSession, owning_user: User) -> None:
 async def main() -> None:
     async with AsyncSession(engine) as db_session:
         try:
-            await db_session.execute(delete(Show))
+            await db_session.execute(delete(DbShow))
             await db_session.execute(delete(User))
 
             users = create_users(db_session)

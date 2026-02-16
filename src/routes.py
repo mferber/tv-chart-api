@@ -7,7 +7,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import app_config
-from db.models import Show
+from db.models import DbShow
 from models.search import SearchResults
 from services.search.search_service import SearchService
 
@@ -41,19 +41,22 @@ async def search(q: str) -> SearchResults:
 
 
 # List all of the user's saved shows
+# FIXME: eventually return domain Show objects, not DbShow
 @get(
     path="/shows",
     return_dto=SQLAlchemyDTO[
-        Annotated[Show, DTOConfig(exclude={"user_id", "created_at", "updated_at"})]
+        Annotated[DbShow, DTOConfig(exclude={"user_id", "created_at", "updated_at"})]
     ],
 )
 async def shows(
     request: Request,
     db_session: AsyncSession,
-) -> Sequence[Show]:
+) -> Sequence[DbShow]:
     current_user_id = request.user.id
     return (
-        await db_session.scalars(select(Show).where(Show.user_id == current_user_id))
+        await db_session.scalars(
+            select(DbShow).where(DbShow.user_id == current_user_id)
+        )
     ).all()
 
 

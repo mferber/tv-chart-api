@@ -8,7 +8,7 @@ from sqlalchemy import NullPool
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from testcontainers.postgres import PostgresContainer  # type: ignore
 
-from db.models import Show
+from db.models import DbShow
 from setup.litestar_users.models import User
 
 
@@ -60,7 +60,7 @@ async def _add_show(
         seasons.append(season_contents)
 
     db_session.add(
-        Show(
+        DbShow(
             user_id=user_id,
             tvmaze_id=tvmaze_id,
             title=title,

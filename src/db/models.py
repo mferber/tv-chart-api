@@ -8,7 +8,7 @@ from sqlalchemy.ext.mutable import MutableList
 from sqlalchemy.orm import Mapped, mapped_column
 
 
-class Show(UUIDAuditBase):
+class DbShow(UUIDAuditBase):
     __tablename__ = "show"
 
     user_id: Mapped[UUID] = mapped_column(

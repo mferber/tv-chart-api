@@ -1,11 +1,11 @@
 import datetime
 import uuid
 
-from db.models import Show
+from db.models import DbShow
 
 
 def test_show_as_text_representation() -> None:
-    show = Show(
+    show = DbShow(
         id=uuid.uuid4(),
         user_id=uuid.uuid4(),
         created_at=datetime.datetime.now(),
