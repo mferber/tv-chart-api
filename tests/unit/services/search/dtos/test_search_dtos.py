@@ -62,7 +62,6 @@ def test_invalid_result_set_fails_validation() -> None:
         result_dtos = get_TVmaze_response_DTOs_from_json(
             "multiple_results_invalid.json"
         )
-
         _ = TVmazeSearchResultDTO.to_search_results_model(result_dtos)
 
 
