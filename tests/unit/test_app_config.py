@@ -3,7 +3,7 @@ import os
 import pytest
 from dotenv import load_dotenv
 
-from app import create_app
+from create_app import create_app
 from exceptions import ConfigurationError
 
 
