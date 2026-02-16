@@ -1,5 +1,5 @@
 import asyncio
-from typing import Iterator
+from typing import Iterator, cast
 
 import pytest
 from advanced_alchemy.extensions.litestar.plugins import (
@@ -11,6 +11,7 @@ from litestar.testing import TestClient
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     AsyncSessionTransaction,
+    AsyncTransaction,
     async_sessionmaker,
 )
 from testcontainers.postgres import PostgresContainer  # type: ignore
@@ -208,9 +209,13 @@ def transactional_test(
         def _rollback_transaction() -> None:
             async def _() -> None:
                 # rollback and close test connection
-                tx = app.state.pop("_test_tx", None)
+                tx: AsyncTransaction = cast(
+                    AsyncTransaction, app.state.pop("_test_tx", None)
+                )
                 conn = app.state.pop("_test_conn", None)
-                if tx is not None:
+
+                # occasionally transaction is invalid at end of test for unclear reasons
+                if tx is not None and tx.is_valid:
                     try:
                         await tx.rollback()
                     except Exception:
