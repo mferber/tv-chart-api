@@ -40,9 +40,7 @@ def create_shows(db_session: AsyncSession, owning_user: User) -> None:
         }
 
     pluribus_seasons = [
-        {
-            "episodes": [make_episode(i, False, i < 8) for i in range(0, 9)],
-        }
+        [make_episode(i, False, i < 8) for i in range(0, 9)],
     ]
 
     pluribus = DbShow(
@@ -51,17 +49,17 @@ def create_shows(db_session: AsyncSession, owning_user: User) -> None:
         title="Pluribus",
         source="Apple TV",
         duration=60,
+        image_sm_url="https://tvimages.com/pluribus/sm",
+        image_lg_url="https://tvimages.com/pluribus/lg",
         seasons=pluribus_seasons,
     )
     db_session.add(pluribus)
 
-    def all_creatures_season(sn: int) -> dict:
-        return {
-            "episodes": [
-                make_episode(index=i, special=(i == 6), watched=sn <= 2)
-                for i in range(0, 7)
-            ],
-        }
+    def all_creatures_season(sn: int) -> list[dict]:
+        return [
+            make_episode(index=i, special=(i == 6), watched=sn <= 2)
+            for i in range(0, 7)
+        ]
 
     all_creatures_seasons = [all_creatures_season(s) for s in range(1, 5)]
 
@@ -71,6 +69,8 @@ def create_shows(db_session: AsyncSession, owning_user: User) -> None:
         title="All Creatures Great & Small",
         source="PBS",
         duration=60,
+        image_sm_url="https://tvimages.com/all_creatures/sm",
+        image_lg_url="https://tvimages.com/all_creatures/lg",
         seasons=all_creatures_seasons,
     )
     db_session.add(all_creatures)
