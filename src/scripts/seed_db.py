@@ -2,6 +2,7 @@
 
 import asyncio
 
+from advanced_alchemy.base import AdvancedDeclarativeBase
 from litestar_users.password import PasswordManager
 from sqlalchemy import delete
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
@@ -10,8 +11,6 @@ import app_config
 from db.models import DbShow
 from setup.litestar_users.models import User
 
-app_config.load()
-engine = create_async_engine(app_config.get_db_url())
 password_manager = PasswordManager()
 
 
@@ -78,6 +77,12 @@ def create_shows(db_session: AsyncSession, owning_user: User) -> None:
 
 
 async def main() -> None:
+    app_config.load()
+    engine = create_async_engine(app_config.get_db_url())
+
+    async with engine.begin() as conn:
+        await conn.run_sync(AdvancedDeclarativeBase.metadata.create_all)
+
     async with AsyncSession(engine) as db_session:
         try:
             await db_session.execute(delete(DbShow))
