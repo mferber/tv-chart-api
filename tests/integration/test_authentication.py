@@ -13,7 +13,7 @@ def test_unauthenticated_failure(test_client: TestClient[Litestar]) -> None:
 
 
 def test_csrf_failure(
-    test_client: TestClient[Litestar], csrf_token_header: str
+    test_client: TestClient[Litestar], csrf_token_header: dict[str, str]
 ) -> None:
     """Test that POST is forbidden (403) with CSRF header omitted"""
     rsp = test_client.post(
