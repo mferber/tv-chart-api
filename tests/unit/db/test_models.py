@@ -23,15 +23,17 @@ def test_domain_show_to_db_show_conversion() -> None:
         ],
     )
 
-    db_show = DbShow.from_show_model(show)
+    user_id = uuid4()
+    db_show = DbShow.from_show_model(show, owner_id=user_id)
 
     assert db_show.id == show.id
+    assert db_show.user_id == user_id
     assert db_show.tvmaze_id == show.tvmaze_id
     assert db_show.title == show.title
     assert db_show.source == show.source
     assert db_show.duration == show.duration
-    assert db_show.image_sm_url == show.image_sm_url
-    assert db_show.image_lg_url == show.image_lg_url
+    assert db_show.image_sm_url == str(show.image_sm_url)
+    assert db_show.image_lg_url == str(show.image_lg_url)
     assert db_show.seasons == [
         [{"type": "episode", "watched": True}, {"type": "special", "watched": False}]
     ]
@@ -52,16 +54,17 @@ def test_domain_show_create_to_db_show_conversion() -> None:
             ]
         ],
     )
-
-    db_show = DbShow.from_show_model(show)
+    user_id = uuid4()
+    db_show = DbShow.from_show_model(show, owner_id=user_id)
 
     assert db_show.id is None
+    assert db_show.user_id == user_id
     assert db_show.tvmaze_id == show.tvmaze_id
     assert db_show.title == show.title
     assert db_show.source == show.source
     assert db_show.duration == show.duration
-    assert db_show.image_sm_url == show.image_sm_url
-    assert db_show.image_lg_url == show.image_lg_url
+    assert db_show.image_sm_url == str(show.image_sm_url)
+    assert db_show.image_lg_url == str(show.image_lg_url)
     assert db_show.seasons == [
         [{"type": "episode", "watched": True}, {"type": "special", "watched": False}]
     ]
