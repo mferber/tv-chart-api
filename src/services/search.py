@@ -2,7 +2,14 @@ from models.search import SearchResults
 from tvmaze_api.client import TVmazeAPIClient
 from tvmaze_api.dtos.search_dtos import TVmazeSearchResultDTO
 
-from .exceptions import SearchError
+
+class SearchError(Exception):
+    """An error occurred while attempting a search.
+
+    Consult `__cause__` to see the source of the error.
+    """
+
+    pass
 
 
 class SearchService:

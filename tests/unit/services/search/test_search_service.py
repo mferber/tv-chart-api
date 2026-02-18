@@ -3,8 +3,7 @@ from unittest.mock import AsyncMock
 import pytest
 from pydantic import HttpUrl
 
-import services.search.exceptions
-from services.search.search_service import SearchService
+from services.search import SearchError, SearchService
 
 from .sample_tvmaze_responses.reader import read_sample
 
@@ -58,6 +57,6 @@ async def test_search_service(mocked_get: AsyncMock) -> None:
 @pytest.mark.asyncio
 @pytest.mark.parametrize("mocked_get", [(500, "")], indirect=True)
 async def test_search_service_server_error(mocked_get: AsyncMock) -> None:
-    with pytest.raises(services.search.exceptions.SearchError):
+    with pytest.raises(SearchError):
         svc = SearchService()
         _ = await svc.search("Battlestar Galactica")

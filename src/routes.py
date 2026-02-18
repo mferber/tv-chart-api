@@ -6,8 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 import app_config
 from models.search import SearchResults
 from models.show import Show, ShowCreate
-from services.search.search_service import SearchService
-from services.show_service import ShowService
+from services.search import SearchService
+from services.show import ShowService
 
 
 # Health check
