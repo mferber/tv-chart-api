@@ -1,7 +1,6 @@
 import pytest
+from helpers.test_data.types import FakeUser
 from litestar.testing import TestClient
-
-from integration.helpers.test_data.types import FakeUser
 
 
 @pytest.mark.parametrize("login_as_user", ["test_user1"], indirect=True)

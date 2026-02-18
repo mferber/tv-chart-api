@@ -2,7 +2,7 @@ from collections.abc import Callable
 from uuid import UUID
 
 from advanced_alchemy.base import UUIDAuditBase
-from integration.helpers.test_data.test_users import test_users
+from helpers.test_data.test_users import test_users
 from litestar_users.password import PasswordManager
 from sqlalchemy import NullPool
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
