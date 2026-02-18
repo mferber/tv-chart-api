@@ -29,7 +29,7 @@ class DbShow(UUIDAuditBase):
     )
 
     @classmethod
-    def from_show_model(cls, show: Show | ShowCreate) -> Self:
+    def from_show_model(cls, show: Show | ShowCreate, owner_id: UUID) -> Self:
         json_seasons = [
             [
                 {
@@ -45,12 +45,13 @@ class DbShow(UUIDAuditBase):
 
         return cls(
             id=id,
+            user_id=owner_id,
             tvmaze_id=show.tvmaze_id,
             title=show.title,
             source=show.source,
             duration=show.duration,
-            image_sm_url=show.image_sm_url,
-            image_lg_url=show.image_lg_url,
+            image_sm_url=str(show.image_sm_url),
+            image_lg_url=str(show.image_lg_url),
             seasons=json_seasons,
         )
 

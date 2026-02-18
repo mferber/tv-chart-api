@@ -1,11 +1,11 @@
 from typing import Sequence
 
-from litestar import Request, Response, get
+from litestar import Request, Response, get, post
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import app_config
 from models.search import SearchResults
-from models.show import Show
+from models.show import Show, ShowCreate
 from services.search.search_service import SearchService
 from services.show_service import ShowService
 
@@ -44,8 +44,15 @@ async def shows(
     request: Request,
     db_session: AsyncSession,
 ) -> Sequence[Show]:
-    current_user_id = request.user.id
-    return await ShowService().get_shows(db_session, current_user_id)
+    return await ShowService().get_shows(db_session, request.user.id)
 
 
-all_routes = [health, env, logout, search, shows]
+# Add a show to the user's saved shows
+@post(path="/shows")
+async def add_show(
+    data: ShowCreate, request: Request, db_session: AsyncSession
+) -> Show:
+    return await ShowService().add_show(data, db_session, request.user.id)
+
+
+all_routes = [health, env, logout, search, shows, add_show]
