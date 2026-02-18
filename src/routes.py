@@ -1,8 +1,6 @@
-from typing import Annotated, Sequence
+from typing import Sequence
 
 from litestar import Request, Response, get
-from litestar.dto import DTOConfig
-from litestar.plugins.pydantic import PydanticDTO
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import app_config
@@ -41,12 +39,7 @@ async def search(q: str) -> SearchResults:
 
 
 # List all of the user's saved shows
-@get(
-    path="/shows",
-    return_dto=PydanticDTO[
-        Annotated[Show, DTOConfig(exclude={"user_id", "created_at", "updated_at"})]
-    ],
-)
+@get(path="/shows")
 async def shows(
     request: Request,
     db_session: AsyncSession,
