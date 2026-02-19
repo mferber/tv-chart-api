@@ -1,9 +1,12 @@
 import asyncio
 from typing import AsyncIterator, Iterator
+from uuid import UUID
 
 import pytest
 import pytest_asyncio
 from helpers.test_data.db_setup import seed_test_db
+from helpers.test_data.test_users import test_users
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
 from testcontainers.postgres import PostgresContainer  # type: ignore
 
@@ -26,6 +29,32 @@ def test_db_container() -> Iterator[PostgresContainer]:
 @pytest.fixture
 def test_db_engine(test_db_container: PostgresContainer) -> Iterator[AsyncEngine]:
     yield create_async_engine(test_db_container.get_connection_url())
+
+
+@pytest_asyncio.fixture
+async def user_id(request: pytest.FixtureRequest, test_db_engine: AsyncEngine) -> UUID:
+    """Looks up the user ID for the given fake user tag.
+
+    Parametrize the test as follows:
+
+    ```
+    @pytest.mark.parametrize('user_id', ["test_user1"], indirect=True)
+    def test...():
+        ...
+    ```
+    """
+
+    test_user_tag = request.param
+    test_user_info = test_users.get(test_user_tag)
+    if test_user_info is None:
+        raise KeyError(f"Test user '{test_user_tag}' not found")
+    user_email = test_user_info[0]
+    async with AsyncSession(test_db_engine) as session:
+        q = text("select id from user_account where email=:email")
+        result: UUID | None = await session.scalar(q, {"email": user_email})
+        if result is None:
+            raise KeyError(f"Test user email '{user_email}' not in db")
+        return result
 
 
 @pytest_asyncio.fixture
