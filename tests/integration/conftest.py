@@ -6,9 +6,11 @@ import pytest
 import pytest_asyncio
 from helpers.test_data.db_setup import seed_test_db
 from helpers.test_data.test_users import test_users
-from sqlalchemy import text
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
 from testcontainers.postgres import PostgresContainer  # type: ignore
+
+from setup.litestar_users.models import User
 
 TESTCONTAINER_POSTGRES_VERSION = 18
 
@@ -50,8 +52,8 @@ async def user_id(request: pytest.FixtureRequest, test_db_engine: AsyncEngine) -
         raise KeyError(f"Test user '{test_user_tag}' not found")
     user_email = test_user_info[0]
     async with AsyncSession(test_db_engine) as session:
-        q = text("select id from user_account where email=:email")
-        result: UUID | None = await session.scalar(q, {"email": user_email})
+        q = select(User.id).filter_by(email=user_email)
+        result: UUID | None = await session.scalar(q)
         if result is None:
             raise KeyError(f"Test user email '{user_email}' not in db")
         return result
