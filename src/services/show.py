@@ -21,3 +21,9 @@ class ShowService:
             DbShow.from_show_model(show, owner_id=user_id), auto_commit=True
         )
         return db_show.to_show_model()
+
+    async def delete_show(
+        self, show_id: UUID, db_session: AsyncSession, user_id: UUID
+    ) -> None:
+        repository = DbShowRepository(session=db_session)
+        await repository.delete_where(DbShow.user_id == user_id, DbShow.id == show_id)

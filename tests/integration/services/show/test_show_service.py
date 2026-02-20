@@ -1,9 +1,12 @@
+from typing import Sequence
 from uuid import UUID
 
 import pytest
 from pydantic import HttpUrl
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from db.models import DbShow
 from models.show import EpisodeDescriptor, EpisodeType, Show, ShowCreate
 from services.show import ShowService
 
@@ -83,3 +86,25 @@ async def test_add_show(autorollback_db_session: AsyncSession, user_id: UUID) ->
     assert added_show.seasons[0][1].watched
     assert not added_show.seasons[1][0].watched
     assert not added_show.seasons[1][1].watched
+
+
+@pytest.mark.parametrize("user_id", ["test_user1"], indirect=True)
+@pytest.mark.asyncio
+async def test_delete_show(
+    autorollback_db_session: AsyncSession, user_id: UUID
+) -> None:
+    sess = autorollback_db_session
+
+    async def get_all_show_uuids() -> Sequence[UUID]:
+        query = select(DbShow.id).where(DbShow.user_id == user_id)
+        return (await sess.scalars(query)).all()
+
+    uuids_before = await get_all_show_uuids()
+    uuid_to_remove = uuids_before[0]
+
+    sut = ShowService()
+    await sut.delete_show(uuid_to_remove, sess, user_id)
+
+    uuids_after = await get_all_show_uuids()
+    assert len(uuids_after) == len(uuids_before) - 1
+    assert uuid_to_remove not in uuids_after
