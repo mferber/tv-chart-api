@@ -26,7 +26,7 @@ from create_app import create_app
 TESTCONTAINER_POSTGRES_VERSION = 18
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="package")
 def test_db_container() -> Iterator[PostgresContainer]:
     """Creates a testcontainer running Postgres and yields its corresponding
     PostgresContainer object

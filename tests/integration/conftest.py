@@ -15,7 +15,7 @@ from setup.litestar_users.models import User
 TESTCONTAINER_POSTGRES_VERSION = 18
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="package")
 def test_db_container() -> Iterator[PostgresContainer]:
     """Creates a testcontainer running Postgres and yields its corresponding
     PostgresContainer object
