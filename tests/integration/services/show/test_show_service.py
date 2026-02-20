@@ -14,9 +14,10 @@ from services.show import ShowService
 @pytest.mark.parametrize("user_id", ["test_user1"], indirect=True)
 @pytest.mark.asyncio
 async def test_get_shows(autorollback_db_session: AsyncSession, user_id: UUID) -> None:
-    sut = ShowService()
+    sess = autorollback_db_session
 
-    result = await sut.get_shows(autorollback_db_session, user_id)
+    sut = ShowService(db_session=sess, user_id=user_id)
+    result = await sut.get_shows()
 
     assert len(result) == 1
     all_creatures = result[0]
@@ -42,7 +43,9 @@ async def test_get_shows(autorollback_db_session: AsyncSession, user_id: UUID) -
 @pytest.mark.parametrize("user_id", ["test_user1"], indirect=True)
 @pytest.mark.asyncio
 async def test_add_show(autorollback_db_session: AsyncSession, user_id: UUID) -> None:
-    sut = ShowService()
+    sess = autorollback_db_session
+
+    sut = ShowService(db_session=sess, user_id=user_id)
     new_show = ShowCreate(
         tvmaze_id=1001,
         title="Fictional Show",
@@ -61,10 +64,10 @@ async def test_add_show(autorollback_db_session: AsyncSession, user_id: UUID) ->
             ],
         ],
     )
-    result = await sut.add_show(new_show, autorollback_db_session, user_id)
+    result = await sut.add_show(new_show)
     assert isinstance(result, Show)
 
-    all_shows = await ShowService().get_shows(autorollback_db_session, user_id)
+    all_shows = await sut.get_shows()
     assert len(all_shows) == 2
     added_show = next(filter(lambda show: show.id == result.id, all_shows))
     assert added_show is not None
@@ -102,8 +105,8 @@ async def test_delete_show(
     uuids_before = await get_all_show_uuids()
     uuid_to_remove = uuids_before[0]
 
-    sut = ShowService()
-    await sut.delete_show(uuid_to_remove, sess, user_id)
+    sut = ShowService(db_session=sess, user_id=user_id)
+    await sut.delete_show(uuid_to_remove)
 
     uuids_after = await get_all_show_uuids()
     assert len(uuids_after) == len(uuids_before) - 1
