@@ -1,5 +1,6 @@
 from uuid import UUID
 
+import advanced_alchemy.exceptions
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from db.models import DbShow
@@ -24,6 +25,16 @@ class ShowService:
         repository = DbShowRepository(session=self.db_session)
         db_shows = await repository.list(DbShow.user_id == self.user_id)
         return [db_show.to_show_model() for db_show in db_shows]
+
+    async def get_show(self, show_id: UUID) -> Show:
+        repository = DbShowRepository(session=self.db_session)
+        try:
+            db_show = await repository.get_one(
+                DbShow.user_id == self.user_id, DbShow.id == show_id
+            )
+            return db_show.to_show_model()
+        except advanced_alchemy.exceptions.NotFoundError:
+            raise ShowNotFound()
 
     async def add_show(self, show: ShowCreate) -> Show:
         repository = DbShowRepository(session=self.db_session)

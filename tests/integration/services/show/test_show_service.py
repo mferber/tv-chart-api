@@ -36,6 +36,48 @@ async def test_get_shows(autorollback_db_session: AsyncSession) -> None:
 
 
 @pytest.mark.asyncio
+async def test_get_show(autorollback_db_session: AsyncSession) -> None:
+    sess = autorollback_db_session
+    user_id = await get_user_id("test_user1", sess)
+    sut = ShowService(db_session=sess, user_id=user_id)
+    shows = await sut.get_shows()
+
+    show = await sut.get_show(shows[0].id)
+
+    assert show == shows[0]
+
+
+@pytest.mark.asyncio
+async def test_get_nonexistent_show_fails(
+    autorollback_db_session: AsyncSession,
+) -> None:
+    sess = autorollback_db_session
+    user_id = await get_user_id("test_user1", sess)
+    sut = ShowService(db_session=sess, user_id=user_id)
+
+    with pytest.raises(ShowNotFound):
+        from uuid import uuid4
+
+        await sut.get_show(uuid4())
+
+
+@pytest.mark.asyncio
+async def test_user_get_other_users_show_fails(
+    autorollback_db_session: AsyncSession,
+) -> None:
+    sess = autorollback_db_session
+    user_id1 = await get_user_id("test_user1", sess)
+    user_id2 = await get_user_id("test_user2", sess)
+    sut = ShowService(db_session=sess, user_id=user_id1)
+    other_user_svc = ShowService(db_session=sess, user_id=user_id2)
+    shows = await sut.get_shows()
+    show_id = shows[0].id
+
+    with pytest.raises(ShowNotFound):
+        await other_user_svc.get_show(show_id)
+
+
+@pytest.mark.asyncio
 async def test_add_show(autorollback_db_session: AsyncSession) -> None:
     sess = autorollback_db_session
     user_id = await get_user_id("test_user1", sess)
