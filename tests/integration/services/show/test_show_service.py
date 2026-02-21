@@ -4,7 +4,7 @@ from pydantic import HttpUrl
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from models.show import EpisodeDescriptor, EpisodeType, Show, ShowCreate
-from services.show import ShowNotFound, ShowService
+from services.show import EpisodeNotFound, ShowNotFound, ShowService
 
 
 @pytest.mark.asyncio
@@ -158,3 +158,44 @@ async def test_delete_other_users_show_fails(
         await other_user_svc.delete_show(id_to_remove)
     shows_after = await sut.get_shows()
     assert len(shows_after) == len(shows_before), "delete attempt should have failed"
+
+
+@pytest.mark.asyncio
+async def test_mark_episodes_watched(autorollback_db_session: AsyncSession) -> None:
+    sess = autorollback_db_session
+    user_id = await get_user_id("test_user1", sess)
+    sut = ShowService(db_session=sess, user_id=user_id)
+    shows_before = await sut.get_shows()
+    show_to_modify = next(
+        filter(lambda show: show.title.startswith("All Creatures"), shows_before)
+    )
+
+    # precondition: episodes are unwatched
+    assert not (show_to_modify.seasons[1][0].watched)
+    assert not (show_to_modify.seasons[1][1].watched)
+    assert not (show_to_modify.seasons[1][2].watched)
+    assert not (show_to_modify.seasons[1][3].watched)
+
+    await sut.mark_episodes(show_to_modify.id, [(1, 0), (1, 1)], watched=True)
+
+    refetched_show = await sut.get_show(show_to_modify.id)
+    assert refetched_show.seasons[1][0].watched
+    assert refetched_show.seasons[1][1].watched
+    assert not (refetched_show.seasons[1][2].watched)  # other eps unchanged
+    assert not (refetched_show.seasons[1][3].watched)
+
+
+@pytest.mark.asyncio
+async def test_mark_nonexistent_episodes_fails(
+    autorollback_db_session: AsyncSession,
+) -> None:
+    sess = autorollback_db_session
+    user_id = await get_user_id("test_user1", sess)
+    sut = ShowService(db_session=sess, user_id=user_id)
+    shows_before = await sut.get_shows()
+    show_to_modify = next(
+        filter(lambda show: show.title.startswith("All Creatures"), shows_before)
+    )
+
+    with pytest.raises(EpisodeNotFound):
+        await sut.mark_episodes(show_to_modify.id, [(1000, 2000)], watched=True)
