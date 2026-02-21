@@ -7,8 +7,8 @@ from advanced_alchemy.extensions.litestar.plugins import (
     SQLAlchemyPlugin,
 )
 from helpers.test_data.db_setup import seed_test_db
-from helpers.test_data.test_users import test_users
 from helpers.test_data.types import FakeUser
+from helpers.test_data.users import test_users
 from helpers.utils.os_utils import temporarily_modified_environ
 from helpers.utils.req_utils import make_csrf_token_header
 from litestar import Litestar

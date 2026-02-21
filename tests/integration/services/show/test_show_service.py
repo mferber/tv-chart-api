@@ -1,6 +1,5 @@
-from uuid import UUID
-
 import pytest
+from helpers.test_data.users import get_user_id
 from pydantic import HttpUrl
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -8,10 +7,11 @@ from models.show import EpisodeDescriptor, EpisodeType, Show, ShowCreate
 from services.show import ShowService
 
 
-@pytest.mark.parametrize("user_id", ["test_user1"], indirect=True)
 @pytest.mark.asyncio
-async def test_get_shows(autorollback_db_session: AsyncSession, user_id: UUID) -> None:
-    sut = ShowService(db_session=autorollback_db_session, user_id=user_id)
+async def test_get_shows(autorollback_db_session: AsyncSession) -> None:
+    sess = autorollback_db_session
+    user_id = await get_user_id("test_user1", sess)
+    sut = ShowService(db_session=sess, user_id=user_id)
     result = await sut.get_shows()
 
     assert len(result) == 1
@@ -35,10 +35,11 @@ async def test_get_shows(autorollback_db_session: AsyncSession, user_id: UUID) -
             assert ep.watched == (True if season_idx == 0 else False)
 
 
-@pytest.mark.parametrize("user_id", ["test_user1"], indirect=True)
 @pytest.mark.asyncio
-async def test_add_show(autorollback_db_session: AsyncSession, user_id: UUID) -> None:
-    sut = ShowService(db_session=autorollback_db_session, user_id=user_id)
+async def test_add_show(autorollback_db_session: AsyncSession) -> None:
+    sess = autorollback_db_session
+    user_id = await get_user_id("test_user1", sess)
+    sut = ShowService(db_session=sess, user_id=user_id)
     new_show = ShowCreate(
         tvmaze_id=1001,
         title="Fictional Show",
@@ -84,12 +85,11 @@ async def test_add_show(autorollback_db_session: AsyncSession, user_id: UUID) ->
     assert not added_show.seasons[1][1].watched
 
 
-@pytest.mark.parametrize("user_id", ["test_user1"], indirect=True)
 @pytest.mark.asyncio
-async def test_delete_show(
-    autorollback_db_session: AsyncSession, user_id: UUID
-) -> None:
-    sut = ShowService(db_session=autorollback_db_session, user_id=user_id)
+async def test_delete_show(autorollback_db_session: AsyncSession) -> None:
+    sess = autorollback_db_session
+    user_id = await get_user_id("test_user1", sess)
+    sut = ShowService(db_session=sess, user_id=user_id)
     shows_before = await sut.get_shows()
     id_to_remove = shows_before[0].id
 
