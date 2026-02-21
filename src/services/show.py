@@ -7,6 +7,14 @@ from db.repositories import DbShowRepository
 from models.show import Show, ShowCreate
 
 
+class ShowServiceError(Exception):
+    pass
+
+
+class ShowNotFound(ShowServiceError):
+    pass
+
+
 class ShowService:
     def __init__(self, db_session: AsyncSession, user_id: UUID):
         self.db_session = db_session
@@ -26,6 +34,8 @@ class ShowService:
 
     async def delete_show(self, show_id: UUID) -> None:
         repository = DbShowRepository(session=self.db_session)
-        await repository.delete_where(
+        deleted = await repository.delete_where(
             DbShow.user_id == self.user_id, DbShow.id == show_id
         )
+        if not deleted:
+            raise ShowNotFound()
