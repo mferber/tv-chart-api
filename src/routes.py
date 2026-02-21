@@ -44,7 +44,8 @@ async def shows(
     request: Request,
     db_session: AsyncSession,
 ) -> Sequence[Show]:
-    return await ShowService().get_shows(db_session, request.user.id)
+    svc = ShowService(db_session, request.user.id)
+    return await svc.get_shows()
 
 
 # Add a show to the user's saved shows
@@ -52,7 +53,8 @@ async def shows(
 async def add_show(
     data: ShowCreate, request: Request, db_session: AsyncSession
 ) -> Show:
-    return await ShowService().add_show(data, db_session, request.user.id)
+    svc = ShowService(db_session, request.user.id)
+    return await svc.add_show(data)
 
 
 all_routes = [health, env, logout, search, shows, add_show]
