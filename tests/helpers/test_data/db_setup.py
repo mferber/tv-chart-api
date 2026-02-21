@@ -37,6 +37,8 @@ async def _add_show(
     duration: int,
     image_sm_url: str,
     image_lg_url: str,
+    imdb_id: str,
+    thetvdb_id: int,
     season_lengths: list[int],
     is_special: Callable[[int, int], bool],
     is_watched: Callable[[int, int], bool],
@@ -70,6 +72,8 @@ async def _add_show(
             duration=duration,
             image_sm_url=image_sm_url,
             image_lg_url=image_lg_url,
+            imdb_id=imdb_id,
+            thetvdb_id=thetvdb_id,
             seasons=seasons,
         )
     )
@@ -99,6 +103,8 @@ async def seed_test_db(test_db_container: PostgresContainer) -> None:
             duration=60,
             image_sm_url="https://tvimages.com/all_creatures/sm",
             image_lg_url="https://tvimages.com/all_creatures/lg",
+            imdb_id="tt123",
+            thetvdb_id=1234,
             season_lengths=[7, 7, 7, 7],
             # final episode of every season is a special
             is_special=lambda season, ep_idx: ep_idx == 6,
@@ -116,6 +122,8 @@ async def seed_test_db(test_db_container: PostgresContainer) -> None:
             duration=60,
             image_sm_url="https://tvimages.com/pluribus/sm",
             image_lg_url="https://tvimages.com/pluribus/lg",
+            imdb_id="tt456",
+            thetvdb_id=4567,
             season_lengths=[9],
             is_special=lambda season, ep_idx: False,
             is_watched=lambda season, ep_idx: season == 1 and ep_idx == 0,

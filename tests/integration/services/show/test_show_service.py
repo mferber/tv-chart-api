@@ -26,6 +26,8 @@ async def test_get_shows(autorollback_db_session: AsyncSession) -> None:
     assert all_creatures.image_lg_url == HttpUrl(
         "https://tvimages.com/all_creatures/lg"
     )
+    assert all_creatures.imdb_id == "tt123"
+    assert all_creatures.thetvdb_id == 1234
     assert len(all_creatures.seasons) == 4
 
     for season_idx, season in enumerate(all_creatures.seasons):
@@ -89,6 +91,8 @@ async def test_add_show(autorollback_db_session: AsyncSession) -> None:
         duration=60,
         image_sm_url=HttpUrl("https://images.com/fictional/sm"),
         image_lg_url=HttpUrl("https://images.com/fictional/lg"),
+        imdb_id="tt999",
+        thetvdb_id=9999,
         seasons=[
             [
                 EpisodeDescriptor(type=EpisodeType.EPISODE, watched=True),
@@ -116,6 +120,8 @@ async def test_add_show(autorollback_db_session: AsyncSession) -> None:
     assert added_show.duration == 60
     assert added_show.image_sm_url == HttpUrl("https://images.com/fictional/sm")
     assert added_show.image_lg_url == HttpUrl("https://images.com/fictional/lg")
+    assert added_show.imdb_id == "tt999"
+    assert added_show.thetvdb_id == 9999
     assert len(added_show.seasons) == 2
     assert added_show.seasons[0][0].type == EpisodeType.EPISODE
     assert added_show.seasons[0][1].type == EpisodeType.SPECIAL

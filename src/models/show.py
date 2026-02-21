@@ -23,6 +23,8 @@ class ShowCreate(BaseModel):
     duration: int
     image_sm_url: HttpUrl | None
     image_lg_url: HttpUrl | None
+    imdb_id: str | None
+    thetvdb_id: int | None
     seasons: list[list[EpisodeDescriptor]]
 
 

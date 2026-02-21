@@ -51,6 +51,8 @@ def create_shows(db_session: AsyncSession, owning_user: User) -> None:
         duration=60,
         image_sm_url="https://static.tvmaze.com/uploads/images/medium_portrait/592/1481086.jpg",
         image_lg_url="https://static.tvmaze.com/uploads/images/original_untouched/592/1481086.jpg",
+        imdb_id="tt22202452",
+        thetvdb_id=436457,
         seasons=pluribus_seasons,
     )
     db_session.add(pluribus)
@@ -71,6 +73,8 @@ def create_shows(db_session: AsyncSession, owning_user: User) -> None:
         duration=60,
         image_sm_url="https://static.tvmaze.com/uploads/images/medium_portrait/593/1483974.jpg",
         image_lg_url="https://static.tvmaze.com/uploads/images/original_untouched/593/1483974.jpg",
+        thetvdb_id=378982,
+        imdb_id="tt10590066",
         seasons=all_creatures_seasons,
     )
     db_session.add(all_creatures)

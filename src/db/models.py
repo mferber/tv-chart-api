@@ -4,7 +4,7 @@ from uuid import UUID
 from advanced_alchemy.base import UUIDAuditBase
 from advanced_alchemy.types import JsonB
 from pydantic import HttpUrl
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import ForeignKey, Integer, String
 from sqlalchemy.dialects.postgresql import UUID as SQLA_UUID
 from sqlalchemy.ext.mutable import MutableList
 from sqlalchemy.orm import Mapped, mapped_column
@@ -24,6 +24,8 @@ class DbShow(UUIDAuditBase):
     duration: Mapped[int] = mapped_column(nullable=True)
     image_sm_url: Mapped[str] = mapped_column(String(256), nullable=True)
     image_lg_url: Mapped[str] = mapped_column(String(256), nullable=True)
+    imdb_id: Mapped[str] = mapped_column(String(32), nullable=True)
+    thetvdb_id: Mapped[int] = mapped_column(Integer, nullable=True)
     seasons: Mapped[list[list[dict]]] = mapped_column(
         MutableList.as_mutable(JsonB), default=list
     )
@@ -52,6 +54,8 @@ class DbShow(UUIDAuditBase):
             duration=show.duration,
             image_sm_url=str(show.image_sm_url),
             image_lg_url=str(show.image_lg_url),
+            imdb_id=show.imdb_id,
+            thetvdb_id=show.thetvdb_id,
             seasons=json_seasons,
         )
 
@@ -77,5 +81,7 @@ class DbShow(UUIDAuditBase):
             duration=self.duration,
             image_sm_url=HttpUrl(self.image_sm_url),
             image_lg_url=HttpUrl(self.image_lg_url),
+            imdb_id=self.imdb_id,
+            thetvdb_id=self.thetvdb_id,
             seasons=model_seasons,
         )

@@ -52,6 +52,8 @@ def test_add_show(
         "duration": 60,
         "image_sm_url": "https://images.com/fictional/sm",
         "image_lg_url": "https://images.com/fictional/lg",
+        "imdb_id": "tt111",
+        "thetvdb_id": 1111,
         "seasons": [],
     }
     rsp = test_client.post("/shows", json=show, headers=csrf_token_header)
@@ -70,4 +72,6 @@ def test_add_show(
     assert added_show_json["duration"] == 60
     assert added_show_json["image_sm_url"] == "https://images.com/fictional/sm"
     assert added_show_json["image_lg_url"] == "https://images.com/fictional/lg"
+    assert added_show_json["imdb_id"] == "tt111"
+    assert added_show_json["thetvdb_id"] == 1111
     assert added_show_json["seasons"] == []

@@ -15,6 +15,8 @@ def test_domain_show_to_db_show_conversion() -> None:
         duration=60,
         image_sm_url=HttpUrl("http://images.com/small"),
         image_lg_url=HttpUrl("http://images.com/large"),
+        imdb_id="tt123",
+        thetvdb_id=1234,
         seasons=[
             [
                 EpisodeDescriptor(EpisodeType.EPISODE, True),
@@ -34,6 +36,8 @@ def test_domain_show_to_db_show_conversion() -> None:
     assert db_show.duration == show.duration
     assert db_show.image_sm_url == str(show.image_sm_url)
     assert db_show.image_lg_url == str(show.image_lg_url)
+    assert db_show.imdb_id == show.imdb_id
+    assert db_show.thetvdb_id == show.thetvdb_id
     assert db_show.seasons == [
         [{"type": "episode", "watched": True}, {"type": "special", "watched": False}]
     ]
@@ -47,6 +51,8 @@ def test_domain_show_create_to_db_show_conversion() -> None:
         duration=60,
         image_sm_url=HttpUrl("http://images.com/small"),
         image_lg_url=HttpUrl("http://images.com/large"),
+        imdb_id="tt123",
+        thetvdb_id=1234,
         seasons=[
             [
                 EpisodeDescriptor(EpisodeType.EPISODE, True),
@@ -65,6 +71,8 @@ def test_domain_show_create_to_db_show_conversion() -> None:
     assert db_show.duration == show.duration
     assert db_show.image_sm_url == str(show.image_sm_url)
     assert db_show.image_lg_url == str(show.image_lg_url)
+    assert db_show.imdb_id == show.imdb_id
+    assert db_show.thetvdb_id == show.thetvdb_id
     assert db_show.seasons == [
         [{"type": "episode", "watched": True}, {"type": "special", "watched": False}]
     ]
@@ -80,6 +88,8 @@ def test_db_show_to_show_conversion() -> None:
         duration=60,
         image_sm_url="http://images.com/small",
         image_lg_url="http://images.com/large",
+        imdb_id="tt123",
+        thetvdb_id=1234,
         seasons=[
             [
                 {"type": "episode", "watched": True},
@@ -97,6 +107,8 @@ def test_db_show_to_show_conversion() -> None:
     assert show.duration == db_show.duration
     assert show.image_sm_url == HttpUrl(db_show.image_sm_url)
     assert show.image_lg_url == HttpUrl(db_show.image_lg_url)
+    assert show.imdb_id == db_show.imdb_id
+    assert show.thetvdb_id == db_show.thetvdb_id
     assert show.seasons == [
         [
             EpisodeDescriptor(EpisodeType.EPISODE, True),
