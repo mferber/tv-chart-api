@@ -1,4 +1,5 @@
 from typing import Sequence
+from uuid import UUID
 
 from litestar import Request, Response, get, post
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -48,6 +49,13 @@ async def shows(
     return await svc.get_shows()
 
 
+# Get a single show from the user's saved shows
+@get(path="/shows/{id:uuid}")
+async def get_show(request: Request, db_session: AsyncSession, id: UUID) -> Show:
+    svc = ShowService(db_session, request.user.id)
+    return await svc.get_show(id)
+
+
 # Add a show to the user's saved shows
 @post(path="/shows")
 async def add_show(
@@ -57,4 +65,4 @@ async def add_show(
     return await svc.add_show(data)
 
 
-all_routes = [health, env, logout, search, shows, add_show]
+all_routes = [health, env, logout, search, shows, get_show, add_show]

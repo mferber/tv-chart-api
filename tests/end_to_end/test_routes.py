@@ -24,6 +24,23 @@ def test_user2_sees_own_shows(
 
 
 @pytest.mark.parametrize("login_as_user", ["test_user1"], indirect=True)
+def test_get_show(
+    test_client: TestClient, login_as_user: FakeUser, csrf_token_header: dict[str, str]
+) -> None:
+    rsp = test_client.get("/shows")
+    rsp.raise_for_status()
+    first_show_json = rsp.json()[0]
+    show_id = first_show_json["id"]
+
+    show_rsp = test_client.get(f"/shows/{show_id}")
+    show_rsp.raise_for_status()
+
+    show_json = show_rsp.json()
+    assert show_json["id"] == show_id
+    assert show_json["title"] == first_show_json["title"]
+
+
+@pytest.mark.parametrize("login_as_user", ["test_user1"], indirect=True)
 def test_add_show(
     test_client: TestClient, login_as_user: FakeUser, csrf_token_header: dict[str, str]
 ) -> None:
