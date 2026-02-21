@@ -85,6 +85,7 @@ async def main() -> None:
     engine = create_async_engine(app_config.get_db_url())
 
     async with engine.begin() as conn:
+        await conn.run_sync(AdvancedDeclarativeBase.metadata.drop_all)
         await conn.run_sync(AdvancedDeclarativeBase.metadata.create_all)
 
     async with AsyncSession(engine) as db_session:
