@@ -49,8 +49,8 @@ def create_shows(db_session: AsyncSession, owning_user: User) -> None:
         title="Pluribus",
         source="Apple TV",
         duration=60,
-        image_sm_url="https://tvimages.com/pluribus/sm",
-        image_lg_url="https://tvimages.com/pluribus/lg",
+        image_sm_url="https://static.tvmaze.com/uploads/images/medium_portrait/592/1481086.jpg",
+        image_lg_url="https://static.tvmaze.com/uploads/images/original_untouched/592/1481086.jpg",
         seasons=pluribus_seasons,
     )
     db_session.add(pluribus)
@@ -69,8 +69,8 @@ def create_shows(db_session: AsyncSession, owning_user: User) -> None:
         title="All Creatures Great & Small",
         source="PBS",
         duration=60,
-        image_sm_url="https://tvimages.com/all_creatures/sm",
-        image_lg_url="https://tvimages.com/all_creatures/lg",
+        image_sm_url="https://static.tvmaze.com/uploads/images/medium_portrait/593/1483974.jpg",
+        image_lg_url="https://static.tvmaze.com/uploads/images/original_untouched/593/1483974.jpg",
         seasons=all_creatures_seasons,
     )
     db_session.add(all_creatures)
