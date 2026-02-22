@@ -79,6 +79,25 @@ def create_shows(db_session: AsyncSession, owning_user: User) -> None:
     )
     db_session.add(all_creatures)
 
+    the_americans_seasons = [
+        [make_episode(i, False, i < 8) for i in range(0, 9)],
+    ]
+
+    the_americans = DbShow(
+        user_id=owning_user.id,
+        tvmaze_id=157,
+        title="The Americans",
+        source="FX",
+        duration=60,
+        image_sm_url="https://static.tvmaze.com/uploads/images/medium_portrait/146/366911.jpg",
+        image_lg_url="https://static.tvmaze.com/uploads/images/original_untouched/146/366911.jpg",
+        thetvdb_id=261690,
+        imdb_id="tt2149175",
+        seasons=the_americans_seasons,
+    )
+
+    db_session.add(the_americans)
+
 
 async def main() -> None:
     app_config.load()
