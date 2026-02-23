@@ -6,8 +6,19 @@ import httpx
 import pydantic
 from pydantic import TypeAdapter
 
-import tvmaze_api.exceptions
-from tvmaze_api.dtos.search_dtos import TVmazeSearchResultDTO
+from tvmaze_api.models import TVmazeSearchResult
+
+
+class ConnectionError(Exception):
+    pass
+
+
+class RateLimitedError(Exception):
+    pass
+
+
+class InvalidResponseError(Exception):
+    pass
 
 
 class TVmazeAPIClient:
@@ -63,22 +74,22 @@ class TVmazeAPIClient:
 
         except httpx.HTTPStatusError as e:
             if e.response.status_code == httpx.codes.TOO_MANY_REQUESTS:
-                raise tvmaze_api.exceptions.RateLimitedError from e
-            raise tvmaze_api.exceptions.ConnectionError from e
+                raise RateLimitedError from e
+            raise ConnectionError from e
 
         return rsp.text
 
-    async def search_shows(self, query: str) -> list[TVmazeSearchResultDTO]:
+    async def search_shows(self, query: str) -> list[TVmazeSearchResult]:
         """Searches TVmaze for the given query string.
 
         Returns:
-            List of `TVmazeSearchResultDTO`s encapsulating the search results
+            List of `TVmazeSearchResult`s encapsulating the search results
         """
         try:
             rsp_text = await self._get(self.UrlPaths.SEARCH, {"q": query})
-            adapter = TypeAdapter(list[TVmazeSearchResultDTO])
+            adapter = TypeAdapter(list[TVmazeSearchResult])
             return adapter.validate_json(rsp_text)
         except pydantic.ValidationError as e:
-            raise tvmaze_api.exceptions.InvalidResponseError from e
+            raise InvalidResponseError from e
         except httpx.HTTPError as e:
-            raise tvmaze_api.exceptions.ConnectionError from e
+            raise ConnectionError from e

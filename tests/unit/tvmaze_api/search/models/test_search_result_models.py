@@ -4,19 +4,19 @@ import pydantic
 import pytest
 from pydantic import HttpUrl
 
-from tvmaze_api.dtos.common_dtos import (
-    TVmazeCountryDTO,
-    TVmazeImageDTO,
-    TVmazeNetworkDTO,
+from tvmaze_api.models import (
+    TVmazeCountry,
+    TVmazeImage,
+    TVmazeNetwork,
+    TVmazeSearchResult,
 )
-from tvmaze_api.dtos.search_dtos import TVmazeSearchResultDTO
 
 from ..sample_tvmaze_results.reader import read_sample
 
 
 def test_response_validation() -> None:
     response_json = read_sample("result.json")
-    r = TVmazeSearchResultDTO.model_validate_json(response_json)
+    r = TVmazeSearchResult.model_validate_json(response_json)
 
     assert r.show
     show = r.show
@@ -27,11 +27,11 @@ def test_response_validation() -> None:
     assert show.genres == ["Drama", "Science-Fiction", "War"]
     assert show.premiered == datetime.date(2003, 12, 8)
     assert show.ended == datetime.date(2009, 10, 27)
-    assert show.network == TVmazeNetworkDTO(
-        name="Syfy", country=TVmazeCountryDTO(name="United States")
+    assert show.network == TVmazeNetwork(
+        name="Syfy", country=TVmazeCountry(name="United States")
     )
     assert show.webChannel is None
-    assert show.image == TVmazeImageDTO(
+    assert show.image == TVmazeImage(
         medium=HttpUrl(
             "https://static.tvmaze.com/uploads/images/medium_portrait/0/2313.jpg"
         ),
@@ -45,4 +45,4 @@ def test_response_validation() -> None:
 def test_response_validation_failure() -> None:
     with pytest.raises(pydantic.ValidationError):
         response_json = read_sample("result_invalid.json")
-        _ = TVmazeSearchResultDTO.model_validate_json(response_json)
+        _ = TVmazeSearchResult.model_validate_json(response_json)

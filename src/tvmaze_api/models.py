@@ -1,48 +1,36 @@
 """
-DTOs for reading search results from TVmaze search response.
-
-See Also:
-    `Show Search API docs <https://www.tvmaze.com/api#show-search>`_
+Models for TVmaze API responses.
 """
 
 import datetime
 from typing import Self
 
-from html_sanitizer import Sanitizer  # type: ignore[import-untyped]
-from pydantic import BaseModel
+from pydantic import BaseModel, HttpUrl
 
 from models.search import SearchResult, SearchResults
-
-from .common_dtos import TVmazeImageDTO, TVmazeNetworkDTO, TVmazeWebChannelDTO
-
-# Set up HTML sanitizer for show summaries (we don't trust TVmaze, do we?)
-_configured_html_sanitizer = Sanitizer(
-    {
-        "tags": {  # tags retained in sanitized html; defaults minus <a>
-            "h1",
-            "h2",
-            "h3",
-            "strong",
-            "em",
-            "p",
-            "ul",
-            "ol",
-            "li",
-            "br",
-            "sub",
-            "sup",
-            "hr",
-        },
-        "attributes": {},
-        "empty": {"hr", "br"},  # tags retained even if empty
-        "separate": {"p", "li"},  # will not be merged with siblings
-        "whitespace": set(),
-        "keep_typographic_whitespace": True,
-    }
-)
+from tvmaze_api.utils.html_sanitizer import html_sanitizer
 
 
-class TVmazeSearchResultShowDTO(BaseModel):
+class TVmazeCountry(BaseModel):
+    name: str
+
+
+class TVmazeNetwork(BaseModel):
+    name: str
+    country: TVmazeCountry | None
+
+
+class TVmazeWebChannel(BaseModel):
+    name: str
+    country: TVmazeCountry | None
+
+
+class TVmazeImage(BaseModel):
+    medium: HttpUrl | None
+    original: HttpUrl | None
+
+
+class TVmazeSearchResultShow(BaseModel):
     """
     Encapsulates a single show representation in TVmaze search results.
     """
@@ -52,27 +40,25 @@ class TVmazeSearchResultShowDTO(BaseModel):
     genres: list[str] | None
     premiered: datetime.date | None
     ended: datetime.date | None
-    network: TVmazeNetworkDTO | None
-    webChannel: TVmazeWebChannelDTO | None
-    image: TVmazeImageDTO | None
+    network: TVmazeNetwork | None
+    webChannel: TVmazeWebChannel | None
+    image: TVmazeImage | None
     summary: str | None
 
 
-class TVmazeSearchResultDTO(BaseModel):
+class TVmazeSearchResult(BaseModel):
     """
     Top level DTO encapsulating a search result. TVmaze results are given as
     an array of objects that contain a `score` (which we ignore) and a `show`.
     See class method for handling of the array.
     """
 
-    show: TVmazeSearchResultShowDTO
+    show: TVmazeSearchResultShow
 
     def to_search_result_model(self) -> SearchResult:
         sanitized_summary_html = None
         if self.show.summary:
-            sanitized_summary_html = _configured_html_sanitizer.sanitize(
-                self.show.summary
-            )
+            sanitized_summary_html = html_sanitizer().sanitize(self.show.summary)
 
         return SearchResult(
             tvmaze_id=self.show.id,

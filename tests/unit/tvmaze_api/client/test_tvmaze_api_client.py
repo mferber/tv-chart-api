@@ -13,16 +13,18 @@ from unittest.mock import AsyncMock
 import pytest
 from pydantic import HttpUrl
 
-import tvmaze_api.exceptions
-from tvmaze_api.client import TVmazeAPIClient
-from tvmaze_api.dtos.common_dtos import (
-    TVmazeCountryDTO,
-    TVmazeImageDTO,
-    TVmazeNetworkDTO,
+from tvmaze_api.client import (
+    ConnectionError,
+    InvalidResponseError,
+    RateLimitedError,
+    TVmazeAPIClient,
 )
-from tvmaze_api.dtos.search_dtos import (
-    TVmazeSearchResultDTO,
-    TVmazeSearchResultShowDTO,
+from tvmaze_api.models import (
+    TVmazeCountry,
+    TVmazeImage,
+    TVmazeNetwork,
+    TVmazeSearchResult,
+    TVmazeSearchResultShow,
 )
 
 from .sample_tvmaze_responses.reader import read_sample
@@ -52,11 +54,11 @@ async def test_search_request(mocked_get: AsyncMock) -> None:
     "mocked_get", [(200, "multiple_results_invalid.json")], indirect=True
 )
 async def test_invalid_response_raises(mocked_get: AsyncMock) -> None:
-    with pytest.raises(tvmaze_api.exceptions.InvalidResponseError):
+    with pytest.raises(InvalidResponseError):
         client = TVmazeAPIClient()
         try:
             await client.search_shows("query")
-        except tvmaze_api.exceptions.InvalidResponseError:
+        except InvalidResponseError:
             mocked_get.assert_called_once()
             raise
 
@@ -64,18 +66,18 @@ async def test_invalid_response_raises(mocked_get: AsyncMock) -> None:
 @pytest.mark.asyncio
 @pytest.mark.parametrize("mocked_get", [(500, "content doesn't matter")], indirect=True)
 async def test_failing_request_raises(mocked_get: AsyncMock) -> None:
-    with pytest.raises(tvmaze_api.exceptions.ConnectionError):
+    with pytest.raises(ConnectionError):
         client = TVmazeAPIClient()
         try:
             await client.search_shows("query")
-        except tvmaze_api.exceptions.ConnectionError:
+        except ConnectionError:
             mocked_get.assert_called_once()
             raise
 
 
 @pytest.mark.asyncio
 async def test_network_error_raises(mocked_get_with_network_failure: AsyncMock) -> None:
-    with pytest.raises(tvmaze_api.exceptions.ConnectionError):
+    with pytest.raises(ConnectionError):
         client = TVmazeAPIClient()
         try:
             await client.search_shows("query")
@@ -90,7 +92,7 @@ async def test_rate_limited_request_raises_after_using_up_attempts(
 ) -> None:
     """TVmaze throttles use of its free API so this could happen."""
 
-    with pytest.raises(tvmaze_api.exceptions.RateLimitedError):
+    with pytest.raises(RateLimitedError):
         client = TVmazeAPIClient()
         try:
             await client.search_shows("query")
@@ -111,20 +113,20 @@ async def test_request_exception_raises(mocked_get: AsyncMock) -> None:
 # --- Helpers ---
 
 
-def pydantic_model_battlestar_galactica() -> list[TVmazeSearchResultDTO]:
+def pydantic_model_battlestar_galactica() -> list[TVmazeSearchResult]:
     return [
-        TVmazeSearchResultDTO(
-            show=TVmazeSearchResultShowDTO(
+        TVmazeSearchResult(
+            show=TVmazeSearchResultShow(
                 id=166,
                 name="Battlestar Galactica",
                 genres=["Drama", "Science-Fiction", "War"],
                 premiered=datetime.date(2003, 12, 8),
                 ended=datetime.date(2009, 10, 27),
-                network=TVmazeNetworkDTO(
-                    name="Syfy", country=TVmazeCountryDTO(name="United States")
+                network=TVmazeNetwork(
+                    name="Syfy", country=TVmazeCountry(name="United States")
                 ),
                 webChannel=None,
-                image=TVmazeImageDTO(
+                image=TVmazeImage(
                     medium=HttpUrl(
                         "https://static.tvmaze.com/uploads/images/medium_portrait/0/2313.jpg"
                     ),
@@ -135,18 +137,18 @@ def pydantic_model_battlestar_galactica() -> list[TVmazeSearchResultDTO]:
                 summary="<p>Summary 1 truncated</p>",
             )
         ),
-        TVmazeSearchResultDTO(
-            show=TVmazeSearchResultShowDTO(
+        TVmazeSearchResult(
+            show=TVmazeSearchResultShow(
                 id=1059,
                 name="Battlestar Galactica",
                 genres=["Action", "Adventure", "Science-Fiction"],
                 premiered=datetime.date(1978, 9, 17),
                 ended=datetime.date(1979, 4, 29),
-                network=TVmazeNetworkDTO(
-                    name="ABC", country=TVmazeCountryDTO(name="United States")
+                network=TVmazeNetwork(
+                    name="ABC", country=TVmazeCountry(name="United States")
                 ),
                 webChannel=None,
-                image=TVmazeImageDTO(
+                image=TVmazeImage(
                     medium=HttpUrl(
                         "https://static.tvmaze.com/uploads/images/medium_portrait/6/17017.jpg"
                     ),
