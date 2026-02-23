@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 
 import app_config
 from db.models import DbShow
-from setup.litestar_users.models import User
+from litestar_users_setup.models import User
 
 password_manager = PasswordManager()
 

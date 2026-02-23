@@ -7,7 +7,7 @@ from litestar import Litestar
 from litestar.config.csrf import CSRFConfig
 
 import app_config
-import setup.litestar_users.plugin
+import litestar_users_setup.plugin
 from routes import all_routes
 
 """
@@ -38,7 +38,7 @@ def create_app() -> Litestar:
                 )
             ),
             # litestar-users plugin implements user management and authentication endpoints
-            setup.litestar_users.plugin.configure_litestar_users_plugin(
+            litestar_users_setup.plugin.configure_litestar_users_plugin(
                 app_config.get_jwt_encoding_secret()
             ),
         ],

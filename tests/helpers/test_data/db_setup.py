@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from testcontainers.postgres import PostgresContainer  # type: ignore
 
 from db.models import DbShow
-from setup.litestar_users.models import User
+from litestar_users_setup.models import User
 
 
 async def _add_user(db_session: AsyncSession, email: str, password: str) -> UUID:

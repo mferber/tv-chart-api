@@ -3,7 +3,7 @@ from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from setup.litestar_users.models import User
+from litestar_users_setup.models import User
 
 test_users = {
     "test_user1": ("testuser1@example.com", "password1"),
