@@ -1,6 +1,5 @@
-from unittest.mock import AsyncMock
-
 import pytest
+import respx
 from pydantic import HttpUrl
 
 from services.search import SearchError, SearchService
@@ -9,12 +8,16 @@ from .sample_tvmaze_responses.reader import read_sample
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "mocked_get", [(200, read_sample("multiple_results.json"))], indirect=True
-)
-async def test_search_service(mocked_get: AsyncMock) -> None:
+# @pytest.mark.parametrize(
+#     "mocked_get", [(200, read_sample("multiple_results.json"))], indirect=True
+# )
+async def test_search_service(respx_mock: respx.MockRouter) -> None:
+    text = read_sample("multiple_results.json")
+    respx_mock.route(method="GET").respond(text=text)
     svc = SearchService()
+
     search_results = await svc.search("Battlestar Galactica")
+
     assert len(search_results.results) == 2
 
     newBattlestar = search_results.results[0]
@@ -55,8 +58,11 @@ async def test_search_service(mocked_get: AsyncMock) -> None:
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mocked_get", [(500, "")], indirect=True)
-async def test_search_service_server_error(mocked_get: AsyncMock) -> None:
+async def test_search_service_server_error(respx_mock: respx.MockRouter) -> None:
+    respx_mock.route(method="GET").respond(status_code=500)
     with pytest.raises(SearchError):
         svc = SearchService()
+
+        print("GOING")
         _ = await svc.search("Battlestar Galactica")
+        print("_")

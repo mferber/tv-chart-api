@@ -8,10 +8,12 @@ the service layer, where we also test conversion to app domain models.
 """
 
 import datetime
-from unittest.mock import AsyncMock
 
+import httpx
 import pytest
+import respx
 from pydantic import HttpUrl
+from pytest_mock import MockerFixture
 
 from tvmaze_api.client import (
     ConnectionError,
@@ -31,18 +33,18 @@ from .sample_tvmaze_responses.reader import read_sample
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "mocked_get", [(200, read_sample("multiple_results.json"))], indirect=True
-)
-async def test_search_request(mocked_get: AsyncMock) -> None:
+async def test_search_request(respx_mock: respx.MockRouter) -> None:
+    text = read_sample("multiple_results.json")
+    route = respx_mock.route(method="GET").respond(text=text)
     client = TVmazeAPIClient()
+
     rsp = await client.search_shows("query")
 
     # verify TVmaze was called correctly
-    mocked_get.assert_called_once()
-    get_args = mocked_get.call_args
-    assert get_args.args == ("https://api.tvmaze.com/search/shows",)
-    assert get_args.kwargs["params"] == {"q": "query"}
+    assert route.call_count == 1
+    url = route.calls.last.request.url
+    assert url.path == "/search/shows"
+    assert dict(url.params) == {"q": "query"}
 
     # verify we extracted the expected pydantic model
     expected = pydantic_model_battlestar_galactica()
@@ -50,64 +52,67 @@ async def test_search_request(mocked_get: AsyncMock) -> None:
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "mocked_get", [(200, "multiple_results_invalid.json")], indirect=True
-)
-async def test_invalid_response_raises(mocked_get: AsyncMock) -> None:
+async def test_invalid_response_raises(respx_mock: respx.MockRouter) -> None:
+    text = read_sample("multiple_results_invalid.json")
+    route = respx_mock.route(method="GET").respond(text=text)
+
     with pytest.raises(InvalidResponseError):
         client = TVmazeAPIClient()
+
         try:
             await client.search_shows("query")
         except InvalidResponseError:
-            mocked_get.assert_called_once()
+            assert route.call_count == 1
             raise
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mocked_get", [(500, "content doesn't matter")], indirect=True)
-async def test_failing_request_raises(mocked_get: AsyncMock) -> None:
+async def test_failing_request_raises(respx_mock: respx.MockRouter) -> None:
+    route = respx_mock.route(method="GET").respond(status_code=500)
+
     with pytest.raises(ConnectionError):
         client = TVmazeAPIClient()
+
         try:
             await client.search_shows("query")
         except ConnectionError:
-            mocked_get.assert_called_once()
+            print("here")
+            assert route.call_count == 1
             raise
 
 
 @pytest.mark.asyncio
-async def test_network_error_raises(mocked_get_with_network_failure: AsyncMock) -> None:
+async def test_network_error_raises(respx_mock: respx.MockRouter) -> None:
+    route = respx_mock.route(method="GET").mock(side_effect=httpx.NetworkError("fake"))
     with pytest.raises(ConnectionError):
         client = TVmazeAPIClient()
+
         try:
             await client.search_shows("query")
         except Exception:
-            mocked_get_with_network_failure.assert_called_once()
+            assert route.call_count == 1
             raise
 
 
 @pytest.mark.asyncio
 async def test_rate_limited_request_raises_after_using_up_attempts(
-    mocked_get_with_rate_limiting_failure: AsyncMock,
+    respx_mock: respx.MockRouter, mocker: MockerFixture
 ) -> None:
     """TVmaze throttles use of its free API so this could happen."""
 
+    mocker.patch.object(TVmazeAPIClient, "RETRY_BACKOFF_FACTOR", new=0.01)
+    route = respx_mock.route(method="GET").respond(
+        status_code=httpx.codes.TOO_MANY_REQUESTS
+    )
+
     with pytest.raises(RateLimitedError):
         client = TVmazeAPIClient()
+
         try:
             await client.search_shows("query")
         except Exception:
-            assert (
-                mocked_get_with_rate_limiting_failure.call_count
-                == TVmazeAPIClient.RETRY_LIMIT
-            )
+            assert route.call_count == TVmazeAPIClient.RETRY_LIMIT
             raise
-
-
-@pytest.mark.asyncio
-@pytest.mark.parametrize("mocked_get", [(500, "content doesn't matter")], indirect=True)
-async def test_request_exception_raises(mocked_get: AsyncMock) -> None:
-    pass
 
 
 # --- Helpers ---
