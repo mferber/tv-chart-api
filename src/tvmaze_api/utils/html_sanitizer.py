@@ -1,9 +1,9 @@
 from html_sanitizer import Sanitizer  # type: ignore[import-untyped]
 
 
-# Set up HTML sanitizer for show summaries (we don't trust TVmaze, do we?)
-def html_sanitizer() -> Sanitizer:
-    return Sanitizer(
+# Sanitize HTML for show & episode summaries (we don't trust TVmaze, do we)
+def sanitize_html(html: str) -> str:
+    sanitizer = Sanitizer(
         {
             "tags": {  # tags retained in sanitized html; defaults minus <a>
                 "h1",
@@ -27,3 +27,4 @@ def html_sanitizer() -> Sanitizer:
             "keep_typographic_whitespace": True,
         }
     )
+    return str(sanitizer.sanitize(html))

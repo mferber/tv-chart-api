@@ -8,7 +8,7 @@ from typing import Self
 from pydantic import BaseModel, HttpUrl
 
 from models.search import SearchResult, SearchResults
-from tvmaze_api.utils.html_sanitizer import html_sanitizer
+from tvmaze_api.utils.html_sanitizer import sanitize_html
 
 
 class TVmazeCountry(BaseModel):
@@ -58,7 +58,7 @@ class TVmazeSearchResult(BaseModel):
     def to_search_result_model(self) -> SearchResult:
         sanitized_summary_html = None
         if self.show.summary:
-            sanitized_summary_html = html_sanitizer().sanitize(self.show.summary)
+            sanitized_summary_html = sanitize_html(self.show.summary)
 
         return SearchResult(
             tvmaze_id=self.show.id,
