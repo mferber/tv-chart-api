@@ -1,0 +1,59 @@
+{
+  "id": 64860,
+  "url": "https://www.tvmaze.com/shows/64860/colin-from-accounts",
+  "name": "Colin From Accounts",
+  "type": "Scripted",
+  "language": "English",
+  "genres": [
+    "Comedy",
+    "Romance"
+  ],
+  "status": "Running",
+  "runtime": null,
+  "averageRuntime": 28,
+  "premiered": "2022-12-01",
+  "ended": null,
+  "officialSite": "https://binge.com.au/shows/show-colin-from-accounts!18466",
+  "schedule": {
+    "time": "",
+    "days": [
+      "Thursday"
+    ]
+  },
+  "rating": {
+    "average": 7.2
+  },
+  "weight": 97,
+  "network": null,
+  "webChannel": {
+    "id": 522,
+    "name": "Binge",
+    "country": {
+      "name": "Australia",
+      "code": "AU",
+      "timezone": "Australia/Sydney"
+    },
+    "officialSite": "https://binge.com.au/"
+  },
+  "dvdCountry": null,
+  "externals": {
+    "tvrage": null,
+    "thetvdb": 421974,
+    "imdb": "tt18228732"
+  },
+  "image": {
+    "medium": "https://static.tvmaze.com/uploads/images/medium_portrait/485/1214687.jpg",
+    "original": "https://static.tvmaze.com/uploads/images/original_untouched/485/1214687.jpg"
+  },
+  "summary": "<p>Centred on Ashley and Gordon, two single(ish), complex humans who are brought together by a car accident and an injured dog, <b>Colin From Accounts</b> is about flawed, funny people choosing each other and being brave enough to show their true self, scars and all, as they navigate life together.</p>",
+  "updated": 1744233700,
+  "_links": {
+    "self": {
+      "href": "https://api.tvmaze.com/shows/64860"
+    },
+    "previousepisode": {
+      "href": "https://api.tvmaze.com/episodes/2895761",
+      "name": "Speedy Susans"
+    }
+  }
+}

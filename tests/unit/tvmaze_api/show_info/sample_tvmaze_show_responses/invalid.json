@@ -1,0 +1,644 @@
+{
+  "INVALID_KEY_HERE_id": 6456,
+  "url": "https://www.tvmaze.com/shows/6456/counterpart",
+  "name": "Counterpart",
+  "type": "Scripted",
+  "language": "English",
+  "genres": [
+    "Drama",
+    "Science-Fiction",
+    "Thriller"
+  ],
+  "status": "Ended",
+  "runtime": 60,
+  "averageRuntime": 60,
+  "premiered": "2017-12-10",
+  "ended": "2019-02-17",
+  "officialSite": "https://www.starz.com/series/counterpart",
+  "schedule": {
+    "time": "21:00",
+    "days": [
+      "Sunday"
+    ]
+  },
+  "rating": {
+    "average": 8.1
+  },
+  "weight": 92,
+  "network": {
+    "id": 17,
+    "name": "STARZ",
+    "country": {
+      "name": "United States",
+      "code": "US",
+      "timezone": "America/New_York"
+    },
+    "officialSite": "https://www.starz.com/us/en/"
+  },
+  "webChannel": null,
+  "dvdCountry": null,
+  "externals": {
+    "tvrage": 48738,
+    "thetvdb": 337302,
+    "imdb": "tt4643084"
+  },
+  "image": {
+    "medium": "https://static.tvmaze.com/uploads/images/medium_portrait/175/438213.jpg",
+    "original": "https://static.tvmaze.com/uploads/images/original_untouched/175/438213.jpg"
+  },
+  "summary": "<p><b>Counterpart </b>is about a mysterious world hidden beneath the surface of our everyday existence. Howard Silk is a lowly cog in the bureaucratic machinery of a Berlin-based United Nations spy agency. When Howard discovers that his organization safeguards the secret of a crossing into a parallel dimension, he is thrust into a shadow world of intrigue, danger, and double cross… where the only man he can trust is his near-identical counterpart from this parallel world. The show explores themes of identity, fate and lost love, posing the eternal question, \"what if our lives could have been different?\"</p>",
+  "updated": 1704795075,
+  "_links": {
+    "self": {
+      "href": "https://api.tvmaze.com/shows/6456"
+    },
+    "previousepisode": {
+      "href": "https://api.tvmaze.com/episodes/1579315",
+      "name": "Better Angels"
+    }
+  },
+  "_embedded": {
+    "episodes": [
+      {
+        "id": 1348666,
+        "url": "https://www.tvmaze.com/episodes/1348666/counterpart-1x01-the-crossing",
+        "name": "The Crossing",
+        "season": 1,
+        "number": 1,
+        "type": "regular",
+        "airdate": "2017-12-10",
+        "airtime": "21:00",
+        "airstamp": "2017-12-11T02:00:00+00:00",
+        "runtime": 60,
+        "rating": {
+          "average": 7.8
+        },
+        "image": {
+          "medium": "https://static.tvmaze.com/uploads/images/medium_landscape/138/345305.jpg",
+          "original": "https://static.tvmaze.com/uploads/images/original_untouched/138/345305.jpg"
+        },
+        "summary": "<p>Howard Silk, a lowly cog in the bureaucratic machinery of a Berlin-based UN spy agency. When Howard discovers that his organization safeguards the secret of a crossing into a parallel dimension, he is thrust into a shadow world of intrigue, danger, and double cross. The only man he can trust is \"Prime,\" Howard's near-identical counterpart from this parallel world.</p>",
+        "_links": {
+          "self": {
+            "href": "https://api.tvmaze.com/episodes/1348666"
+          },
+          "show": {
+            "href": "https://api.tvmaze.com/shows/6456",
+            "name": "Counterpart"
+          }
+        }
+      },
+      {
+        "id": 1371167,
+        "url": "https://www.tvmaze.com/episodes/1371167/counterpart-1x02-birds-of-a-feather",
+        "name": "Birds of a Feather",
+        "season": 1,
+        "number": 2,
+        "type": "regular",
+        "airdate": "2018-01-28",
+        "airtime": "20:00",
+        "airstamp": "2018-01-29T01:00:00+00:00",
+        "runtime": 60,
+        "rating": {
+          "average": 7.2
+        },
+        "image": {
+          "medium": "https://static.tvmaze.com/uploads/images/medium_landscape/144/360224.jpg",
+          "original": "https://static.tvmaze.com/uploads/images/original_untouched/144/360224.jpg"
+        },
+        "summary": "<p>Howard must work together with his counterpart. Baldwin comes face to face with her past. Emily, from the other side, tries to make sense of her orders.</p>",
+        "_links": {
+          "self": {
+            "href": "https://api.tvmaze.com/episodes/1371167"
+          },
+          "show": {
+            "href": "https://api.tvmaze.com/shows/6456",
+            "name": "Counterpart"
+          }
+        }
+      },
+      {
+        "id": 1371168,
+        "url": "https://www.tvmaze.com/episodes/1371168/counterpart-1x03-the-lost-art-of-diplomacy",
+        "name": "The Lost Art of Diplomacy",
+        "season": 1,
+        "number": 3,
+        "type": "regular",
+        "airdate": "2018-02-04",
+        "airtime": "20:00",
+        "airstamp": "2018-02-05T01:00:00+00:00",
+        "runtime": 60,
+        "rating": {
+          "average": 7.2
+        },
+        "image": {
+          "medium": "https://static.tvmaze.com/uploads/images/medium_landscape/143/359905.jpg",
+          "original": "https://static.tvmaze.com/uploads/images/original_untouched/143/359905.jpg"
+        },
+        "summary": "<p>Both sides turn to diplomacy to resolve a conflict. Emily obtains a special visa. Howard interrogates a suspect.</p>",
+        "_links": {
+          "self": {
+            "href": "https://api.tvmaze.com/episodes/1371168"
+          },
+          "show": {
+            "href": "https://api.tvmaze.com/shows/6456",
+            "name": "Counterpart"
+          }
+        }
+      },
+      {
+        "id": 1371169,
+        "url": "https://www.tvmaze.com/episodes/1371169/counterpart-1x04-both-sides-now",
+        "name": "Both Sides Now",
+        "season": 1,
+        "number": 4,
+        "type": "regular",
+        "airdate": "2018-02-11",
+        "airtime": "20:00",
+        "airstamp": "2018-02-12T01:00:00+00:00",
+        "runtime": 60,
+        "rating": {
+          "average": 7
+        },
+        "image": {
+          "medium": "https://static.tvmaze.com/uploads/images/medium_landscape/144/362154.jpg",
+          "original": "https://static.tvmaze.com/uploads/images/original_untouched/144/362154.jpg"
+        },
+        "summary": "<p>Both Howards deepen their investigation of the conspiracy. Quayle meets one of Howard's sources. Clare must decide what to do about Baldwin.</p>",
+        "_links": {
+          "self": {
+            "href": "https://api.tvmaze.com/episodes/1371169"
+          },
+          "show": {
+            "href": "https://api.tvmaze.com/shows/6456",
+            "name": "Counterpart"
+          }
+        }
+      },
+      {
+        "id": 1371170,
+        "url": "https://www.tvmaze.com/episodes/1371170/counterpart-1x05-shaking-the-tree",
+        "name": "Shaking the Tree",
+        "season": 1,
+        "number": 5,
+        "type": "regular",
+        "airdate": "2018-02-18",
+        "airtime": "20:00",
+        "airstamp": "2018-02-19T01:00:00+00:00",
+        "runtime": 60,
+        "rating": {
+          "average": 7.4
+        },
+        "image": {
+          "medium": "https://static.tvmaze.com/uploads/images/medium_landscape/145/364481.jpg",
+          "original": "https://static.tvmaze.com/uploads/images/original_untouched/145/364481.jpg"
+        },
+        "summary": "<p>Howard discovers another side of Emily. Howard and Emily search for answers about a mysterious drop site. Aldrich and Quayle seek intel from an old friend.</p>",
+        "_links": {
+          "self": {
+            "href": "https://api.tvmaze.com/episodes/1371170"
+          },
+          "show": {
+            "href": "https://api.tvmaze.com/shows/6456",
+            "name": "Counterpart"
+          }
+        }
+      },
+      {
+        "id": 1371171,
+        "url": "https://www.tvmaze.com/episodes/1371171/counterpart-1x06-act-like-youve-been-here-before",
+        "name": "Act Like You've Been Here Before",
+        "season": 1,
+        "number": 6,
+        "type": "regular",
+        "airdate": "2018-02-25",
+        "airtime": "20:00",
+        "airstamp": "2018-02-26T01:00:00+00:00",
+        "runtime": 60,
+        "rating": {
+          "average": 7
+        },
+        "image": {
+          "medium": "https://static.tvmaze.com/uploads/images/medium_landscape/146/366228.jpg",
+          "original": "https://static.tvmaze.com/uploads/images/original_untouched/146/366228.jpg"
+        },
+        "summary": "<p>Aldrich questions a not-too recent death in the office. Emily, Howard and Shaw follow a lead.</p>",
+        "_links": {
+          "self": {
+            "href": "https://api.tvmaze.com/episodes/1371171"
+          },
+          "show": {
+            "href": "https://api.tvmaze.com/shows/6456",
+            "name": "Counterpart"
+          }
+        }
+      },
+      {
+        "id": 1371172,
+        "url": "https://www.tvmaze.com/episodes/1371172/counterpart-1x07-the-sincerest-form-of-flattery",
+        "name": "The Sincerest Form of Flattery",
+        "season": 1,
+        "number": 7,
+        "type": "regular",
+        "airdate": "2018-03-04",
+        "airtime": "20:00",
+        "airstamp": "2018-03-05T01:00:00+00:00",
+        "runtime": 60,
+        "rating": {
+          "average": 7
+        },
+        "image": {
+          "medium": "https://static.tvmaze.com/uploads/images/medium_landscape/147/367649.jpg",
+          "original": "https://static.tvmaze.com/uploads/images/original_untouched/147/367649.jpg"
+        },
+        "summary": "<p>Clare's past is revealed. Quayle suffers through his own birthday party.</p>",
+        "_links": {
+          "self": {
+            "href": "https://api.tvmaze.com/episodes/1371172"
+          },
+          "show": {
+            "href": "https://api.tvmaze.com/shows/6456",
+            "name": "Counterpart"
+          }
+        }
+      },
+      {
+        "id": 1371173,
+        "url": "https://www.tvmaze.com/episodes/1371173/counterpart-1x08-love-the-lie",
+        "name": "Love the Lie",
+        "season": 1,
+        "number": 8,
+        "type": "regular",
+        "airdate": "2018-03-11",
+        "airtime": "19:00",
+        "airstamp": "2018-03-11T23:00:00+00:00",
+        "runtime": 60,
+        "rating": {
+          "average": 7.5
+        },
+        "image": {
+          "medium": "https://static.tvmaze.com/uploads/images/medium_landscape/147/369220.jpg",
+          "original": "https://static.tvmaze.com/uploads/images/original_untouched/147/369220.jpg"
+        },
+        "summary": "<p>The aftermath of the Indigo school discovery takes an emotional toll. Quayle grapples with his wife's new identity.</p>",
+        "_links": {
+          "self": {
+            "href": "https://api.tvmaze.com/episodes/1371173"
+          },
+          "show": {
+            "href": "https://api.tvmaze.com/shows/6456",
+            "name": "Counterpart"
+          }
+        }
+      },
+      {
+        "id": 1371174,
+        "url": "https://www.tvmaze.com/episodes/1371174/counterpart-1x09-no-mans-land-part-one",
+        "name": "No Man's Land, Part One",
+        "season": 1,
+        "number": 9,
+        "type": "regular",
+        "airdate": "2018-03-18",
+        "airtime": "20:00",
+        "airstamp": "2018-03-19T00:00:00+00:00",
+        "runtime": 60,
+        "rating": {
+          "average": 7.7
+        },
+        "image": {
+          "medium": "https://static.tvmaze.com/uploads/images/medium_landscape/148/371483.jpg",
+          "original": "https://static.tvmaze.com/uploads/images/original_untouched/148/371483.jpg"
+        },
+        "summary": "<p>Howard attempts to thwart the Guest's plans. Howard and Emily chase Kaspar.</p>",
+        "_links": {
+          "self": {
+            "href": "https://api.tvmaze.com/episodes/1371174"
+          },
+          "show": {
+            "href": "https://api.tvmaze.com/shows/6456",
+            "name": "Counterpart"
+          }
+        }
+      },
+      {
+        "id": 1419150,
+        "url": "https://www.tvmaze.com/episodes/1419150/counterpart-1x10-no-mans-land-part-two",
+        "name": "No Man's Land, Part Two",
+        "season": 1,
+        "number": 10,
+        "type": "regular",
+        "airdate": "2018-04-01",
+        "airtime": "20:00",
+        "airstamp": "2018-04-02T00:00:00+00:00",
+        "runtime": 60,
+        "rating": {
+          "average": 8.1
+        },
+        "image": {
+          "medium": "https://static.tvmaze.com/uploads/images/medium_landscape/147/369807.jpg",
+          "original": "https://static.tvmaze.com/uploads/images/original_untouched/147/369807.jpg"
+        },
+        "summary": "<p>A crisis at the O.I. leaves both Howards stranded.</p>",
+        "_links": {
+          "self": {
+            "href": "https://api.tvmaze.com/episodes/1419150"
+          },
+          "show": {
+            "href": "https://api.tvmaze.com/shows/6456",
+            "name": "Counterpart"
+          }
+        }
+      },
+      {
+        "id": 1546856,
+        "url": "https://www.tvmaze.com/episodes/1546856/counterpart-2x01-inside-out",
+        "name": "Inside Out",
+        "season": 2,
+        "number": 1,
+        "type": "regular",
+        "airdate": "2018-12-09",
+        "airtime": "21:00",
+        "airstamp": "2018-12-10T02:00:00+00:00",
+        "runtime": 60,
+        "rating": {
+          "average": 7.5
+        },
+        "image": {
+          "medium": "https://static.tvmaze.com/uploads/images/medium_landscape/175/439288.jpg",
+          "original": "https://static.tvmaze.com/uploads/images/original_untouched/175/439288.jpg"
+        },
+        "summary": "<p>While hiding in Howard's life, Howard Prime must avoid detection at home and at the OI. Quayle and Clare struggle to adjust to their new arrangement.</p>",
+        "_links": {
+          "self": {
+            "href": "https://api.tvmaze.com/episodes/1546856"
+          },
+          "show": {
+            "href": "https://api.tvmaze.com/shows/6456",
+            "name": "Counterpart"
+          }
+        }
+      },
+      {
+        "id": 1570787,
+        "url": "https://www.tvmaze.com/episodes/1570787/counterpart-2x02-outside-in",
+        "name": "Outside In",
+        "season": 2,
+        "number": 2,
+        "type": "regular",
+        "airdate": "2018-12-16",
+        "airtime": "21:00",
+        "airstamp": "2018-12-17T02:00:00+00:00",
+        "runtime": 60,
+        "rating": {
+          "average": 7.6
+        },
+        "image": {
+          "medium": "https://static.tvmaze.com/uploads/images/medium_landscape/177/443856.jpg",
+          "original": "https://static.tvmaze.com/uploads/images/original_untouched/177/443856.jpg"
+        },
+        "summary": "<p>Imprisoned on the Other Side, Howard's loyalties are tested. Emily Prime gets a promotion.</p>",
+        "_links": {
+          "self": {
+            "href": "https://api.tvmaze.com/episodes/1570787"
+          },
+          "show": {
+            "href": "https://api.tvmaze.com/shows/6456",
+            "name": "Counterpart"
+          }
+        }
+      },
+      {
+        "id": 1570788,
+        "url": "https://www.tvmaze.com/episodes/1570788/counterpart-2x03-something-borrowed",
+        "name": "Something Borrowed",
+        "season": 2,
+        "number": 3,
+        "type": "regular",
+        "airdate": "2018-12-23",
+        "airtime": "21:00",
+        "airstamp": "2018-12-24T02:00:00+00:00",
+        "runtime": 60,
+        "rating": {
+          "average": 7.9
+        },
+        "image": {
+          "medium": "https://static.tvmaze.com/uploads/images/medium_landscape/178/445373.jpg",
+          "original": "https://static.tvmaze.com/uploads/images/original_untouched/178/445373.jpg"
+        },
+        "summary": "<p>Howard is transferred to a mysterious prison called Echo. An unexpected visit gives Emily a connection to her old life. Emily Prime and Shaw's investigation is met with resistance.</p>",
+        "_links": {
+          "self": {
+            "href": "https://api.tvmaze.com/episodes/1570788"
+          },
+          "show": {
+            "href": "https://api.tvmaze.com/shows/6456",
+            "name": "Counterpart"
+          }
+        }
+      },
+      {
+        "id": 1573697,
+        "url": "https://www.tvmaze.com/episodes/1573697/counterpart-2x04-point-of-departure",
+        "name": "Point of Departure",
+        "season": 2,
+        "number": 4,
+        "type": "regular",
+        "airdate": "2018-12-30",
+        "airtime": "21:00",
+        "airstamp": "2018-12-31T02:00:00+00:00",
+        "runtime": 60,
+        "rating": {
+          "average": 7.9
+        },
+        "image": {
+          "medium": "https://static.tvmaze.com/uploads/images/medium_landscape/178/445399.jpg",
+          "original": "https://static.tvmaze.com/uploads/images/original_untouched/178/445399.jpg"
+        },
+        "summary": "<p>Howard Prime, Quayle and Clare must unite against a common enemy. Emily Prime turns her investigation towards her other. Yanek probes Howard's past.</p>",
+        "_links": {
+          "self": {
+            "href": "https://api.tvmaze.com/episodes/1573697"
+          },
+          "show": {
+            "href": "https://api.tvmaze.com/shows/6456",
+            "name": "Counterpart"
+          }
+        }
+      },
+      {
+        "id": 1575608,
+        "url": "https://www.tvmaze.com/episodes/1575608/counterpart-2x05-shadow-puppets",
+        "name": "Shadow Puppets",
+        "season": 2,
+        "number": 5,
+        "type": "regular",
+        "airdate": "2019-01-06",
+        "airtime": "21:00",
+        "airstamp": "2019-01-07T02:00:00+00:00",
+        "runtime": 60,
+        "rating": {
+          "average": 8
+        },
+        "image": {
+          "medium": "https://static.tvmaze.com/uploads/images/medium_landscape/178/446671.jpg",
+          "original": "https://static.tvmaze.com/uploads/images/original_untouched/178/446671.jpg"
+        },
+        "summary": "<p>A new revelation puts Howard Prime and Quayle in jeopardy. Life at Echo is disrupted. Clare reconnects with her past.</p>",
+        "_links": {
+          "self": {
+            "href": "https://api.tvmaze.com/episodes/1575608"
+          },
+          "show": {
+            "href": "https://api.tvmaze.com/shows/6456",
+            "name": "Counterpart"
+          }
+        }
+      },
+      {
+        "id": 1575609,
+        "url": "https://www.tvmaze.com/episodes/1575609/counterpart-2x06-twin-cities",
+        "name": "Twin Cities",
+        "season": 2,
+        "number": 6,
+        "type": "regular",
+        "airdate": "2019-01-20",
+        "airtime": "21:00",
+        "airstamp": "2019-01-21T02:00:00+00:00",
+        "runtime": 60,
+        "rating": {
+          "average": 8.2
+        },
+        "image": {
+          "medium": "https://static.tvmaze.com/uploads/images/medium_landscape/179/449717.jpg",
+          "original": "https://static.tvmaze.com/uploads/images/original_untouched/179/449717.jpg"
+        },
+        "summary": "<p>The origins of the Crossing are revealed.</p>",
+        "_links": {
+          "self": {
+            "href": "https://api.tvmaze.com/episodes/1575609"
+          },
+          "show": {
+            "href": "https://api.tvmaze.com/shows/6456",
+            "name": "Counterpart"
+          }
+        }
+      },
+      {
+        "id": 1575610,
+        "url": "https://www.tvmaze.com/episodes/1575610/counterpart-2x07-no-strings-attached",
+        "name": "No Strings Attached",
+        "season": 2,
+        "number": 7,
+        "type": "regular",
+        "airdate": "2019-01-27",
+        "airtime": "21:00",
+        "airstamp": "2019-01-28T02:00:00+00:00",
+        "runtime": 60,
+        "rating": {
+          "average": 7.8
+        },
+        "image": {
+          "medium": "https://static.tvmaze.com/uploads/images/medium_landscape/180/452137.jpg",
+          "original": "https://static.tvmaze.com/uploads/images/original_untouched/180/452137.jpg"
+        },
+        "summary": "<p>The fallout of the lockdown casts suspicions around the OI. Howard and Emily Prime find clues about the history of Management. Clare questions her allegiances.</p>",
+        "_links": {
+          "self": {
+            "href": "https://api.tvmaze.com/episodes/1575610"
+          },
+          "show": {
+            "href": "https://api.tvmaze.com/shows/6456",
+            "name": "Counterpart"
+          }
+        }
+      },
+      {
+        "id": 1579061,
+        "url": "https://www.tvmaze.com/episodes/1579061/counterpart-2x08-in-from-the-cold",
+        "name": "In from the Cold",
+        "season": 2,
+        "number": 8,
+        "type": "regular",
+        "airdate": "2019-02-03",
+        "airtime": "20:00",
+        "airstamp": "2019-02-04T01:00:00+00:00",
+        "runtime": 60,
+        "rating": {
+          "average": 7.9
+        },
+        "image": {
+          "medium": "https://static.tvmaze.com/uploads/images/medium_landscape/181/454037.jpg",
+          "original": "https://static.tvmaze.com/uploads/images/original_untouched/181/454037.jpg"
+        },
+        "summary": "<p>Howard Prime and Emily work together to figure out Indigo's plans. Clare and Quayle consider their future. Howard must face the truth about his wife.</p>",
+        "_links": {
+          "self": {
+            "href": "https://api.tvmaze.com/episodes/1579061"
+          },
+          "show": {
+            "href": "https://api.tvmaze.com/shows/6456",
+            "name": "Counterpart"
+          }
+        }
+      },
+      {
+        "id": 1579062,
+        "url": "https://www.tvmaze.com/episodes/1579062/counterpart-2x09-you-to-you",
+        "name": "You to You",
+        "season": 2,
+        "number": 9,
+        "type": "regular",
+        "airdate": "2019-02-10",
+        "airtime": "20:00",
+        "airstamp": "2019-02-11T01:00:00+00:00",
+        "runtime": 60,
+        "rating": {
+          "average": 8.1
+        },
+        "image": {
+          "medium": "https://static.tvmaze.com/uploads/images/medium_landscape/183/458250.jpg",
+          "original": "https://static.tvmaze.com/uploads/images/original_untouched/183/458250.jpg"
+        },
+        "summary": "<p>Management makes a historic decision. Emily sends a warning. Quayle, Clare and Temple investigate the final Indigo cell. Howard Prime reaches out to an old contact.</p>",
+        "_links": {
+          "self": {
+            "href": "https://api.tvmaze.com/episodes/1579062"
+          },
+          "show": {
+            "href": "https://api.tvmaze.com/shows/6456",
+            "name": "Counterpart"
+          }
+        }
+      },
+      {
+        "id": 1579315,
+        "url": "https://www.tvmaze.com/episodes/1579315/counterpart-2x10-better-angels",
+        "name": "Better Angels",
+        "season": 2,
+        "number": 10,
+        "type": "regular",
+        "airdate": "2019-02-17",
+        "airtime": "20:00",
+        "airstamp": "2019-02-18T01:00:00+00:00",
+        "runtime": 60,
+        "rating": {
+          "average": 8.2
+        },
+        "image": {
+          "medium": "https://static.tvmaze.com/uploads/images/medium_landscape/180/452143.jpg",
+          "original": "https://static.tvmaze.com/uploads/images/original_untouched/180/452143.jpg"
+        },
+        "summary": "<p>Mira's looming threat forges some unlikely alliances.</p>",
+        "_links": {
+          "self": {
+            "href": "https://api.tvmaze.com/episodes/1579315"
+          },
+          "show": {
+            "href": "https://api.tvmaze.com/shows/6456",
+            "name": "Counterpart"
+          }
+        }
+      }
+    ]
+  }
+}

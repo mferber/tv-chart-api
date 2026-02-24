@@ -1,0 +1,60 @@
+{
+  "id": 6456,
+  "url": "https://www.tvmaze.com/shows/6456/counterpart",
+  "name": "Counterpart",
+  "type": "Scripted",
+  "language": "English",
+  "genres": [
+    "Drama",
+    "Science-Fiction",
+    "Thriller"
+  ],
+  "status": "Ended",
+  "runtime": 60,
+  "averageRuntime": 60,
+  "premiered": "2017-12-10",
+  "ended": "2019-02-17",
+  "officialSite": "https://www.starz.com/series/counterpart",
+  "schedule": {
+    "time": "21:00",
+    "days": [
+      "Sunday"
+    ]
+  },
+  "rating": {
+    "average": 8.1
+  },
+  "weight": 92,
+  "network": {
+    "id": 17,
+    "name": "STARZ",
+    "country": {
+      "name": "United States",
+      "code": "US",
+      "timezone": "America/New_York"
+    },
+    "officialSite": "https://www.starz.com/us/en/"
+  },
+  "webChannel": null,
+  "dvdCountry": null,
+  "externals": {
+    "tvrage": 48738,
+    "thetvdb": 337302,
+    "imdb": "tt4643084"
+  },
+  "image": {
+    "medium": "https://static.tvmaze.com/uploads/images/medium_portrait/175/438213.jpg",
+    "original": "https://static.tvmaze.com/uploads/images/original_untouched/175/438213.jpg"
+  },
+  "summary": "<p><b>Counterpart </b>is about a mysterious world hidden beneath the surface of our everyday existence. Howard Silk is a lowly cog in the bureaucratic machinery of a Berlin-based United Nations spy agency. When Howard discovers that his organization safeguards the secret of a crossing into a parallel dimension, he is thrust into a shadow world of intrigue, danger, and double cross… where the only man he can trust is his near-identical counterpart from this parallel world. The show explores themes of identity, fate and lost love, posing the eternal question, \"what if our lives could have been different?\"</p>",
+  "updated": 1704795075,
+  "_links": {
+    "self": {
+      "href": "https://api.tvmaze.com/shows/6456"
+    },
+    "previousepisode": {
+      "href": "https://api.tvmaze.com/episodes/1579315",
+      "name": "Better Angels"
+    }
+  }
+}

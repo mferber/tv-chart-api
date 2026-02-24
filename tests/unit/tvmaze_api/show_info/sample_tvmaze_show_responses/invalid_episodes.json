@@ -1,0 +1,31 @@
+[
+  {
+    "INVALID KEY id": 13857,
+    "url": "https://www.tvmaze.com/episodes/13857/doctor-who-1x01-rose",
+    "name": "Rose",
+    "season": 1,
+    "number": 1,
+    "type": "regular",
+    "airdate": "2005-03-26",
+    "airtime": "19:35",
+    "airstamp": "2005-03-26T19:35:00+00:00",
+    "runtime": 45,
+    "rating": {
+      "average": 7.5
+    },
+    "image": {
+      "medium": "https://static.tvmaze.com/uploads/images/medium_landscape/120/302096.jpg",
+      "original": "https://static.tvmaze.com/uploads/images/original_untouched/120/302096.jpg"
+    },
+    "summary": "<p>Rose Tyler meets a mysterious stranger called the Doctor, and realises Earth is in danger.</p>",
+    "_links": {
+      "self": {
+        "href": "https://api.tvmaze.com/episodes/13857"
+      },
+      "show": {
+        "href": "https://api.tvmaze.com/shows/210",
+        "name": "Doctor Who"
+      }
+    }
+  }
+]

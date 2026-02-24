@@ -5,10 +5,12 @@ Models for TVmaze API responses.
 import datetime
 from typing import Self
 
-from pydantic import BaseModel, HttpUrl
+from pydantic import BaseModel, HttpUrl, RootModel
 
 from models.search import SearchResult, SearchResults
 from tvmaze_api.utils.html_sanitizer import sanitize_html
+
+# General-use models
 
 
 class TVmazeCountry(BaseModel):
@@ -30,6 +32,41 @@ class TVmazeImage(BaseModel):
     original: HttpUrl | None
 
 
+# Show model
+
+
+class TVmazeShow(BaseModel):
+    """Encapsulates a show represented in TVmaze's API."""
+
+    id: int
+    name: str
+    averageRuntime: int | None
+    network: TVmazeNetwork | None
+    webChannel: TVmazeWebChannel | None
+    image: TVmazeImage
+
+
+# Episode model
+
+
+class Episode(BaseModel):
+    id: int
+    name: str | None
+    season: int | None
+    number: int | None
+    type: str
+    airdate: str | None
+    runtime: int | None
+    summary: str | None
+
+
+class EpisodeList(RootModel):
+    root: list[Episode]
+
+
+# Search results models
+
+
 class TVmazeSearchResultShow(BaseModel):
     """
     Encapsulates a single show representation in TVmaze search results.
@@ -47,8 +84,7 @@ class TVmazeSearchResultShow(BaseModel):
 
 
 class TVmazeSearchResult(BaseModel):
-    """
-    Top level DTO encapsulating a search result. TVmaze results are given as
+    """Top level DTO encapsulating a search result. TVmaze results are given as
     an array of objects that contain a `score` (which we ignore) and a `show`.
     See class method for handling of the array.
     """
