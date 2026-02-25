@@ -2,8 +2,8 @@ import pytest
 from pydantic import HttpUrl, ValidationError
 
 from tvmaze_api.models import (
-    EpisodeList,
     TVmazeCountry,
+    TVmazeEpisodeList,
     TVmazeNetwork,
     TVmazeShow,
     TVmazeWebChannel,
@@ -54,7 +54,7 @@ def test_invalid_show_fails() -> None:
 def test_valid_episode_list() -> None:
     json = read_sample("episodes.json")
 
-    episode_list = EpisodeList.model_validate_json(json)
+    episode_list = TVmazeEpisodeList.model_validate_json(json)
     episodes = episode_list.root
 
     assert len(episodes) == 254  # yeah, modern Doctor Who has a lot of episodes

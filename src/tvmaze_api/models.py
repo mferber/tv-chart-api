@@ -49,7 +49,7 @@ class TVmazeShow(BaseModel):
 # Episode model
 
 
-class Episode(BaseModel):
+class TVmazeEpisode(BaseModel):
     id: int
     name: str | None
     season: int | None
@@ -60,8 +60,8 @@ class Episode(BaseModel):
     summary: str | None
 
 
-class EpisodeList(RootModel):
-    root: list[Episode]
+class TVmazeEpisodeList(RootModel):
+    root: list[TVmazeEpisode]
 
 
 # Search results models
