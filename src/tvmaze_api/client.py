@@ -31,9 +31,10 @@ class TVmazeAPIClient:
     RETRY_BACKOFF_FACTOR = 3
 
     class UrlPaths(StrEnum):
+        TEST = "/shows/1"
         SEARCH = "/search/shows"
 
-    async def _get(self, relative_url: str, params: dict[str, str]) -> str:
+    async def _get(self, relative_url: str, params: dict[str, str] | None) -> str:
         """Make a GET request to TVmaze.
 
         If rate-limited by server, retries some number of times with exponential
@@ -71,12 +72,18 @@ class TVmazeAPIClient:
 
                     break  # no error: end the retry loop
 
-        except httpx.HTTPStatusError as e:
-            if e.response.status_code == httpx.codes.TOO_MANY_REQUESTS:
-                raise RateLimitedError from e
+        except httpx.HTTPError as e:
+            if isinstance(e, httpx.HTTPStatusError):
+                if e.response.status_code == httpx.codes.TOO_MANY_REQUESTS:
+                    raise RateLimitedError from e
             raise ConnectionError from e
 
         return rsp.text
+
+    async def test_query(self) -> None:
+        """Makes a test query to TVmaze, for testing purposes only. The content
+        of the request doesn't matter."""
+        await self._get(self.UrlPaths.TEST, None)
 
     async def search_shows(self, query: str) -> TVmazeSearchResultList:
         """Searches TVmaze for the given query string.
@@ -89,5 +96,3 @@ class TVmazeAPIClient:
             return TVmazeSearchResultList.model_validate_json(rsp_text)
         except pydantic.ValidationError as e:
             raise InvalidResponseError from e
-        except httpx.HTTPError as e:
-            raise ConnectionError from e
