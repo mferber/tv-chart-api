@@ -1,11 +1,10 @@
 import asyncio
-from enum import StrEnum
 from typing import Final
 
 import httpx
 import pydantic
 
-from tvmaze_api.models import TVmazeSearchResultList
+from tvmaze_api.models import TVmazeEpisodeList, TVmazeSearchResultList, TVmazeShow
 
 
 class ConnectionError(Exception):
@@ -20,6 +19,26 @@ class InvalidResponseError(Exception):
     pass
 
 
+class _TVmazeURL:
+    type TVmazeURLType = tuple[str, dict[str, str]]
+
+    @classmethod
+    def test(cls) -> TVmazeURLType:
+        return ("/shows/1", {})
+
+    @classmethod
+    def search(cls, query: str) -> TVmazeURLType:
+        return ("/search/shows", {"q": query})
+
+    @classmethod
+    def get_show(cls, tvmaze_id: int) -> TVmazeURLType:
+        return (f"/shows/{tvmaze_id}", {})
+
+    @classmethod
+    def get_show_episodes(cls, tvmaze_id: int) -> TVmazeURLType:
+        return (f"/shows/{tvmaze_id}/episodes", {})
+
+
 class TVmazeAPIClient:
     BASE_URL: Final[str] = "https://api.tvmaze.com"
 
@@ -29,10 +48,6 @@ class TVmazeAPIClient:
     # eventually succeeding.
     RETRY_LIMIT = 4  # including the first try
     RETRY_BACKOFF_FACTOR = 3
-
-    class UrlPaths(StrEnum):
-        TEST = "/shows/1"
-        SEARCH = "/search/shows"
 
     async def _get(self, relative_url: str, params: dict[str, str] | None) -> str:
         """Make a GET request to TVmaze.
@@ -83,7 +98,7 @@ class TVmazeAPIClient:
     async def test_query(self) -> None:
         """Makes a test query to TVmaze, for testing purposes only. The content
         of the request doesn't matter."""
-        await self._get(self.UrlPaths.TEST, None)
+        await self._get(*_TVmazeURL.test())
 
     async def search_shows(self, query: str) -> TVmazeSearchResultList:
         """Searches TVmaze for the given query string.
@@ -92,7 +107,33 @@ class TVmazeAPIClient:
             List of `TVmazeSearchResult`s encapsulating the search results
         """
         try:
-            rsp_text = await self._get(self.UrlPaths.SEARCH, {"q": query})
+            rsp_text = await self._get(*_TVmazeURL.search(query))
             return TVmazeSearchResultList.model_validate_json(rsp_text)
+        except pydantic.ValidationError as e:
+            raise InvalidResponseError from e
+
+    async def get_show(self, tvmaze_id: int) -> TVmazeShow:
+        """Fetches metadata for the given show from TVmaze.
+
+        Returns:
+            `TVMazeShow` instance.
+        """
+        try:
+            rsp_text = await self._get(*_TVmazeURL.get_show(tvmaze_id=tvmaze_id))
+            return TVmazeShow.model_validate_json(rsp_text)
+        except pydantic.ValidationError as e:
+            raise InvalidResponseError from e
+
+    async def get_show_episodes(self, tvmaze_id: int) -> TVmazeEpisodeList:
+        """Fetches metadata for all episodes of the given show from TVmaze.
+
+        Returns:
+            `TVmazeEpisodeList` instance.
+        """
+        try:
+            rsp_text = await self._get(
+                *_TVmazeURL.get_show_episodes(tvmaze_id=tvmaze_id)
+            )
+            return TVmazeEpisodeList.model_validate_json(rsp_text)
         except pydantic.ValidationError as e:
             raise InvalidResponseError from e

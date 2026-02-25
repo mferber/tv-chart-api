@@ -54,7 +54,7 @@ def test_valid_streaming_show() -> None:
 
 
 def test_invalid_show_fails() -> None:
-    json = sample_file_reader.read("invalid.json")
+    json = sample_file_reader.read("network_show_invalid.json")
 
     with pytest.raises(ValidationError):
         _ = TVmazeShow.model_validate_json(json)

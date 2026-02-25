@@ -32,7 +32,7 @@ async def test_search_request(respx_mock: respx.MockRouter) -> None:
     assert dict(url.params) == {"q": "query"}
 
     # verify we extracted the expected pydantic model
-    expected = pydantic_model_battlestar_galactica()
+    expected = pydantic_model_battlestar_galactica_results()
     assert rsp.root == expected
 
 
@@ -54,7 +54,7 @@ async def test_invalid_response_raises(respx_mock: respx.MockRouter) -> None:
 # --- Helpers ---
 
 
-def pydantic_model_battlestar_galactica() -> list[TVmazeSearchResult]:
+def pydantic_model_battlestar_galactica_results() -> list[TVmazeSearchResult]:
     return [
         TVmazeSearchResult(
             show=TVmazeSearchResultShow(
