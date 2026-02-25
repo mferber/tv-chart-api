@@ -1,6 +1,7 @@
 import pytest
 from pydantic import HttpUrl, ValidationError
 
+from models.show import EpisodeType
 from tvmaze_api.models import (
     TVmazeCountry,
     TVmazeEpisodeList,
@@ -24,12 +25,16 @@ def test_valid_network_show() -> None:
         name="STARZ", country=TVmazeCountry(name="United States")
     )
     assert tvmaze_show.webChannel is None
+    assert tvmaze_show.image is not None
     assert tvmaze_show.image.medium == HttpUrl(
         "https://static.tvmaze.com/uploads/images/medium_portrait/175/438213.jpg"
     )
     assert tvmaze_show.image.original == HttpUrl(
         "https://static.tvmaze.com/uploads/images/original_untouched/175/438213.jpg"
     )
+    assert tvmaze_show.externals is not None
+    assert tvmaze_show.externals.imdb == "tt4643084"
+    assert tvmaze_show.externals.thetvdb == 337302
 
 
 def test_valid_streaming_show() -> None:
@@ -42,6 +47,9 @@ def test_valid_streaming_show() -> None:
     assert tvmaze_show.webChannel == TVmazeWebChannel(
         name="Binge", country=TVmazeCountry(name="Australia")
     )
+    assert tvmaze_show.externals is not None
+    assert tvmaze_show.externals.imdb == "tt18228732"
+    assert tvmaze_show.externals.thetvdb == 421974
 
 
 def test_invalid_show_fails() -> None:
@@ -52,7 +60,7 @@ def test_invalid_show_fails() -> None:
 
 
 def test_valid_episode_list() -> None:
-    json = read_sample("episodes.json")
+    json = read_sample("complicated_show_episodes.json")
 
     episode_list = TVmazeEpisodeList.model_validate_json(json)
     episodes = episode_list.root
@@ -96,3 +104,54 @@ def test_invalid_episodes_fails() -> None:
 
     with pytest.raises(ValidationError):
         _ = TVmazeShow.model_validate_json(json)
+
+
+def test_tvmaze_show_to_show_create_model_conversion() -> None:
+    tvmaze_show = TVmazeShow.model_validate_json(read_sample("network_show.json"))
+    tvmaze_episode_list = TVmazeEpisodeList.model_validate_json(
+        read_sample("network_show_episodes.json")
+    )
+
+    show_create = tvmaze_show.to_show_create_model(with_episodes=tvmaze_episode_list)
+
+    assert show_create.tvmaze_id == 6456
+    assert show_create.title == "Counterpart"
+    assert show_create.source == "STARZ"
+    assert show_create.duration == 60
+    assert show_create.image_sm_url == HttpUrl(
+        "https://static.tvmaze.com/uploads/images/medium_portrait/175/438213.jpg"
+    )
+    assert show_create.image_lg_url == HttpUrl(
+        "https://static.tvmaze.com/uploads/images/original_untouched/175/438213.jpg"
+    )
+    assert show_create.imdb_id == "tt4643084"
+    assert show_create.thetvdb_id == 337302
+    assert len(show_create.seasons) == 2
+    assert len(show_create.seasons[0]) == 10
+    assert len(show_create.seasons[1]) == 10
+    for season in show_create.seasons:
+        assert all(episode.type == EpisodeType.EPISODE for episode in season)
+        assert all(not episode.watched for episode in season)
+
+
+def test_complicated_show_episodes() -> None:
+    """Tests against Doctor Who, a long complicated show with lots of specials
+    interspersed among the regular episodes"""
+
+    tvmaze_show = TVmazeShow.model_validate_json(read_sample("complicated_show.json"))
+    tvmaze_episode_list = TVmazeEpisodeList.model_validate_json(
+        read_sample("complicated_show_episodes.json")
+    )
+
+    show_create = tvmaze_show.to_show_create_model(with_episodes=tvmaze_episode_list)
+
+    assert len(show_create.seasons) == 13
+
+    # season 6 has lots of specials interspersed
+    season6 = show_create.seasons[5]
+    assert len(season6) == 20
+    assert len(list(filter(lambda ep: ep.type == EpisodeType.SPECIAL, season6))) == 7
+    assert season6[0].type == EpisodeType.SPECIAL
+    assert season6[1].type == EpisodeType.EPISODE
+    assert season6[2].type == EpisodeType.EPISODE
+    assert season6[3].type == EpisodeType.SPECIAL

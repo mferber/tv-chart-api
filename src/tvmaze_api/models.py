@@ -8,6 +8,7 @@ from typing import Self
 from pydantic import BaseModel, HttpUrl, RootModel
 
 from models.search import SearchResult, SearchResults
+from models.show import EpisodeDescriptor, EpisodeType, ShowCreate
 from tvmaze_api.utils.html_sanitizer import sanitize_html
 
 # General-use models
@@ -32,21 +33,12 @@ class TVmazeImage(BaseModel):
     original: HttpUrl | None
 
 
-# Show model
+class TVmazeExternals(BaseModel):
+    imdb: str | None
+    thetvdb: int | None
 
 
-class TVmazeShow(BaseModel):
-    """Encapsulates a show represented in TVmaze's API."""
-
-    id: int
-    name: str
-    averageRuntime: int | None
-    network: TVmazeNetwork | None
-    webChannel: TVmazeWebChannel | None
-    image: TVmazeImage
-
-
-# Episode model
+# Episode and show models
 
 
 class TVmazeEpisode(BaseModel):
@@ -62,6 +54,57 @@ class TVmazeEpisode(BaseModel):
 
 class TVmazeEpisodeList(RootModel):
     root: list[TVmazeEpisode]
+
+    def to_episode_models(self) -> list[list[EpisodeDescriptor]]:
+        filtered_eps = filter(lambda ep: ep.type != "insignificant_special", self.root)
+
+        seasons: list[list[EpisodeDescriptor]] = []
+        current_season: list[EpisodeDescriptor] = []
+        current_season_num = 1
+        for ep in filtered_eps:
+            if ep.season != current_season_num:
+                seasons.append(current_season)
+                current_season = []
+                current_season_num += 1
+            episode_type = (
+                EpisodeType.EPISODE if ep.type == "regular" else EpisodeType.SPECIAL
+            )
+            current_season.append(EpisodeDescriptor(type=episode_type, watched=False))
+        if current_season:
+            seasons.append(current_season)
+        return seasons
+
+
+class TVmazeShow(BaseModel):
+    """Encapsulates a show represented in TVmaze's API."""
+
+    id: int
+    name: str
+    averageRuntime: int | None
+    network: TVmazeNetwork | None
+    webChannel: TVmazeWebChannel | None
+    image: TVmazeImage | None
+    externals: TVmazeExternals | None
+
+    def to_show_create_model(self, *, with_episodes: TVmazeEpisodeList) -> ShowCreate:
+        if self.network and self.network.name:
+            source = self.network.name
+        elif self.webChannel and self.webChannel.name:
+            source = self.webChannel.name
+        else:
+            source = "n/a"
+
+        return ShowCreate(
+            tvmaze_id=self.id,
+            title=self.name,
+            source=source,
+            duration=self.averageRuntime or 0,
+            image_sm_url=self.image.medium if self.image else None,
+            image_lg_url=self.image.original if self.image else None,
+            imdb_id=self.externals.imdb if self.externals else None,
+            thetvdb_id=self.externals.thetvdb if self.externals else None,
+            seasons=with_episodes.to_episode_models(),
+        )
 
 
 # Search results models
