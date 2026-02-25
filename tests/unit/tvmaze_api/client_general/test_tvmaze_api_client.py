@@ -28,13 +28,14 @@ from tvmaze_api.models import (
     TVmazeSearchResult,
     TVmazeSearchResultShow,
 )
+from unit.testing_data.reader import SampleFileReader
 
-from .sample_tvmaze_responses.reader import read_sample
+sample_file_reader = SampleFileReader("sample_tvmaze_search_results")
 
 
 @pytest.mark.asyncio
 async def test_search_request(respx_mock: respx.MockRouter) -> None:
-    text = read_sample("multiple_results.json")
+    text = sample_file_reader.read("multiple_results.json")
     route = respx_mock.route(method="GET").respond(text=text)
     client = TVmazeAPIClient()
 
@@ -53,7 +54,7 @@ async def test_search_request(respx_mock: respx.MockRouter) -> None:
 
 @pytest.mark.asyncio
 async def test_invalid_response_raises(respx_mock: respx.MockRouter) -> None:
-    text = read_sample("multiple_results_invalid.json")
+    text = sample_file_reader.read("multiple_results_invalid.json")
     route = respx_mock.route(method="GET").respond(text=text)
 
     with pytest.raises(InvalidResponseError):

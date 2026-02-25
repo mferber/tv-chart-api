@@ -10,12 +10,13 @@ from tvmaze_api.models import (
     TVmazeNetwork,
     TVmazeSearchResult,
 )
+from unit.testing_data.reader import SampleFileReader
 
-from .sample_tvmaze_search_results.reader import read_sample
+sample_file_reader = SampleFileReader("sample_tvmaze_search_results")
 
 
 def test_response_validation() -> None:
-    response_json = read_sample("result.json")
+    response_json = sample_file_reader.read("result.json")
     r = TVmazeSearchResult.model_validate_json(response_json)
 
     assert r.show
@@ -44,5 +45,5 @@ def test_response_validation() -> None:
 
 def test_response_validation_failure() -> None:
     with pytest.raises(pydantic.ValidationError):
-        response_json = read_sample("result_invalid.json")
+        response_json = sample_file_reader.read("result_invalid.json")
         _ = TVmazeSearchResult.model_validate_json(response_json)

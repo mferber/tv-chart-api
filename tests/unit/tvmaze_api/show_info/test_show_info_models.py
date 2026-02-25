@@ -9,12 +9,13 @@ from tvmaze_api.models import (
     TVmazeShow,
     TVmazeWebChannel,
 )
+from unit.testing_data.reader import SampleFileReader
 
-from .sample_tvmaze_show_responses.reader import read_sample
+sample_file_reader = SampleFileReader("sample_tvmaze_show_responses")
 
 
 def test_valid_network_show() -> None:
-    json = read_sample("network_show.json")
+    json = sample_file_reader.read("network_show.json")
 
     tvmaze_show = TVmazeShow.model_validate_json(json)
 
@@ -38,7 +39,7 @@ def test_valid_network_show() -> None:
 
 
 def test_valid_streaming_show() -> None:
-    json = read_sample("streaming_service_show.json")
+    json = sample_file_reader.read("streaming_service_show.json")
 
     tvmaze_show = TVmazeShow.model_validate_json(json)
 
@@ -53,14 +54,14 @@ def test_valid_streaming_show() -> None:
 
 
 def test_invalid_show_fails() -> None:
-    json = read_sample("invalid.json")
+    json = sample_file_reader.read("invalid.json")
 
     with pytest.raises(ValidationError):
         _ = TVmazeShow.model_validate_json(json)
 
 
 def test_valid_episode_list() -> None:
-    json = read_sample("complicated_show_episodes.json")
+    json = sample_file_reader.read("complicated_show_episodes.json")
 
     episode_list = TVmazeEpisodeList.model_validate_json(json)
     episodes = episode_list.root
@@ -100,16 +101,18 @@ def test_valid_episode_list() -> None:
 
 
 def test_invalid_episodes_fails() -> None:
-    json = read_sample("invalid_episodes.json")
+    json = sample_file_reader.read("invalid_episodes.json")
 
     with pytest.raises(ValidationError):
         _ = TVmazeShow.model_validate_json(json)
 
 
 def test_tvmaze_show_to_show_create_model_conversion() -> None:
-    tvmaze_show = TVmazeShow.model_validate_json(read_sample("network_show.json"))
+    tvmaze_show = TVmazeShow.model_validate_json(
+        sample_file_reader.read("network_show.json")
+    )
     tvmaze_episode_list = TVmazeEpisodeList.model_validate_json(
-        read_sample("network_show_episodes.json")
+        sample_file_reader.read("network_show_episodes.json")
     )
 
     show_create = tvmaze_show.to_show_create_model(with_episodes=tvmaze_episode_list)
@@ -138,9 +141,11 @@ def test_complicated_show_episodes() -> None:
     """Tests against Doctor Who, a long complicated show with lots of specials
     interspersed among the regular episodes"""
 
-    tvmaze_show = TVmazeShow.model_validate_json(read_sample("complicated_show.json"))
+    tvmaze_show = TVmazeShow.model_validate_json(
+        sample_file_reader.read("complicated_show.json")
+    )
     tvmaze_episode_list = TVmazeEpisodeList.model_validate_json(
-        read_sample("complicated_show_episodes.json")
+        sample_file_reader.read("complicated_show_episodes.json")
     )
 
     show_create = tvmaze_show.to_show_create_model(with_episodes=tvmaze_episode_list)
