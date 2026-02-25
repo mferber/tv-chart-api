@@ -1,8 +1,8 @@
 import pytest
 import respx
-from helpers.test_data.types import FakeUser
+from helpers.testing_data.mock_responses.reader import SampleFileReader
+from helpers.testing_data.types import FakeUser
 from litestar.testing import TestClient
-from unit.testing_data.reader import SampleFileReader
 
 
 @pytest.mark.parametrize("login_as_user", ["test_user1"], indirect=True)

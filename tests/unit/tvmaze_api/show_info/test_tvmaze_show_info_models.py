@@ -1,4 +1,5 @@
 import pytest
+from helpers.testing_data.mock_responses.reader import SampleFileReader
 from pydantic import HttpUrl, ValidationError
 
 from models.show import EpisodeType
@@ -9,7 +10,6 @@ from tvmaze_api.models import (
     TVmazeShow,
     TVmazeWebChannel,
 )
-from unit.testing_data.reader import SampleFileReader
 
 sample_file_reader = SampleFileReader("sample_tvmaze_show_responses")
 

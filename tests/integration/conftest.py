@@ -3,7 +3,7 @@ from typing import AsyncIterator, Iterator
 
 import pytest
 import pytest_asyncio
-from helpers.test_data.db_setup import seed_test_db
+from helpers.testing_data.db_setup import seed_test_db
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
 from testcontainers.postgres import PostgresContainer  # type: ignore
 

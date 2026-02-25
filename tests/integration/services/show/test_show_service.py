@@ -1,5 +1,5 @@
 import pytest
-from helpers.test_data.users import get_user_id
+from helpers.testing_data.users import get_user_id
 from pydantic import HttpUrl
 from sqlalchemy.ext.asyncio import AsyncSession
 

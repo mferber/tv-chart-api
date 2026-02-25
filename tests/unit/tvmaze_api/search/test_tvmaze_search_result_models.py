@@ -2,6 +2,7 @@ import datetime
 
 import pydantic
 import pytest
+from helpers.testing_data.mock_responses.reader import SampleFileReader
 from pydantic import HttpUrl
 
 from tvmaze_api.models import (
@@ -10,7 +11,6 @@ from tvmaze_api.models import (
     TVmazeNetwork,
     TVmazeSearchResult,
 )
-from unit.testing_data.reader import SampleFileReader
 
 sample_file_reader = SampleFileReader("sample_tvmaze_search_results")
 

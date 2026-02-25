@@ -10,6 +10,7 @@ the service layer, where we also test conversion to app domain models.
 import httpx
 import pytest
 import respx
+from helpers.testing_data.mock_responses.reader import SampleFileReader
 from pytest_mock import MockerFixture
 
 from tvmaze_api.client import (
@@ -17,7 +18,6 @@ from tvmaze_api.client import (
     RateLimitedError,
     TVmazeAPIClient,
 )
-from unit.testing_data.reader import SampleFileReader
 
 sample_file_reader = SampleFileReader("sample_tvmaze_search_results")
 
