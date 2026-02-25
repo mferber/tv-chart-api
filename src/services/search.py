@@ -1,6 +1,5 @@
 from models.search import SearchResults
 from tvmaze_api.client import TVmazeAPIClient
-from tvmaze_api.models import TVmazeSearchResult
 
 
 class SearchError(Exception):
@@ -26,6 +25,6 @@ class SearchService:
 
         try:
             tvmaze_results = await TVmazeAPIClient().search_shows(query)
-            return TVmazeSearchResult.to_search_results_model(tvmaze_results)
+            return tvmaze_results.to_search_results_model()
         except Exception as e:
             raise SearchError from e

@@ -4,9 +4,8 @@ from typing import Final
 
 import httpx
 import pydantic
-from pydantic import TypeAdapter
 
-from tvmaze_api.models import TVmazeSearchResult
+from tvmaze_api.models import TVmazeSearchResultList
 
 
 class ConnectionError(Exception):
@@ -79,7 +78,7 @@ class TVmazeAPIClient:
 
         return rsp.text
 
-    async def search_shows(self, query: str) -> list[TVmazeSearchResult]:
+    async def search_shows(self, query: str) -> TVmazeSearchResultList:
         """Searches TVmaze for the given query string.
 
         Returns:
@@ -87,8 +86,7 @@ class TVmazeAPIClient:
         """
         try:
             rsp_text = await self._get(self.UrlPaths.SEARCH, {"q": query})
-            adapter = TypeAdapter(list[TVmazeSearchResult])
-            return adapter.validate_json(rsp_text)
+            return TVmazeSearchResultList.model_validate_json(rsp_text)
         except pydantic.ValidationError as e:
             raise InvalidResponseError from e
         except httpx.HTTPError as e:

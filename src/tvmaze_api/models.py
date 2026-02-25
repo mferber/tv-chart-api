@@ -3,7 +3,6 @@ Models for TVmaze API responses.
 """
 
 import datetime
-from typing import Self
 
 from pydantic import BaseModel, HttpUrl, RootModel
 
@@ -164,8 +163,11 @@ class TVmazeSearchResult(BaseModel):
             image_lg_url=self.show.image.original if self.show.image else None,
         )
 
-    @classmethod
-    def to_search_results_model(cls, result_dtos: list[Self]) -> SearchResults:
+
+class TVmazeSearchResultList(RootModel):
+    root: list[TVmazeSearchResult]
+
+    def to_search_results_model(self) -> SearchResults:
         return SearchResults(
-            results=[dto.to_search_result_model() for dto in result_dtos]
+            results=[result.to_search_result_model() for result in self.root]
         )

@@ -48,7 +48,7 @@ async def test_search_request(respx_mock: respx.MockRouter) -> None:
 
     # verify we extracted the expected pydantic model
     expected = pydantic_model_battlestar_galactica()
-    assert rsp == expected
+    assert rsp.root == expected
 
 
 @pytest.mark.asyncio

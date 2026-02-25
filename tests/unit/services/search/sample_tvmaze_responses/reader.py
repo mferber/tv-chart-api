@@ -1,15 +1,12 @@
 from pathlib import Path
 
-from pydantic import TypeAdapter
-
-from tvmaze_api.models import TVmazeSearchResult
+from tvmaze_api.models import TVmazeSearchResultList
 
 
 def read_sample(fname: str) -> str:
     return (Path(__file__).parent / fname).read_text()
 
 
-def get_TVmaze_responses_from_json(fname: str) -> list[TVmazeSearchResult]:
+def get_TVmaze_responses_from_json(fname: str) -> TVmazeSearchResultList:
     json = read_sample(fname)
-    adapter = TypeAdapter(list[TVmazeSearchResult])
-    return adapter.validate_json(json)
+    return TVmazeSearchResultList.model_validate_json(json)
