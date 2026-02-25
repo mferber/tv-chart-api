@@ -10,7 +10,7 @@ from tvmaze_api.models import (
     TVmazeWebChannel,
 )
 
-from ..sample_tvmaze_show_responses.reader import read_sample
+from .sample_tvmaze_show_responses.reader import read_sample
 
 
 def test_valid_network_show() -> None:

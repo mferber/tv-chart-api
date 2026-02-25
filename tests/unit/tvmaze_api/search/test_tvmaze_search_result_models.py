@@ -11,7 +11,7 @@ from tvmaze_api.models import (
     TVmazeSearchResult,
 )
 
-from ..sample_tvmaze_search_results.reader import read_sample
+from .sample_tvmaze_search_results.reader import read_sample
 
 
 def test_response_validation() -> None:
