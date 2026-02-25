@@ -8,9 +8,6 @@ from .sample_tvmaze_responses.reader import read_sample
 
 
 @pytest.mark.asyncio
-# @pytest.mark.parametrize(
-#     "mocked_get", [(200, read_sample("multiple_results.json"))], indirect=True
-# )
 async def test_search_service(respx_mock: respx.MockRouter) -> None:
     text = read_sample("multiple_results.json")
     respx_mock.route(method="GET").respond(text=text)
