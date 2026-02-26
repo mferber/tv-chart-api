@@ -61,7 +61,7 @@ async def test_show_episodes_request(respx_mock: respx.MockRouter) -> None:
     assert route.call_count == 1
     url = route.calls.last.request.url
     assert url.path == "/shows/6456/episodes"
-    assert dict(url.params) == {}
+    assert dict(url.params) == {"specials": "1"}
 
     # verify 2 seasons of 10 episodes
     episodes = rsp.root

@@ -36,7 +36,7 @@ class _TVmazeURL:
 
     @classmethod
     def get_show_episodes(cls, tvmaze_id: int) -> TVmazeURLType:
-        return (f"/shows/{tvmaze_id}/episodes", {})
+        return (f"/shows/{tvmaze_id}/episodes", {"specials": "1"})
 
 
 class TVmazeAPIClient:
