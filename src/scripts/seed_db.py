@@ -35,6 +35,7 @@ def create_users(db_session: AsyncSession) -> list[User]:
 def create_shows(db_session: AsyncSession, owning_user: User) -> None:
     def make_episode(index: int, special: bool, watched: bool) -> dict:
         return {
+            "title": f"Episode index {index} title",
             "type": "special" if special else "episode",
             "watched": watched,
         }

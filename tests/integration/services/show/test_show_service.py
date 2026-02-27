@@ -33,6 +33,7 @@ async def test_get_shows(autorollback_db_session: AsyncSession) -> None:
     for season_idx, season in enumerate(all_creatures.seasons):
         assert len(season) == 7
         for idx, ep in enumerate(season):
+            assert ep.title != "Untitled"
             assert ep.type == ("special" if idx == 6 else "episode")
             assert ep.watched == (True if season_idx == 0 else False)
 
@@ -95,12 +96,12 @@ async def test_add_show(autorollback_db_session: AsyncSession) -> None:
         thetvdb_id=9999,
         seasons=[
             [
-                EpisodeDescriptor(type=EpisodeType.EPISODE, watched=True),
-                EpisodeDescriptor(type=EpisodeType.SPECIAL, watched=True),
+                EpisodeDescriptor(title="Season 1 episode", type=EpisodeType.EPISODE, watched=True),
+                EpisodeDescriptor(title="Season 1 special", type=EpisodeType.SPECIAL, watched=True),
             ],
             [
-                EpisodeDescriptor(type=EpisodeType.EPISODE, watched=False),
-                EpisodeDescriptor(type=EpisodeType.SPECIAL, watched=False),
+                EpisodeDescriptor(title="Season 2 episode", type=EpisodeType.EPISODE, watched=False),
+                EpisodeDescriptor(title="Season 2 special", type=EpisodeType.SPECIAL, watched=False),
             ],
         ],
     )

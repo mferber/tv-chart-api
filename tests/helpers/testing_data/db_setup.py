@@ -57,6 +57,7 @@ async def _add_show(
         for ep_idx in range(0, season_length):
             season_contents.append(
                 {
+                    "title": f"Episode index {ep_idx} title",
                     "type": "special" if is_special(season, ep_idx) else "episode",
                     "watched": is_watched(season, ep_idx),
                 }

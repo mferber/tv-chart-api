@@ -35,6 +35,7 @@ class DbShow(UUIDAuditBase):
         json_seasons = [
             [
                 {
+                    "title": episode_descriptor.title,
                     "type": episode_descriptor.type.value,
                     "watched": episode_descriptor.watched,
                 }
@@ -63,6 +64,7 @@ class DbShow(UUIDAuditBase):
         model_seasons = [
             [
                 EpisodeDescriptor(
+                    title=episode_info["title"],
                     type=EpisodeType.SPECIAL
                     if episode_info["type"] == "special"
                     else EpisodeType.EPISODE,

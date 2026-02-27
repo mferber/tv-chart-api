@@ -12,6 +12,7 @@ class EpisodeType(StrEnum):
 
 @dataclass
 class EpisodeDescriptor:
+    title: str
     type: EpisodeType
     watched: bool
 

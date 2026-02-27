@@ -19,8 +19,8 @@ def test_domain_show_to_db_show_conversion() -> None:
         thetvdb_id=1234,
         seasons=[
             [
-                EpisodeDescriptor(EpisodeType.EPISODE, True),
-                EpisodeDescriptor(EpisodeType.SPECIAL, False),
+                EpisodeDescriptor("Normal episode", EpisodeType.EPISODE, True),
+                EpisodeDescriptor("Special episode", EpisodeType.SPECIAL, False),
             ]
         ],
     )
@@ -39,7 +39,10 @@ def test_domain_show_to_db_show_conversion() -> None:
     assert db_show.imdb_id == show.imdb_id
     assert db_show.thetvdb_id == show.thetvdb_id
     assert db_show.seasons == [
-        [{"type": "episode", "watched": True}, {"type": "special", "watched": False}]
+        [
+            {"title": "Normal episode", "type": "episode", "watched": True},
+            {"title": "Special episode", "type": "special", "watched": False},
+        ]
     ]
 
 
@@ -55,8 +58,8 @@ def test_domain_show_create_to_db_show_conversion() -> None:
         thetvdb_id=1234,
         seasons=[
             [
-                EpisodeDescriptor(EpisodeType.EPISODE, True),
-                EpisodeDescriptor(EpisodeType.SPECIAL, False),
+                EpisodeDescriptor("Normal episode", EpisodeType.EPISODE, True),
+                EpisodeDescriptor("Special episode", EpisodeType.SPECIAL, False),
             ]
         ],
     )
@@ -74,7 +77,10 @@ def test_domain_show_create_to_db_show_conversion() -> None:
     assert db_show.imdb_id == show.imdb_id
     assert db_show.thetvdb_id == show.thetvdb_id
     assert db_show.seasons == [
-        [{"type": "episode", "watched": True}, {"type": "special", "watched": False}]
+        [
+            {"title": "Normal episode", "type": "episode", "watched": True},
+            {"title": "Special episode", "type": "special", "watched": False},
+        ]
     ]
 
 
@@ -92,8 +98,8 @@ def test_db_show_to_show_conversion() -> None:
         thetvdb_id=1234,
         seasons=[
             [
-                {"type": "episode", "watched": True},
-                {"type": "special", "watched": False},
+                {"title": "Normal episode", "type": "episode", "watched": True},
+                {"title": "Special episode", "type": "special", "watched": False},
             ]
         ],
     )
@@ -111,7 +117,7 @@ def test_db_show_to_show_conversion() -> None:
     assert show.thetvdb_id == db_show.thetvdb_id
     assert show.seasons == [
         [
-            EpisodeDescriptor(EpisodeType.EPISODE, True),
-            EpisodeDescriptor(EpisodeType.SPECIAL, False),
+            EpisodeDescriptor("Normal episode", EpisodeType.EPISODE, True),
+            EpisodeDescriptor("Special episode", EpisodeType.SPECIAL, False),
         ]
     ]

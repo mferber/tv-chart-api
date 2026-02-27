@@ -68,7 +68,11 @@ class TVmazeEpisodeList(RootModel):
             episode_type = (
                 EpisodeType.EPISODE if ep.type == "regular" else EpisodeType.SPECIAL
             )
-            current_season.append(EpisodeDescriptor(type=episode_type, watched=False))
+            current_season.append(
+                EpisodeDescriptor(
+                    title=ep.name or "Untitled", type=episode_type, watched=False
+                )
+            )
         if current_season:
             seasons.append(current_season)
         return seasons
