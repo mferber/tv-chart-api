@@ -1,5 +1,4 @@
 import asyncio
-from typing import Sequence
 from uuid import UUID
 
 from litestar import Request, Response, get
@@ -47,7 +46,7 @@ async def search(q: str) -> SearchResults:
 async def shows(
     request: Request,
     db_session: AsyncSession,
-) -> Sequence[Show]:
+) -> dict[UUID, Show]:
     svc = ShowService(db_session, request.user.id)
     return await svc.get_shows()
 

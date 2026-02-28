@@ -28,10 +28,10 @@ class ShowService:
         self.db_session = db_session
         self.user_id = user_id
 
-    async def get_shows(self) -> list[Show]:
+    async def get_shows(self) -> dict[UUID, Show]:
         repository = DbShowRepository(session=self.db_session)
         db_shows = await repository.list(DbShow.user_id == self.user_id)
-        return [db_show.to_show_model() for db_show in db_shows]
+        return {db_show.id: db_show.to_show_model() for db_show in db_shows}
 
     async def get_show(self, show_id: UUID) -> Show:
         repository = DbShowRepository(session=self.db_session)
@@ -62,7 +62,7 @@ class ShowService:
         self, show_id: UUID, episode_indices: list[tuple[int, int]], watched: bool
     ) -> Show:
         shows = await self.get_shows()
-        show = shows[0]
+        show = shows[show_id]
 
         # validate requested episodes before making any changes
         for season_idx, ep_idx in episode_indices:
