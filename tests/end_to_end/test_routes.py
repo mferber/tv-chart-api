@@ -11,7 +11,7 @@ def test_user1_sees_own_shows(test_client: TestClient, login_as_user: FakeUser) 
     rsp.raise_for_status()
     rsp_contents = rsp.json()
     assert len(rsp_contents) == 1
-    assert rsp_contents[0]["title"] == "All Creatures Great & Small"
+    assert next(iter(rsp_contents.values()))["title"] == "All Creatures Great & Small"
 
 
 @pytest.mark.parametrize("login_as_user", ["test_user2"], indirect=True)
@@ -20,14 +20,14 @@ def test_user2_sees_own_shows(test_client: TestClient, login_as_user: FakeUser) 
     rsp.raise_for_status()
     rsp_contents = rsp.json()
     assert len(rsp_contents) == 1
-    assert rsp_contents[0]["title"] == "Pluribus"
+    assert next(iter(rsp_contents.values()))["title"] == "Pluribus"
 
 
 @pytest.mark.parametrize("login_as_user", ["test_user1"], indirect=True)
 def test_get_show(test_client: TestClient, login_as_user: FakeUser) -> None:
     rsp = test_client.get("/shows")
     rsp.raise_for_status()
-    first_show_json = rsp.json()[0]
+    first_show_json = next(iter(rsp.json().values()))
     show_id = first_show_json["id"]
 
     show_rsp = test_client.get(f"/shows/{show_id}")

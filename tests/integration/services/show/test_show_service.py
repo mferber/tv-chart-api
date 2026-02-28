@@ -15,7 +15,7 @@ async def test_get_shows(autorollback_db_session: AsyncSession) -> None:
     result = await sut.get_shows()
 
     assert len(result) == 1
-    all_creatures = result[0]
+    all_creatures = next(iter(result.values()))
     assert all_creatures.title == "All Creatures Great & Small"
     assert all_creatures.tvmaze_id == 42836
     assert all_creatures.source == "PBS"
@@ -44,10 +44,11 @@ async def test_get_show(autorollback_db_session: AsyncSession) -> None:
     user_id = await get_user_id("test_user1", sess)
     sut = ShowService(db_session=sess, user_id=user_id)
     shows = await sut.get_shows()
+    selected_show = next(iter(shows.values()))
 
-    show = await sut.get_show(shows[0].id)
+    show = await sut.get_show(selected_show.id)
 
-    assert show == shows[0]
+    assert show == selected_show
 
 
 @pytest.mark.asyncio
@@ -74,7 +75,7 @@ async def test_user_get_other_users_show_fails(
     sut = ShowService(db_session=sess, user_id=user_id1)
     other_user_svc = ShowService(db_session=sess, user_id=user_id2)
     shows = await sut.get_shows()
-    show_id = shows[0].id
+    show_id = next(iter(shows.values())).id
 
     with pytest.raises(ShowNotFound):
         await other_user_svc.get_show(show_id)
@@ -96,12 +97,20 @@ async def test_add_show(autorollback_db_session: AsyncSession) -> None:
         thetvdb_id=9999,
         seasons=[
             [
-                EpisodeDescriptor(title="Season 1 episode", type=EpisodeType.EPISODE, watched=True),
-                EpisodeDescriptor(title="Season 1 special", type=EpisodeType.SPECIAL, watched=True),
+                EpisodeDescriptor(
+                    title="Season 1 episode", type=EpisodeType.EPISODE, watched=True
+                ),
+                EpisodeDescriptor(
+                    title="Season 1 special", type=EpisodeType.SPECIAL, watched=True
+                ),
             ],
             [
-                EpisodeDescriptor(title="Season 2 episode", type=EpisodeType.EPISODE, watched=False),
-                EpisodeDescriptor(title="Season 2 special", type=EpisodeType.SPECIAL, watched=False),
+                EpisodeDescriptor(
+                    title="Season 2 episode", type=EpisodeType.EPISODE, watched=False
+                ),
+                EpisodeDescriptor(
+                    title="Season 2 special", type=EpisodeType.SPECIAL, watched=False
+                ),
             ],
         ],
     )
@@ -110,7 +119,7 @@ async def test_add_show(autorollback_db_session: AsyncSession) -> None:
 
     all_shows = await sut.get_shows()
     assert len(all_shows) == 2
-    added_show = next(filter(lambda show: show.id == result.id, all_shows))
+    added_show = next(filter(lambda show: show.id == result.id, all_shows.values()))
     assert added_show is not None
     assert added_show == result
 
@@ -140,13 +149,13 @@ async def test_delete_show(autorollback_db_session: AsyncSession) -> None:
     user_id = await get_user_id("test_user1", sess)
     sut = ShowService(db_session=sess, user_id=user_id)
     shows_before = await sut.get_shows()
-    id_to_remove = shows_before[0].id
+    id_to_remove = next(iter(shows_before.values())).id
 
     await sut.delete_show(id_to_remove)
 
     shows_after = await sut.get_shows()
     assert len(shows_after) == len(shows_before) - 1
-    assert id_to_remove not in [show.id for show in shows_after]
+    assert id_to_remove not in [show.id for show in shows_after.values()]
 
 
 @pytest.mark.asyncio
@@ -159,7 +168,7 @@ async def test_delete_other_users_show_fails(
     sut = ShowService(db_session=sess, user_id=user_id1)
     other_user_svc = ShowService(db_session=sess, user_id=user_id2)
     shows_before = await sut.get_shows()
-    id_to_remove = shows_before[0].id
+    id_to_remove = next(iter(shows_before.values())).id
 
     with pytest.raises(ShowNotFound):
         await other_user_svc.delete_show(id_to_remove)
@@ -174,7 +183,9 @@ async def test_mark_episodes_watched(autorollback_db_session: AsyncSession) -> N
     sut = ShowService(db_session=sess, user_id=user_id)
     shows_before = await sut.get_shows()
     show_to_modify = next(
-        filter(lambda show: show.title.startswith("All Creatures"), shows_before)
+        filter(
+            lambda show: show.title.startswith("All Creatures"), shows_before.values()
+        )
     )
 
     # precondition: episodes are unwatched
@@ -201,7 +212,9 @@ async def test_mark_nonexistent_episodes_fails(
     sut = ShowService(db_session=sess, user_id=user_id)
     shows_before = await sut.get_shows()
     show_to_modify = next(
-        filter(lambda show: show.title.startswith("All Creatures"), shows_before)
+        filter(
+            lambda show: show.title.startswith("All Creatures"), shows_before.values()
+        )
     )
 
     with pytest.raises(EpisodeNotFound):
