@@ -195,6 +195,8 @@ async def test_add_show_caches_episode_list(
     user_id = await get_user_id("test_user1", sess)
     sut = ShowService(db_session=sess, user_id=user_id)
 
+    ShowService.episodes_cache.clear()
+
     # this test uses TVmazeClient: mock out TVmaze URLs
     sample_file_reader = SampleFileReader("sample_tvmaze_show_responses")
     show_json = sample_file_reader.read("network_show.json")
@@ -207,7 +209,6 @@ async def test_add_show_caches_episode_list(
     # preconditions
     shows_before = await sut.get_shows()
     assert len(shows_before) == 1
-    assert ShowService.episodes_cache.currsize == 0
 
     # run test
     added = await sut.add_show_from_tvmaze(tvmaze_id=6456)
