@@ -108,29 +108,8 @@ class TVmazeEpisodeList(RootModel):
                 seasons.append(current_season)
                 current_season = []
                 current_season_num += 1
-            episode_type = (
-                EpisodeType.EPISODE if ep.type == "regular" else EpisodeType.SPECIAL
-            )
 
-            release_date: datetime.date | None = None
-            try:
-                release_date = (
-                    None
-                    if ep.airdate is None
-                    else datetime.date.fromisoformat(ep.airdate)
-                )
-            except ValueError:
-                pass
-
-            current_season.append(
-                EpisodeDetails(
-                    title=ep.name or "Untitled",
-                    type=episode_type,
-                    duration=ep.runtime,
-                    release_date=release_date,
-                    summary=None if ep.summary is None else sanitize_html(ep.summary),
-                )
-            )
+            current_season.append(ep.to_episode_details_model())
 
         if current_season:
             seasons.append(current_season)
