@@ -1,3 +1,4 @@
+import datetime
 from dataclasses import dataclass
 from enum import StrEnum
 from uuid import UUID
@@ -12,9 +13,17 @@ class EpisodeType(StrEnum):
 
 @dataclass
 class EpisodeDescriptor:
-    title: str
+    title: str | None
     type: EpisodeType
     watched: bool
+
+
+class EpisodeDetails(BaseModel):
+    title: str | None
+    type: EpisodeType
+    duration: int | None
+    release_date: datetime.date | None
+    summary: str | None
 
 
 class ShowCreate(BaseModel):

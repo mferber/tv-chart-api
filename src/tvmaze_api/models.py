@@ -7,7 +7,7 @@ import datetime
 from pydantic import BaseModel, HttpUrl, RootModel
 
 from models.search import SearchResult, SearchResults
-from models.show import EpisodeDescriptor, EpisodeType, ShowCreate
+from models.show import EpisodeDescriptor, EpisodeDetails, EpisodeType, ShowCreate
 from tvmaze_api.utils.html_sanitizer import sanitize_html
 
 # General-use models
@@ -50,29 +50,88 @@ class TVmazeEpisode(BaseModel):
     runtime: int | None
     summary: str | None
 
+    def to_episode_descriptor_model(self) -> EpisodeDescriptor:
+        episode_type = (
+            EpisodeType.EPISODE if self.type == "regular" else EpisodeType.SPECIAL
+        )
+        return EpisodeDescriptor(title=self.name, type=episode_type, watched=False)
+
+    def to_episode_details_model(self) -> EpisodeDetails:
+        episode_type = (
+            EpisodeType.EPISODE if self.type == "regular" else EpisodeType.SPECIAL
+        )
+
+        release_date: datetime.date | None = None
+        try:
+            release_date = (
+                datetime.date.fromisoformat(self.airdate) if self.airdate else None
+            )
+        except ValueError:
+            pass
+
+        return EpisodeDetails(
+            title=self.name,
+            type=episode_type,
+            duration=self.runtime,
+            release_date=release_date,
+            summary=sanitize_html(self.summary) if self.summary else None,
+        )
+
 
 class TVmazeEpisodeList(RootModel):
     root: list[TVmazeEpisode]
 
-    def to_episode_models(self) -> list[list[EpisodeDescriptor]]:
+    def to_episode_descriptor_models(self) -> list[list[EpisodeDescriptor]]:
         filtered_eps = filter(lambda ep: ep.type != "insignificant_special", self.root)
 
         seasons: list[list[EpisodeDescriptor]] = []
         current_season: list[EpisodeDescriptor] = []
         current_season_num = 1
         for ep in filtered_eps:
-            if ep.season != current_season_num:
+            while ep.season != current_season_num:
+                seasons.append(current_season)
+                current_season = []
+                current_season_num += 1
+            current_season.append(ep.to_episode_descriptor_model())
+        if current_season:
+            seasons.append(current_season)
+        return seasons
+
+    def to_episode_details_models(self) -> list[list[EpisodeDetails]]:
+        filtered_eps = filter(lambda ep: ep.type != "insignificant_special", self.root)
+
+        seasons: list[list[EpisodeDetails]] = []
+        current_season: list[EpisodeDetails] = []
+        current_season_num = 1
+        for ep in filtered_eps:
+            while ep.season != current_season_num:
                 seasons.append(current_season)
                 current_season = []
                 current_season_num += 1
             episode_type = (
                 EpisodeType.EPISODE if ep.type == "regular" else EpisodeType.SPECIAL
             )
+
+            release_date: datetime.date | None = None
+            try:
+                release_date = (
+                    None
+                    if ep.airdate is None
+                    else datetime.date.fromisoformat(ep.airdate)
+                )
+            except ValueError:
+                pass
+
             current_season.append(
-                EpisodeDescriptor(
-                    title=ep.name or "Untitled", type=episode_type, watched=False
+                EpisodeDetails(
+                    title=ep.name or "Untitled",
+                    type=episode_type,
+                    duration=ep.runtime,
+                    release_date=release_date,
+                    summary=None if ep.summary is None else sanitize_html(ep.summary),
                 )
             )
+
         if current_season:
             seasons.append(current_season)
         return seasons
@@ -89,7 +148,9 @@ class TVmazeShow(BaseModel):
     image: TVmazeImage | None
     externals: TVmazeExternals | None
 
-    def to_show_create_model(self, *, with_episodes: TVmazeEpisodeList) -> ShowCreate:
+    def to_show_create_model(
+        self, *, with_episodes: list[list[EpisodeDescriptor]]
+    ) -> ShowCreate:
         if self.network and self.network.name:
             source = self.network.name
         elif self.webChannel and self.webChannel.name:
@@ -106,7 +167,7 @@ class TVmazeShow(BaseModel):
             image_lg_url=self.image.original if self.image else None,
             imdb_id=self.externals.imdb if self.externals else None,
             thetvdb_id=self.externals.thetvdb if self.externals else None,
-            seasons=with_episodes.to_episode_models(),
+            seasons=with_episodes,
         )
 
 

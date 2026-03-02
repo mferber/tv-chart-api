@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "asyncpg>=0.31.0",
+    "cachetools>=7.0.1",
     "html-sanitizer>=2.6.0",
     "httpx>=0.28.1",
     "litestar-users>=1.7.0",
@@ -23,6 +24,7 @@ dev = [
     "respx>=0.22.0",
     "ruff>=0.14.3",
     "testcontainers[postgres]>=4.14.1",
+    "types-cachetools>=6.2.0.20251022",
 ]
 
 [tool.mypy]

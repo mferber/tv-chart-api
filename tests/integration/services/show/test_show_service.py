@@ -1,4 +1,6 @@
 import pytest
+import respx
+from helpers.testing_data.mock_responses.reader import SampleFileReader
 from helpers.testing_data.users import get_user_id
 from pydantic import HttpUrl
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -82,7 +84,7 @@ async def test_user_get_other_users_show_fails(
 
 
 @pytest.mark.asyncio
-async def test_add_show(autorollback_db_session: AsyncSession) -> None:
+async def test_add_show_adds_show_to_db(autorollback_db_session: AsyncSession) -> None:
     sess = autorollback_db_session
     user_id = await get_user_id("test_user1", sess)
     sut = ShowService(db_session=sess, user_id=user_id)
@@ -119,7 +121,7 @@ async def test_add_show(autorollback_db_session: AsyncSession) -> None:
 
     all_shows = await sut.get_shows()
     assert len(all_shows) == 2
-    added_show = next(filter(lambda show: show.id == result.id, all_shows.values()))
+    added_show = all_shows[result.id]
     assert added_show is not None
     assert added_show == result
 
@@ -141,6 +143,81 @@ async def test_add_show(autorollback_db_session: AsyncSession) -> None:
     assert added_show.seasons[0][1].watched
     assert not added_show.seasons[1][0].watched
     assert not added_show.seasons[1][1].watched
+
+
+@pytest.mark.asyncio
+@respx.mock(assert_all_mocked=True)
+async def test_add_show_from_tvmaze_adds_show_to_db(
+    autorollback_db_session: AsyncSession, respx_mock: respx.MockRouter
+) -> None:
+    sess = autorollback_db_session
+    user_id = await get_user_id("test_user1", sess)
+    sut = ShowService(db_session=sess, user_id=user_id)
+
+    # this test uses TVmazeClient: mock out TVmaze URLs
+    sample_file_reader = SampleFileReader("sample_tvmaze_show_responses")
+    show_json = sample_file_reader.read("network_show.json")
+    respx_mock.get("https://api.tvmaze.com/shows/6456").respond(text=show_json)
+    episodes_json = sample_file_reader.read("network_show_episodes.json")
+    respx_mock.get("https://api.tvmaze.com/shows/6456/episodes").respond(
+        text=episodes_json
+    )
+
+    # precondition
+    shows_before = await sut.get_shows()
+    assert len(shows_before) == 1
+
+    # run test
+    result = await sut.add_show_from_tvmaze(tvmaze_id=6456)
+
+    shows_after = await sut.get_shows()
+    assert len(shows_after) == 2
+    added_show = shows_after[result.id]
+    assert added_show is not None
+    assert added_show == result
+
+    assert not hasattr(added_show, "user_id")
+    assert added_show.tvmaze_id == 6456
+    assert added_show.title == "Counterpart"
+    assert added_show.source == "STARZ"
+    assert added_show.duration == 60
+    assert added_show.imdb_id == "tt4643084"
+    assert len(added_show.seasons) == 2
+    assert len(added_show.seasons[0]) == 10
+    assert len(added_show.seasons[1]) == 10
+
+
+@pytest.mark.asyncio
+async def test_add_show_caches_episode_list(
+    autorollback_db_session: AsyncSession, respx_mock: respx.MockRouter
+) -> None:
+    sess = autorollback_db_session
+    user_id = await get_user_id("test_user1", sess)
+    sut = ShowService(db_session=sess, user_id=user_id)
+
+    # this test uses TVmazeClient: mock out TVmaze URLs
+    sample_file_reader = SampleFileReader("sample_tvmaze_show_responses")
+    show_json = sample_file_reader.read("network_show.json")
+    respx_mock.get("https://api.tvmaze.com/shows/6456").respond(text=show_json)
+    episodes_json = sample_file_reader.read("network_show_episodes.json")
+    respx_mock.get("https://api.tvmaze.com/shows/6456/episodes").respond(
+        text=episodes_json
+    )
+
+    # preconditions
+    shows_before = await sut.get_shows()
+    assert len(shows_before) == 1
+    assert ShowService.episodes_cache.currsize == 0
+
+    # run test
+    added = await sut.add_show_from_tvmaze(tvmaze_id=6456)
+
+    assert ShowService.episodes_cache.currsize == 1
+    cached = ShowService.episodes_cache[added.id]
+    assert cached is not None
+    assert len(cached) == 2
+    for season_idx in range(0, 1):
+        assert len(cached[season_idx]) == 10
 
 
 @pytest.mark.asyncio

@@ -40,7 +40,7 @@ def test_get_show(test_client: TestClient, login_as_user: FakeUser) -> None:
 
 @pytest.mark.parametrize("login_as_user", ["test_user1"], indirect=True)
 @respx.mock(assert_all_mocked=True)
-def test_add_show(
+def test_add_show_adds_show_to_db(
     test_client: TestClient, login_as_user: FakeUser, respx_mock: respx.MockRouter
 ) -> None:
     # this test uses TVmazeClient: mock out TVmaze URLs

@@ -1,0 +1,118 @@
+[
+  {
+    "id": 1348666,
+    "url": "https://www.tvmaze.com/episodes/1348666/counterpart-1x01-the-crossing",
+    "name": "The Crossing",
+    "season": 1,
+    "number": 1,
+    "type": "regular",
+    "airdate": "2017-12-10",
+    "airtime": "21:00",
+    "airstamp": "2017-12-11T02:00:00+00:00",
+    "runtime": 60,
+    "rating": {
+      "average": 7.8
+    },
+    "image": {
+      "medium": "https://static.tvmaze.com/uploads/images/medium_landscape/138/345305.jpg",
+      "original": "https://static.tvmaze.com/uploads/images/original_untouched/138/345305.jpg"
+    },
+    "summary": "<p>Howard Silk, a lowly cog in the bureaucratic machinery of a Berlin-based UN spy agency. When Howard discovers that his organization safeguards the secret of a crossing into a parallel dimension, he is thrust into a shadow world of intrigue, danger, and double cross. The only man he can trust is \"Prime,\" Howard's near-identical counterpart from this parallel world.</p>",
+    "_links": {
+      "self": {
+        "href": "https://api.tvmaze.com/episodes/1348666"
+      },
+      "show": {
+        "href": "https://api.tvmaze.com/shows/6456",
+        "name": "Counterpart"
+      }
+    }
+  },
+  {
+    "id": 1371167,
+    "url": "https://www.tvmaze.com/episodes/1371167/counterpart-1x02-birds-of-a-feather",
+    "name": "Birds of a Feather",
+    "season": 1,
+    "number": 2,
+    "type": "regular",
+    "airdate": "2018-01-28",
+    "airtime": "20:00",
+    "airstamp": "2018-01-29T01:00:00+00:00",
+    "runtime": 60,
+    "rating": {
+      "average": 7.2
+    },
+    "image": {
+      "medium": "https://static.tvmaze.com/uploads/images/medium_landscape/144/360224.jpg",
+      "original": "https://static.tvmaze.com/uploads/images/original_untouched/144/360224.jpg"
+    },
+    "summary": "<p>Howard must work together with his counterpart. Baldwin comes face to face with her past. Emily, from the other side, tries to make sense of her orders.</p>",
+    "_links": {
+      "self": {
+        "href": "https://api.tvmaze.com/episodes/1371167"
+      },
+      "show": {
+        "href": "https://api.tvmaze.com/shows/6456",
+        "name": "Counterpart"
+      }
+    }
+  },
+  {
+    "id": 1546856,
+    "url": "https://www.tvmaze.com/episodes/1546856/counterpart-2x01-inside-out",
+    "name": "Inside Out",
+    "season": 3,
+    "number": 1,
+    "type": "regular",
+    "airdate": "2018-12-09",
+    "airtime": "21:00",
+    "airstamp": "2018-12-10T02:00:00+00:00",
+    "runtime": 60,
+    "rating": {
+      "average": 7.5
+    },
+    "image": {
+      "medium": "https://static.tvmaze.com/uploads/images/medium_landscape/175/439288.jpg",
+      "original": "https://static.tvmaze.com/uploads/images/original_untouched/175/439288.jpg"
+    },
+    "summary": "<p>While hiding in Howard's life, Howard Prime must avoid detection at home and at the OI. Quayle and Clare struggle to adjust to their new arrangement.</p>",
+    "_links": {
+      "self": {
+        "href": "https://api.tvmaze.com/episodes/1546856"
+      },
+      "show": {
+        "href": "https://api.tvmaze.com/shows/6456",
+        "name": "Counterpart"
+      }
+    }
+  },
+  {
+    "id": 1570787,
+    "url": "https://www.tvmaze.com/episodes/1570787/counterpart-2x02-outside-in",
+    "name": "Outside In",
+    "season": 3,
+    "number": 2,
+    "type": "regular",
+    "airdate": "2018-12-16",
+    "airtime": "21:00",
+    "airstamp": "2018-12-17T02:00:00+00:00",
+    "runtime": 60,
+    "rating": {
+      "average": 7.6
+    },
+    "image": {
+      "medium": "https://static.tvmaze.com/uploads/images/medium_landscape/177/443856.jpg",
+      "original": "https://static.tvmaze.com/uploads/images/original_untouched/177/443856.jpg"
+    },
+    "summary": "<p>Imprisoned on the Other Side, Howard's loyalties are tested. Emily Prime gets a promotion.</p>",
+    "_links": {
+      "self": {
+        "href": "https://api.tvmaze.com/episodes/1570787"
+      },
+      "show": {
+        "href": "https://api.tvmaze.com/shows/6456",
+        "name": "Counterpart"
+      }
+    }
+  }
+]
