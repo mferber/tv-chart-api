@@ -1,8 +1,12 @@
+import datetime
+from uuid import uuid4
+
 import pytest
 import respx
 from helpers.testing_data.mock_responses.reader import SampleFileReader
 from helpers.testing_data.users import get_user_id
 from pydantic import HttpUrl
+from pytest_mock import MockerFixture
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from models.show import EpisodeDescriptor, EpisodeType, Show, ShowCreate
@@ -234,6 +238,138 @@ async def test_delete_show(autorollback_db_session: AsyncSession) -> None:
     shows_after = await sut.get_shows()
     assert len(shows_after) == len(shows_before) - 1
     assert id_to_remove not in [show.id for show in shows_after.values()]
+
+
+@pytest.mark.asyncio
+@respx.mock(assert_all_mocked=True)
+async def test_get_episodes_uncached(
+    autorollback_db_session: AsyncSession, respx_mock: respx.MockRouter
+) -> None:
+    sess = autorollback_db_session
+    user_id = await get_user_id("test_user1", sess)
+    sut = ShowService(db_session=sess, user_id=user_id)
+    show = Show(
+        id=uuid4(),
+        tvmaze_id=1,
+        title="Fictional Show",
+        source="Somewhere",
+        duration=30,
+        image_lg_url=None,
+        image_sm_url=None,
+        imdb_id=None,
+        thetvdb_id=None,
+        seasons=[],
+    )
+    ShowService.episodes_cache.clear()
+
+    # fake TVmaze response
+    sample_file_reader = SampleFileReader("sample_tvmaze_show_responses")
+    show_json = sample_file_reader.read("network_show_episodes.json")
+    respx_mock.route(method="GET").respond(text=show_json)
+
+    episodes = await sut.get_episodes(show)
+
+    assert len(episodes) > 0
+    # FIXME: more assertions
+
+    assert len(ShowService.episodes_cache) == 1
+
+
+@pytest.mark.asyncio
+@respx.mock(assert_all_mocked=True)
+async def test_get_episodes_cached(
+    autorollback_db_session: AsyncSession,
+    respx_mock: respx.MockRouter,
+    mocker: MockerFixture,
+) -> None:
+    sess = autorollback_db_session
+    user_id = await get_user_id("test_user1", sess)
+    sut = ShowService(db_session=sess, user_id=user_id)
+    show = Show(
+        id=uuid4(),
+        tvmaze_id=1,
+        title="Fictional Show",
+        source="Somewhere",
+        duration=30,
+        image_lg_url=None,
+        image_sm_url=None,
+        imdb_id=None,
+        thetvdb_id=None,
+        seasons=[],
+    )
+
+    ShowService.episodes_cache.clear()
+    cache_spy = mocker.spy(ShowService.episodes_cache, "get")
+
+    # fake TVmaze response
+    sample_file_reader = SampleFileReader("sample_tvmaze_show_responses")
+    show_json = sample_file_reader.read("network_show_episodes.json")
+    route = respx_mock.route(method="GET").respond(text=show_json)
+
+    episodes1 = await sut.get_episodes(show)
+    episodes2 = await sut.get_episodes(show)
+
+    assert len(episodes1) > 0
+    assert len(episodes1) == len(episodes2)
+
+    # because of cache, only the first request should attempt to query TVmaze
+    assert route.call_count == 1
+    assert cache_spy.call_count == 2  # cache was checked twice
+
+    assert episodes2[0][0].title == "The Crossing"
+    assert episodes2[0][0].summary and "Howard Silk" in episodes2[0][0].summary
+    assert episodes2[0][0].type == EpisodeType.EPISODE
+    assert episodes2[0][0].duration == 60
+    assert episodes2[0][0].release_date == datetime.date(2017, 12, 10)
+
+
+@pytest.mark.asyncio
+@respx.mock(assert_all_mocked=True)
+async def test_get_episodes_cached_with_force_refresh(
+    autorollback_db_session: AsyncSession,
+    respx_mock: respx.MockRouter,
+    mocker: MockerFixture,
+) -> None:
+    sess = autorollback_db_session
+    user_id = await get_user_id("test_user1", sess)
+    sut = ShowService(db_session=sess, user_id=user_id)
+    show = Show(
+        id=uuid4(),
+        tvmaze_id=1,
+        title="Fictional Show",
+        source="Somewhere",
+        duration=30,
+        image_lg_url=None,
+        image_sm_url=None,
+        imdb_id=None,
+        thetvdb_id=None,
+        seasons=[],
+    )
+
+    ShowService.episodes_cache.clear()
+    cache_spy = mocker.spy(ShowService.episodes_cache, "get")
+
+    # fake TVmaze response
+    sample_file_reader = SampleFileReader("sample_tvmaze_show_responses")
+    show_json = sample_file_reader.read("network_show_episodes.json")
+    route = respx_mock.route(method="GET").respond(text=show_json)
+
+    # run test
+    episodes1 = await sut.get_episodes(show)  # caches results
+    episodes2 = await sut.get_episodes(show, force_refresh=True)
+
+    assert len(episodes1) > 0
+    assert len(episodes1) == len(episodes2)
+
+    # because of force refresh, we should skip cache and run the tvmaze query twice
+    assert route.call_count == 2
+    assert cache_spy.call_count == 1  # cache was checked for first call only
+
+    assert episodes2[0][0].title == "The Crossing"
+    assert episodes2[0][0].summary and "Howard Silk" in episodes2[0][0].summary
+    assert episodes2[0][0].type == EpisodeType.EPISODE
+    assert episodes2[0][0].duration == 60
+    assert episodes2[0][0].release_date == datetime.date(2017, 12, 10)
 
 
 @pytest.mark.asyncio

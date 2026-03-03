@@ -74,3 +74,74 @@ def test_add_show_adds_show_to_db(
     assert len(added["seasons"]) == 2
     assert len(added["seasons"][0]) == 10
     assert len(added["seasons"][1]) == 10
+
+
+@pytest.mark.parametrize("login_as_user", ["test_user1"], indirect=True)
+@respx.mock(assert_all_mocked=True)
+def test_get_episodes(
+    test_client: TestClient, login_as_user: FakeUser, respx_mock: respx.MockRouter
+) -> None:
+    # this test uses TVmazeClient: mock out TVmaze URLs
+    sample_file_reader = SampleFileReader("sample_tvmaze_show_responses")
+    fake_episodes_json = sample_file_reader.read("network_show_episodes.json")
+    respx_mock.get("https://api.tvmaze.com/shows/42836/episodes").respond(
+        text=fake_episodes_json
+    )
+
+    shows_json = test_client.get("/shows").json()
+    all_creatures = next(
+        filter(lambda show: show["tvmaze_id"] == 42836, shows_json.values())
+    )
+
+    rsp = test_client.get(f"/episodes/{all_creatures['id']}")
+    rsp.raise_for_status()
+
+    episodes_json: list[list[dict]] = rsp.json()
+    assert len(episodes_json) == 2
+    assert len(episodes_json[0]) == 10
+    assert len(episodes_json[1]) == 10
+    assert episodes_json[0][0]["title"] == "The Crossing"
+    assert (
+        episodes_json[0][0]["summary"]
+        and "Howard Silk" in episodes_json[0][0]["summary"]
+    )
+    assert episodes_json[0][0]["type"] == "episode"
+    assert episodes_json[0][0]["duration"] == 60
+    assert episodes_json[0][0]["release_date"] == "2017-12-10"
+
+
+@pytest.mark.parametrize("login_as_user", ["test_user1"], indirect=True)
+@respx.mock(assert_all_mocked=True)
+def test_get_episodes_with_force_refresh(
+    test_client: TestClient, login_as_user: FakeUser, respx_mock: respx.MockRouter
+) -> None:
+    # this test uses TVmazeClient: mock out TVmaze URLs
+    sample_file_reader = SampleFileReader("sample_tvmaze_show_responses")
+    fake_episodes_json = sample_file_reader.read("network_show_episodes.json")
+    route = respx_mock.get("https://api.tvmaze.com/shows/42836/episodes").respond(
+        text=fake_episodes_json
+    )
+
+    shows_json = test_client.get("/shows").json()
+    all_creatures = next(
+        filter(lambda show: show["tvmaze_id"] == 42836, shows_json.values())
+    )
+
+    # run test
+    _ = test_client.get(f"/episodes/{all_creatures['id']}")  # caches result
+    rsp = test_client.get(
+        f"/episodes/{all_creatures['id']}", params={"forcerefresh": "true"}
+    )  # caches result
+    rsp.raise_for_status()
+
+    assert route.call_count == 2  # skipped cache on second call
+
+    episodes_json = rsp.json()
+    assert episodes_json[0][0]["title"] == "The Crossing"
+    assert (
+        episodes_json[0][0]["summary"]
+        and "Howard Silk" in episodes_json[0][0]["summary"]
+    )
+    assert episodes_json[0][0]["type"] == "episode"
+    assert episodes_json[0][0]["duration"] == 60
+    assert episodes_json[0][0]["release_date"] == "2017-12-10"

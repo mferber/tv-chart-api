@@ -72,6 +72,7 @@ class ShowService:
         )
         show = await self.add_show(addable)
 
+        # Cache episode details for future use
         ShowService.episodes_cache[show.id] = episodes_rsp.to_episode_details_models()
 
         return show
@@ -83,6 +84,22 @@ class ShowService:
         )
         if not deleted:
             raise ShowNotFound()
+
+    async def get_episodes(
+        self, show: Show, force_refresh: bool = False
+    ) -> list[list[EpisodeDetails]]:
+        if not force_refresh:
+            cached = ShowService.episodes_cache.get(show.id)
+            if cached:
+                return cached
+
+        client = TVmazeAPIClient()
+        tvmaze_episodes = await client.get_show_episodes(tvmaze_id=show.tvmaze_id)
+        episodes = tvmaze_episodes.to_episode_details_models()
+
+        # always update cache with freshly reloaded episodes
+        ShowService.episodes_cache[show.id] = episodes
+        return episodes
 
     async def mark_episodes(
         self, show_id: UUID, episode_indices: list[tuple[int, int]], watched: bool

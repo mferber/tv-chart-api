@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 import app_config
 from models.search import SearchResults
-from models.show import Show
+from models.show import EpisodeDetails, Show
 from services.search import SearchService
 from services.show import ShowService
 
@@ -62,15 +62,20 @@ async def add_show(tvmaze_id: int, request: Request, db_session: AsyncSession) -
     return await svc.add_show_from_tvmaze(tvmaze_id=tvmaze_id)
 
 
-# FIXME - ?forcerefresh=true or ?skipcache=true to skip cache
-# otherwise just fetch from cache if present
-# if pulling from TVmaze, always update cache
 # NOTE: when part of a user-instigated "refresh show" action, should also refetch show and
 # update at least the image URLs, maybe the source or other metadata, if they've changed
 # (might as well do the external IDs too)
 @get(path="/episodes/{show_id:uuid}")
-async def get_episodes(db_session: AsyncSession, show_id: UUID) -> None:
-    pass
+async def get_episodes(
+    request: Request,
+    db_session: AsyncSession,
+    show_id: UUID,
+    forcerefresh: bool = False,
+) -> list[list[EpisodeDetails]]:
+    svc = ShowService(db_session, request.user.id)
+    show = await svc.get_show(show_id)
+    # FIXME Return 404 if not found
+    return await svc.get_episodes(show, force_refresh=True)
 
 
 all_routes = [health, env, logout, search, shows, get_show, add_show, get_episodes]
