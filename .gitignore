@@ -8,6 +8,7 @@ wheels/
 
 # Other caches and generated files
 .ruff_cache
+.mypy_cache
 
 # Virtual environments
 .venv
