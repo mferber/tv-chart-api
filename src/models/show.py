@@ -15,6 +15,7 @@ class EpisodeType(StrEnum):
 class EpisodeDescriptor:
     title: str | None
     type: EpisodeType
+    displayNumber: int | None
     watched: bool
 
 
