@@ -167,10 +167,11 @@ def test_tvmaze_episode_to_episode_descriptor_model_conversion() -> None:
         summary="Episode summary",
     )
 
-    episode = tvmaze_episode.to_episode_descriptor_model()
+    episode = tvmaze_episode.to_episode_descriptor_model(displayNumber=1)
 
     assert episode.title == "Episode Title"
     assert episode.type == EpisodeType.EPISODE
+    assert episode.displayNumber == 1
     assert not episode.watched
 
 

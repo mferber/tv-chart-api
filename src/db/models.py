@@ -37,6 +37,7 @@ class DbShow(UUIDAuditBase):
                 {
                     "title": episode_descriptor.title,
                     "type": episode_descriptor.type.value,
+                    "displayNumber": episode_descriptor.displayNumber,
                     "watched": episode_descriptor.watched,
                 }
                 for episode_descriptor in season
@@ -65,29 +66,18 @@ class DbShow(UUIDAuditBase):
         model_seasons = []
         for season in self.seasons:
             current_season_descriptors: list[EpisodeDescriptor] = []
-
-            # Compute and add the display number, skipping numbers for specials
-            next_episode_display_number = 1
-
             for episode in season:
-                displayNumber = None
                 type = (
                     EpisodeType.SPECIAL
                     if episode["type"] == "special"
                     else EpisodeType.EPISODE
                 )
-                if type == EpisodeType.SPECIAL:
-                    displayNumber = None
-                else:
-                    displayNumber = next_episode_display_number
-                    next_episode_display_number += 1
-
                 current_season_descriptors.append(
                     EpisodeDescriptor(
                         title=episode["title"],
                         type=type,
                         watched=episode["watched"],
-                        displayNumber=displayNumber,
+                        displayNumber=episode["displayNumber"],
                     )
                 )
             model_seasons.append(current_season_descriptors)

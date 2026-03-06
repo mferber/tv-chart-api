@@ -50,11 +50,18 @@ class TVmazeEpisode(BaseModel):
     runtime: int | None
     summary: str | None
 
-    def to_episode_descriptor_model(self) -> EpisodeDescriptor:
+    def to_episode_descriptor_model(
+        self, displayNumber: int | None
+    ) -> EpisodeDescriptor:
         episode_type = (
             EpisodeType.EPISODE if self.type == "regular" else EpisodeType.SPECIAL
         )
-        return EpisodeDescriptor(title=self.name, type=episode_type, watched=False)
+        return EpisodeDescriptor(
+            title=self.name,
+            type=episode_type,
+            displayNumber=displayNumber,
+            watched=False,
+        )
 
     def to_episode_details_model(self) -> EpisodeDetails:
         episode_type = (
@@ -87,12 +94,21 @@ class TVmazeEpisodeList(RootModel):
         seasons: list[list[EpisodeDescriptor]] = []
         current_season: list[EpisodeDescriptor] = []
         current_season_num = 1
+        next_episode_number = 1
         for ep in filtered_eps:
             while ep.season != current_season_num:
                 seasons.append(current_season)
                 current_season = []
                 current_season_num += 1
-            current_season.append(ep.to_episode_descriptor_model())
+                next_episode_number = 1
+            if ep.type == "regular":
+                actual_next_episode_number = next_episode_number
+                next_episode_number += 1
+            else:
+                actual_next_episode_number = None
+            current_season.append(
+                ep.to_episode_descriptor_model(actual_next_episode_number)
+            )
         if current_season:
             seasons.append(current_season)
         return seasons
