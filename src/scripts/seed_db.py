@@ -33,15 +33,18 @@ def create_users(db_session: AsyncSession) -> list[User]:
 
 
 def create_shows(db_session: AsyncSession, owning_user: User) -> None:
-    def make_episode(index: int, special: bool, watched: bool) -> dict:
+    def make_episode(
+        index: int, special: bool, displayNumber: int | None, watched: bool
+    ) -> dict:
         return {
             "title": f"Episode index {index} title",
             "type": "special" if special else "episode",
+            "displayNumber": displayNumber,
             "watched": watched,
         }
 
     pluribus_seasons = [
-        [make_episode(i, False, i < 8) for i in range(0, 9)],
+        [make_episode(i, False, i + 1, i < 8) for i in range(0, 9)],
     ]
 
     pluribus = DbShow(
@@ -59,10 +62,24 @@ def create_shows(db_session: AsyncSession, owning_user: User) -> None:
     db_session.add(pluribus)
 
     def all_creatures_season(sn: int) -> list[dict]:
-        return [
-            make_episode(index=i, special=(i == 6), watched=sn <= 2)
-            for i in range(0, 7)
-        ]
+        season = []
+        next_display_number = 1
+        for i in range(0, 7):
+            is_special = i == 6
+            if is_special:
+                displayNumber = None
+            else:
+                displayNumber = next_display_number
+                next_display_number += 1
+            season.append(
+                make_episode(
+                    index=i,
+                    special=(i == 6),
+                    displayNumber=displayNumber,
+                    watched=sn <= 2,
+                )
+            )
+        return season
 
     all_creatures_seasons = [all_creatures_season(s) for s in range(1, 5)]
 
@@ -81,7 +98,7 @@ def create_shows(db_session: AsyncSession, owning_user: User) -> None:
     db_session.add(all_creatures)
 
     the_americans_seasons = [
-        [make_episode(i, False, i < 8) for i in range(0, 9)],
+        [make_episode(i, False, i + 1, i < 8) for i in range(0, 9)],
     ]
 
     the_americans = DbShow(
