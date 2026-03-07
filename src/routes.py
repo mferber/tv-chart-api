@@ -1,6 +1,7 @@
+from dataclasses import dataclass
 from uuid import UUID
 
-from litestar import Request, Response, get
+from litestar import Request, Response, get, post
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import app_config
@@ -62,7 +63,7 @@ async def add_show(tvmaze_id: int, request: Request, db_session: AsyncSession) -
     return await svc.add_show_from_tvmaze(tvmaze_id=tvmaze_id)
 
 
-# NOTE: when part of a user-instigated "refresh show" action, should also refetch show and
+# FIXME: when part of a user-instigated "refresh show" action, should also refetch show and
 # update at least the image URLs, maybe the source or other metadata, if they've changed
 # (might as well do the external IDs too)
 @get(path="/episodes/{show_id:uuid}")
@@ -78,4 +79,29 @@ async def get_episodes(
     return await svc.get_episodes(show, force_refresh=True)
 
 
-all_routes = [health, env, logout, search, shows, get_show, add_show, get_episodes]
+@dataclass
+class SetWatchedStatusBody:
+    show_id: UUID
+    episodes: list[tuple[int, int]]  # (season_num, ep_index)
+    watched: bool
+
+
+@post(path="/set-watched-status")
+async def set_watched_status(
+    data: SetWatchedStatusBody, db_session: AsyncSession, request: Request
+) -> Show:
+    svc = ShowService(db_session, request.user.id)
+    return await svc.mark_episodes(data.show_id, data.episodes, data.watched)
+
+
+all_routes = [
+    health,
+    env,
+    logout,
+    search,
+    shows,
+    get_show,
+    add_show,
+    get_episodes,
+    set_watched_status,
+]

@@ -145,3 +145,63 @@ def test_get_episodes_with_force_refresh(
     assert episodes_json[0][0]["type"] == "episode"
     assert episodes_json[0][0]["duration"] == 60
     assert episodes_json[0][0]["release_date"] == "2017-12-10"
+
+
+@pytest.mark.parametrize("login_as_user", ["test_user1"], indirect=True)
+def test_set_watched_status_true(
+    test_client: TestClient, login_as_user: FakeUser, csrf_token_header: dict[str, str]
+) -> None:
+    shows_json = test_client.get("/shows").json()
+    all_creatures_json = next(
+        filter(lambda show: show["tvmaze_id"] == 42836, shows_json.values())
+    )
+    all_creatures_id = all_creatures_json["id"]
+
+    # precondition: last two episodes are unwatched
+    assert not (all_creatures_json["seasons"][3][5]["watched"])
+    assert not (all_creatures_json["seasons"][3][6]["watched"])
+
+    test_client.post(
+        "/set-watched-status",
+        json={
+            "show_id": all_creatures_id,
+            "episodes": [[4, 5], [4, 6]],
+            "watched": True,
+        },
+        headers=csrf_token_header,
+    )
+
+    updated_json = test_client.get(f"/shows/{all_creatures_id}").json()
+
+    assert updated_json["seasons"][3][5]["watched"]
+    assert updated_json["seasons"][3][6]["watched"]
+
+
+@pytest.mark.parametrize("login_as_user", ["test_user1"], indirect=True)
+def test_set_watched_status_false(
+    test_client: TestClient, login_as_user: FakeUser, csrf_token_header: dict[str, str]
+) -> None:
+    shows_json = test_client.get("/shows").json()
+    all_creatures_json = next(
+        filter(lambda show: show["tvmaze_id"] == 42836, shows_json.values())
+    )
+    all_creatures_id = all_creatures_json["id"]
+
+    # precondition: first two episodes are watched
+    assert all_creatures_json["seasons"][0][0]["watched"]
+    assert all_creatures_json["seasons"][0][1]["watched"]
+
+    test_client.post(
+        "/set-watched-status",
+        json={
+            "show_id": all_creatures_id,
+            "episodes": [[1, 0], [1, 0]],
+            "watched": False,
+        },
+        headers=csrf_token_header,
+    )
+
+    updated_json = test_client.get(f"/shows/{all_creatures_id}").json()
+
+    assert not (updated_json["seasons"][3][5]["watched"])
+    assert not (updated_json["seasons"][3][6]["watched"])

@@ -108,14 +108,14 @@ class ShowService:
         show = shows[show_id]
 
         # validate requested episodes before making any changes
-        for season_idx, ep_idx in episode_indices:
+        for season_num, ep_idx in episode_indices:
             try:
-                show.seasons[season_idx][ep_idx]
+                show.seasons[season_num - 1][ep_idx]
             except IndexError:
-                raise EpisodeNotFound(season=season_idx + 1, episode_index=ep_idx)
+                raise EpisodeNotFound(season=season_num, episode_index=ep_idx)
 
         for season_idx, ep_idx in episode_indices:
-            show.seasons[season_idx][ep_idx].watched = watched
+            show.seasons[season_num - 1][ep_idx].watched = watched
 
         repository = DbShowRepository(session=self.db_session)
         updated_db_show = await repository.update(
