@@ -404,7 +404,7 @@ async def test_delete_other_users_show_fails(
 
 
 @pytest.mark.asyncio
-async def test_mark_episodes_watched(autorollback_db_session: AsyncSession) -> None:
+async def test_toggle_episodes_watched(autorollback_db_session: AsyncSession) -> None:
     sess = autorollback_db_session
     user_id = await get_user_id("test_user1", sess)
     sut = ShowService(db_session=sess, user_id=user_id)
@@ -415,23 +415,30 @@ async def test_mark_episodes_watched(autorollback_db_session: AsyncSession) -> N
         )
     )
 
-    # precondition: episodes are unwatched
+    # precondition
+    assert show_to_modify.seasons[0][0].watched
+    assert show_to_modify.seasons[0][1].watched
     assert not (show_to_modify.seasons[1][0].watched)
     assert not (show_to_modify.seasons[1][1].watched)
-    assert not (show_to_modify.seasons[1][2].watched)
-    assert not (show_to_modify.seasons[1][3].watched)
 
-    await sut.mark_episodes(show_to_modify.id, [(1, 0), (1, 1)], watched=True)
+    assert not (show_to_modify.seasons[2][0].watched)
+    assert not (show_to_modify.seasons[2][1].watched)
+
+    await sut.toggle_episodes(show_to_modify.id, [(0, 0), (0, 1), (1, 0), (1, 1)])
 
     refetched_show = await sut.get_show(show_to_modify.id)
+    assert not (refetched_show.seasons[0][0].watched)
+    assert not (refetched_show.seasons[0][1].watched)
     assert refetched_show.seasons[1][0].watched
     assert refetched_show.seasons[1][1].watched
-    assert not (refetched_show.seasons[1][2].watched)  # other eps unchanged
-    assert not (refetched_show.seasons[1][3].watched)
+
+    # unlisted episodes should not change
+    assert not (show_to_modify.seasons[2][0].watched)
+    assert not (show_to_modify.seasons[2][1].watched)
 
 
 @pytest.mark.asyncio
-async def test_mark_nonexistent_episodes_fails(
+async def test_toggle_nonexistent_episodes_fails(
     autorollback_db_session: AsyncSession,
 ) -> None:
     sess = autorollback_db_session
@@ -445,4 +452,4 @@ async def test_mark_nonexistent_episodes_fails(
     )
 
     with pytest.raises(EpisodeNotFound):
-        await sut.mark_episodes(show_to_modify.id, [(1000, 2000)], watched=True)
+        await sut.toggle_episodes(show_to_modify.id, [(1000, 2000)])

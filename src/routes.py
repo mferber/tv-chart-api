@@ -83,15 +83,14 @@ async def get_episodes(
 class SetWatchedStatusBody:
     show_id: UUID
     episodes: list[tuple[int, int]]  # (season_num, ep_index)
-    watched: bool
 
 
-@post(path="/set-watched-status")
-async def set_watched_status(
+@post(path="/toggle-watched-status")
+async def toggle_watched_status(
     data: SetWatchedStatusBody, db_session: AsyncSession, request: Request
 ) -> Show:
     svc = ShowService(db_session, request.user.id)
-    return await svc.mark_episodes(data.show_id, data.episodes, data.watched)
+    return await svc.toggle_episodes(data.show_id, data.episodes)
 
 
 all_routes = [
@@ -103,5 +102,5 @@ all_routes = [
     get_show,
     add_show,
     get_episodes,
-    set_watched_status,
+    toggle_watched_status,
 ]
