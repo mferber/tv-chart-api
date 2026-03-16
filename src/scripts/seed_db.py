@@ -43,6 +43,8 @@ def create_shows(db_session: AsyncSession, owning_user: User) -> None:
             "watched": watched,
         }
 
+    # Pluribus
+
     pluribus_seasons = [
         [make_episode(i, False, i + 1, i < 8) for i in range(0, 9)],
     ]
@@ -60,6 +62,8 @@ def create_shows(db_session: AsyncSession, owning_user: User) -> None:
         seasons=pluribus_seasons,
     )
     db_session.add(pluribus)
+
+    # All Creatures Great & Small
 
     def all_creatures_season(sn: int) -> list[dict]:
         season = []
@@ -97,6 +101,8 @@ def create_shows(db_session: AsyncSession, owning_user: User) -> None:
     )
     db_session.add(all_creatures)
 
+    # The Americans
+
     the_americans_seasons = [
         [make_episode(i, False, i + 1, i < 8) for i in range(0, 9)],
     ]
@@ -115,6 +121,34 @@ def create_shows(db_session: AsyncSession, owning_user: User) -> None:
     )
 
     db_session.add(the_americans)
+
+    # BoJack Horseman
+
+    bojack_seasons = [
+        [
+            make_episode(i, i < 12, i + 1 if i < 12 else None, True)
+            for i in range(0, 13)
+        ],
+        [make_episode(i, i < 11, i + 1, True) for i in range(0, 12)],
+        [make_episode(i, i < 11, i + 1, True) for i in range(0, 12)],
+        [make_episode(i, i < 11, i + 1, i < 2) for i in range(0, 12)],
+        [make_episode(i, i < 11, i + 1, False) for i in range(0, 12)],
+        [make_episode(i, i < 11, i + 1, False) for i in range(0, 16)],
+    ]
+
+    bojack = DbShow(
+        user_id=owning_user.id,
+        tvmaze_id=184,
+        title="BoJack Horseman",
+        source="Netflix",
+        duration=30,
+        image_sm_url="https://static.tvmaze.com/uploads/images/medium_portrait/405/1012627.jpg",
+        image_lg_url="https://static.tvmaze.com/uploads/images/original_untouched/405/1012627.jpg",
+        thetvdb_id=282254,
+        imdb_id="tt3398228",
+        seasons=bojack_seasons,
+    )
+    db_session.add(bojack)
 
 
 async def main() -> None:
