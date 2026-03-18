@@ -7,7 +7,6 @@ from litestar_users.config import (
     CurrentUserHandlerConfig,
     PasswordResetHandlerConfig,
     RegisterHandlerConfig,
-    UserManagementHandlerConfig,
 )
 
 from .dtos import UserReadDTO, UserRegistrationDTO, UserUpdateDTO
@@ -54,7 +53,5 @@ def configure_litestar_users_plugin(jwt_encoding_secret: str) -> LitestarUsersPl
             ),
             # Setup for user registration handler
             register_handler_config=RegisterHandlerConfig(path="/auth/register"),
-            # Setup for user management handler
-            user_management_handler_config=UserManagementHandlerConfig("/auth/users"),
         )
     )
