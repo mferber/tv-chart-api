@@ -5,6 +5,7 @@ from advanced_alchemy.extensions.litestar.plugins import (
 )
 from litestar import Litestar
 from litestar.config.csrf import CSRFConfig
+from litestar.middleware.rate_limit import RateLimitConfig
 
 import app_config
 import litestar_users_setup.plugin
@@ -19,6 +20,9 @@ Main app: API backend for TV tracker
 # These are the defaults, but making it explicit for ease of reference
 CSRF_COOKIE_NAME = "csrftoken"
 CSRF_HEADER_NAME = "X-CSRFToken"
+
+# Rate limiting: maximum number of requests permitted to a client per minute
+RATE_LIMIT_REQ_PER_MIN = 50
 
 
 # --- app ---
@@ -47,5 +51,8 @@ def create_app() -> Litestar:
             cookie_name=CSRF_COOKIE_NAME,
             header_name=CSRF_HEADER_NAME,
         ),
+        middleware=[
+            RateLimitConfig(rate_limit=("minute", RATE_LIMIT_REQ_PER_MIN)).middleware
+        ],
         route_handlers=all_routes,
     )
