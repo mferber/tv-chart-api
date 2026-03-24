@@ -40,26 +40,11 @@ def get_app_env() -> str:
 def get_db_url() -> str:
     """Construct DB url from environment vars"""
     check_loaded()
-    attrs: dict[str, str] = {}
-    for env_name in [
-        "DB_DRIVER",
-        "DB_USER",
-        "DB_PASS",
-        "DB_HOST",
-        "DB_PORT",
-        "DB_NAME",
-    ]:
-        value = os.getenv(env_name)
-        if value is None:
-            raise ConfigurationError(
-                f"Database configuration must be fully set in the environment ({env_name} is missing)"
-            )
-        attrs[env_name] = value
-    return (
-        f"{attrs['DB_DRIVER']}://"
-        f"{attrs['DB_USER']}:{attrs['DB_PASS']}"
-        f"@{attrs['DB_HOST']}:{attrs['DB_PORT']}/"
-        f"{attrs['DB_NAME']}"
+
+    if full_url := os.getenv("DATABASE_URL"):
+        return full_url
+    raise ConfigurationError(
+        "Database configuration must be set in the environment: DATABASE_URL is missing"
     )
 
 
