@@ -46,13 +46,7 @@ def test_app(test_db_container: PostgresContainer) -> Iterator[Litestar]:
     """
 
     with temporarily_modified_environ(
-        APP_ENV="testing",
-        DB_DRIVER="postgresql+asyncpg",
-        DB_USER=test_db_container.username,
-        DB_PASS=test_db_container.password,
-        DB_HOST=test_db_container.get_container_host_ip(),
-        DB_PORT=str(test_db_container.get_exposed_port(5432)),
-        DB_NAME=test_db_container.dbname,
+        APP_ENV="testing", DATABASE_URL=test_db_container.get_connection_url()
     ):
         app = create_app()
         yield app
