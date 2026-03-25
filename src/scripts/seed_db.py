@@ -2,7 +2,6 @@
 
 import asyncio
 
-from advanced_alchemy.base import AdvancedDeclarativeBase
 from litestar_users.password import PasswordManager
 from sqlalchemy import delete
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
@@ -53,6 +52,7 @@ def create_shows(db_session: AsyncSession, owning_user: User) -> None:
         user_id=owning_user.id,
         tvmaze_id=86175,
         title="Pluribus",
+        favorite=True,
         source="Apple TV",
         duration=60,
         image_sm_url="https://static.tvmaze.com/uploads/images/medium_portrait/592/1481086.jpg",
@@ -91,6 +91,7 @@ def create_shows(db_session: AsyncSession, owning_user: User) -> None:
         user_id=owning_user.id,
         tvmaze_id=42836,
         title="All Creatures Great & Small",
+        favorite=True,
         source="PBS",
         duration=60,
         image_sm_url="https://static.tvmaze.com/uploads/images/medium_portrait/593/1483974.jpg",
@@ -111,6 +112,7 @@ def create_shows(db_session: AsyncSession, owning_user: User) -> None:
         user_id=owning_user.id,
         tvmaze_id=157,
         title="The Americans",
+        favorite=False,
         source="FX",
         duration=60,
         image_sm_url="https://static.tvmaze.com/uploads/images/medium_portrait/146/366911.jpg",
@@ -140,6 +142,7 @@ def create_shows(db_session: AsyncSession, owning_user: User) -> None:
         user_id=owning_user.id,
         tvmaze_id=184,
         title="BoJack Horseman",
+        favorite=True,
         source="Netflix",
         duration=30,
         image_sm_url="https://static.tvmaze.com/uploads/images/medium_portrait/405/1012627.jpg",
@@ -154,10 +157,6 @@ def create_shows(db_session: AsyncSession, owning_user: User) -> None:
 async def main() -> None:
     app_config.load()
     engine = create_async_engine(app_config.get_db_url())
-
-    async with engine.begin() as conn:
-        await conn.run_sync(AdvancedDeclarativeBase.metadata.drop_all)
-        await conn.run_sync(AdvancedDeclarativeBase.metadata.create_all)
 
     async with AsyncSession(engine) as db_session:
         try:

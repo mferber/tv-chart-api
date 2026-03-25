@@ -1,5 +1,6 @@
 from advanced_alchemy.config import AsyncSessionConfig
-from advanced_alchemy.extensions.litestar.plugins import (
+from advanced_alchemy.extensions.litestar import (
+    AlembicAsyncConfig,
     SQLAlchemyAsyncConfig,
     SQLAlchemyPlugin,
 )
@@ -31,16 +32,22 @@ RATE_LIMIT_REQ_PER_MIN = 50
 def create_app() -> Litestar:
     app_config.load()
 
+    sqlAlchemyConfig = SQLAlchemyAsyncConfig(
+        connection_string=app_config.get_db_url(),
+        session_config=AsyncSessionConfig(expire_on_commit=False),
+        before_send_handler="autocommit",  # semi-required by litestar-users; good practice anyway
+        create_all=False,  # disable automatic table creation
+        alembic_config=AlembicAsyncConfig(
+            version_table_name="alembic_version",  # default
+            script_config="alembic.ini",
+            script_location="migrations",
+        ),
+    )
+
     return Litestar(
         debug=True,
         plugins=[
-            SQLAlchemyPlugin(
-                config=SQLAlchemyAsyncConfig(
-                    connection_string=app_config.get_db_url(),
-                    session_config=AsyncSessionConfig(expire_on_commit=False),
-                    before_send_handler="autocommit",  # semi-required by litestar-users; good practice anyway
-                )
-            ),
+            SQLAlchemyPlugin(config=sqlAlchemyConfig),
             # litestar-users plugin implements user management and authentication endpoints
             litestar_users_setup.plugin.configure_litestar_users_plugin(
                 app_config.get_jwt_encoding_secret()

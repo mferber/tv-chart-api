@@ -11,6 +11,7 @@ def test_domain_show_to_db_show_conversion() -> None:
         id=uuid4(),
         tvmaze_id=1,
         title="Fictional Show",
+        favorite=True,
         source="PBS",
         duration=60,
         image_sm_url=HttpUrl("http://images.com/small"),
@@ -32,6 +33,7 @@ def test_domain_show_to_db_show_conversion() -> None:
     assert db_show.user_id == user_id
     assert db_show.tvmaze_id == show.tvmaze_id
     assert db_show.title == show.title
+    assert db_show.favorite
     assert db_show.source == show.source
     assert db_show.duration == show.duration
     assert db_show.image_sm_url == str(show.image_sm_url)
@@ -60,6 +62,7 @@ def test_domain_show_create_to_db_show_conversion() -> None:
     show = ShowCreate(
         tvmaze_id=1,
         title="Fictional Show",
+        favorite=True,
         source="PBS",
         duration=60,
         image_sm_url=HttpUrl("http://images.com/small"),
@@ -80,6 +83,7 @@ def test_domain_show_create_to_db_show_conversion() -> None:
     assert db_show.user_id == user_id
     assert db_show.tvmaze_id == show.tvmaze_id
     assert db_show.title == show.title
+    assert db_show.favorite
     assert db_show.source == show.source
     assert db_show.duration == show.duration
     assert db_show.image_sm_url == str(show.image_sm_url)
@@ -110,6 +114,7 @@ def test_db_show_to_show_conversion() -> None:
         user_id=uuid4(),
         tvmaze_id=1,
         title="Fictional Show",
+        favorite=True,
         source="PBS",
         duration=60,
         image_sm_url="http://images.com/small",
@@ -139,6 +144,7 @@ def test_db_show_to_show_conversion() -> None:
     assert show.id == db_show.id
     assert show.tvmaze_id == db_show.tvmaze_id
     assert show.title == db_show.title
+    assert show.favorite
     assert show.source == db_show.source
     assert show.duration == db_show.duration
     assert show.image_sm_url == HttpUrl(db_show.image_sm_url)

@@ -3,6 +3,7 @@ uv = "0.9.9"
 
 [env]
 _.python.venv = { path = ".venv" }
+PYTHONPATH = "src"
 
 [tasks.devup]
 description = "Start the development webapp running locally, with --reload"

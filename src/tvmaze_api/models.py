@@ -156,6 +156,7 @@ class TVmazeShow(BaseModel):
         return ShowCreate(
             tvmaze_id=self.id,
             title=self.name,
+            favorite=True,
             source=source,
             duration=self.averageRuntime or 0,
             image_sm_url=self.image.medium if self.image else None,

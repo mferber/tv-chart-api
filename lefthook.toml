@@ -7,18 +7,22 @@ fail_on_changes = "always"
 name = "typecheck"
 run = "uv run mypy {staged_files}"
 glob = "*.py"
+exclude = "migrations/*"
 
 [[pre-commit.jobs]]
 name = "lint"
 run = "uv run ruff check --fix {staged_files}"
 glob = "*.py"
+exclude = "migrations/*"
 
 [[pre-commit.jobs]]
 name = "reformat"
 run = "uv run ruff format {staged_files}"
 glob = "*.py"
+exclude = "migrations/*"
 
 [[pre-commit.jobs]]
 name = "reorder imports"
 run = "echo 'imports'; uv run ruff check --select I --fix-only {staged_files}"
 glob = "*.py"
+exclude = "migrations/*"

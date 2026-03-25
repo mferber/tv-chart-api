@@ -4,7 +4,7 @@ from uuid import UUID
 from advanced_alchemy.base import UUIDAuditBase
 from advanced_alchemy.types import JsonB
 from pydantic import HttpUrl
-from sqlalchemy import ForeignKey, Integer, String
+from sqlalchemy import Boolean, ForeignKey, Integer, String
 from sqlalchemy.dialects.postgresql import UUID as SQLA_UUID
 from sqlalchemy.ext.mutable import MutableList
 from sqlalchemy.orm import Mapped, mapped_column
@@ -20,6 +20,7 @@ class DbShow(UUIDAuditBase):
     )
     tvmaze_id: Mapped[int]
     title: Mapped[str] = mapped_column(String(100))
+    favorite: Mapped[bool] = mapped_column(Boolean)
     source: Mapped[str] = mapped_column(String(50), nullable=True)
     duration: Mapped[int] = mapped_column(nullable=True)
     image_sm_url: Mapped[str] = mapped_column(String(256), nullable=True)
@@ -52,6 +53,7 @@ class DbShow(UUIDAuditBase):
             user_id=owner_id,
             tvmaze_id=show.tvmaze_id,
             title=show.title,
+            favorite=show.favorite,
             source=show.source,
             duration=show.duration,
             image_sm_url=str(show.image_sm_url),
@@ -86,6 +88,7 @@ class DbShow(UUIDAuditBase):
             id=self.id,
             tvmaze_id=self.tvmaze_id,
             title=self.title,
+            favorite=self.favorite,
             source=self.source,
             duration=self.duration,
             image_sm_url=HttpUrl(self.image_sm_url),

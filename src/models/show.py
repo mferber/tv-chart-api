@@ -30,6 +30,7 @@ class EpisodeDetails(BaseModel):
 class ShowCreate(BaseModel):
     tvmaze_id: int
     title: str
+    favorite: bool
     source: str
     duration: int
     image_sm_url: HttpUrl | None
