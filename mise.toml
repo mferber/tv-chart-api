@@ -7,7 +7,7 @@ PYTHONPATH = "src"
 
 [tasks.devup]
 description = "Start the development webapp running locally, with --reload"
-run = "cd src; litestar run --reload"
+run = "litestar run --reload"
 
 [tasks.dbup]
 description = "Start a PostgreSQL instance in a docker container"
