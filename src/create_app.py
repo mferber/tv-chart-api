@@ -5,6 +5,7 @@ from advanced_alchemy.extensions.litestar import (
     SQLAlchemyPlugin,
 )
 from litestar import Litestar
+from litestar.config.cors import CORSConfig
 from litestar.config.csrf import CSRFConfig
 from litestar.middleware.rate_limit import RateLimitConfig
 
@@ -44,6 +45,8 @@ def create_app() -> Litestar:
         ),
     )
 
+    cors_config = CORSConfig(allow_origins=["http://localhost:5173"])
+
     return Litestar(
         debug=True,
         plugins=[
@@ -53,6 +56,7 @@ def create_app() -> Litestar:
                 app_config.get_jwt_encoding_secret()
             ),
         ],
+        cors_config=cors_config,
         csrf_config=CSRFConfig(
             secret=app_config.get_csrf_secret(),
             cookie_name=CSRF_COOKIE_NAME,
