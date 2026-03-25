@@ -39,7 +39,7 @@ def run_migrations_offline() -> None:
     script output.
     """
     context.configure(
-        url=config.db_url,
+        url=config.db_url.replace("postgresql://", "postgresql+asyncpg://", 1),
         target_metadata=metadata_registry.get(config.bind_key),
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
@@ -82,7 +82,8 @@ async def run_migrations_online() -> None:
         RuntimeError: If the engine cannot be created from the config.
     """
     configuration = config.get_section(config.config_ini_section) or {}
-    configuration["sqlalchemy.url"] = config.db_url
+    db_url = config.db_url.replace("postgresql://", "postgresql+asyncpg://", 1)
+    configuration["sqlalchemy.url"] = db_url
 
     connectable = cast(
         "AsyncEngine",
