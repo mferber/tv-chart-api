@@ -42,7 +42,7 @@ def get_db_url() -> str:
     check_loaded()
 
     if full_url := os.getenv("DATABASE_URL"):
-        return full_url
+        return full_url.replace("postgresql://", "postgresql+asyncpg://", 1)
     raise ConfigurationError(
         "Database configuration must be set in the environment: DATABASE_URL is missing"
     )
