@@ -46,7 +46,8 @@ def create_app() -> Litestar:
     )
 
     cors_config = CORSConfig(
-        allow_origins=["http://localhost:5173"], allow_credentials=True
+        allow_origins=["http://localhost:5173", "https://tv-chart-react.vercel.app"],
+        allow_credentials=True,
     )
 
     return Litestar(
