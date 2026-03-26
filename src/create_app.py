@@ -50,6 +50,14 @@ def create_app() -> Litestar:
         allow_credentials=True,
     )
 
+    csrf_config = CSRFConfig(
+        secret=app_config.get_csrf_secret(),
+        cookie_name=CSRF_COOKIE_NAME,
+        cookie_secure=True,
+        cookie_samesite="none",
+        header_name=CSRF_HEADER_NAME,
+    )
+
     return Litestar(
         debug=True,
         plugins=[
@@ -60,11 +68,7 @@ def create_app() -> Litestar:
             ),
         ],
         cors_config=cors_config,
-        csrf_config=CSRFConfig(
-            secret=app_config.get_csrf_secret(),
-            cookie_name=CSRF_COOKIE_NAME,
-            header_name=CSRF_HEADER_NAME,
-        ),
+        csrf_config=csrf_config,
         middleware=[
             RateLimitConfig(rate_limit=("minute", RATE_LIMIT_REQ_PER_MIN)).middleware
         ],
