@@ -121,12 +121,12 @@ async def seed_test_db(test_db_container: PostgresContainer) -> None:
             thetvdb_id=1234,
             season_lengths=[7, 7, 7, 7],
             # final episode of every season is a special
-            is_special=lambda season, ep_idx: ep_idx == 6,
+            is_special=lambda seasonNum, ep_idx: ep_idx == 6,
             # mark first season as watched
-            is_watched=lambda season, ep_idx: season == 1,
+            is_watched=lambda seasonNum, ep_idx: seasonNum == 1,
         )
 
-        # user 2 has just started "Pluribus"
+        # user 2 has just started "Pluribus" and nearly finished "Severance"
         await _add_show(
             db_session,
             user_id=db_user_ids["test_user2"],
@@ -140,8 +140,30 @@ async def seed_test_db(test_db_container: PostgresContainer) -> None:
             imdb_id="tt456",
             thetvdb_id=4567,
             season_lengths=[9],
-            is_special=lambda season, ep_idx: False,
-            is_watched=lambda season, ep_idx: season == 1 and ep_idx == 0,
+            is_special=lambda seasonNum, ep_idx: (
+                ep_idx == 0
+            ),  # not really but we need to test with specials
+            is_watched=lambda seasonNum, ep_idx: seasonNum == 1 and ep_idx == 0,
+        )
+        await _add_show(
+            db_session,
+            user_id=db_user_ids["test_user2"],
+            title="Severance",
+            favorite=True,
+            tvmaze_id=44933,
+            source="Apple TV",
+            duration=60,
+            image_sm_url="https://tvimages.com/pluribus/sm",
+            image_lg_url="https://tvimages.com/pluribus/lg",
+            imdb_id="tt11280740",
+            thetvdb_id=371980,
+            season_lengths=[9, 10],
+            is_special=lambda seasonNum, ep_idx: (
+                ep_idx == 0
+            ),  # not really but we need to test with specials
+            is_watched=lambda seasonNum, ep_idx: (
+                seasonNum < 2 or (seasonNum == 2 and ep_idx < 9)
+            ),
         )
 
         await db_session.commit()

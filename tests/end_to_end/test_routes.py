@@ -19,8 +19,10 @@ def test_user2_sees_own_shows(test_client: TestClient, login_as_user: FakeUser) 
     rsp = test_client.get("/shows")
     rsp.raise_for_status()
     rsp_contents = rsp.json()
-    assert len(rsp_contents) == 1
-    assert next(iter(rsp_contents.values()))["title"] == "Pluribus"
+    assert len(rsp_contents) == 2
+    titles = [show["title"] for show in rsp_contents.values()]
+    assert "Pluribus" in titles
+    assert "Severance" in titles
 
 
 @pytest.mark.parametrize("login_as_user", ["test_user1"], indirect=True)
