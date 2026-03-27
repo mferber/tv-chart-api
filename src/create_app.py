@@ -27,17 +27,6 @@ CSRF_COOKIE_NAME = "csrftoken"
 CSRF_HEADER_NAME = "X-CSRFToken"
 
 
-cookie_domain = (
-    "couchpotato.robotpie.net" if app_config.get_app_env() == "production" else None
-)
-
-
-class MyJWTCookieAuth(JWTCookieAuth):
-    domain: str | None = cookie_domain
-    secure: bool = True
-    samesite: Literal["lax", "strict", "none"] = "lax"
-
-
 # Rate limiting: maximum number of requests permitted to a client per minute
 RATE_LIMIT_REQ_PER_MIN = 50
 
@@ -47,6 +36,15 @@ RATE_LIMIT_REQ_PER_MIN = 50
 
 def create_app() -> Litestar:
     app_config.load()
+
+    cookie_domain = (
+        "couchpotato.robotpie.net" if app_config.get_app_env() == "production" else None
+    )
+
+    class MyJWTCookieAuth(JWTCookieAuth):
+        domain: str | None = cookie_domain
+        secure: bool = True
+        samesite: Literal["lax", "strict", "none"] = "lax"
 
     sqlAlchemyConfig = SQLAlchemyAsyncConfig(
         connection_string=app_config.get_db_url(),
