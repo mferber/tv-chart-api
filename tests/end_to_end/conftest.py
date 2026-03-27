@@ -54,9 +54,11 @@ def test_app(test_db_container: PostgresContainer) -> Iterator[Litestar]:
 
 @pytest.fixture
 def test_client(test_app: Litestar) -> Iterator[TestClient[Litestar]]:
-    """Yields a TestClient set up to test the app instance provided by test_app"""
+    """Yields a TestClient set up to test the app instance provided by test_app.
+    
+    The TestClient uses https explicitly so that secure cookies will work."""
 
-    with TestClient(app=test_app) as test_client:
+    with TestClient(app=test_app, base_url="https://testserver.local") as test_client:
         yield test_client
 
 
