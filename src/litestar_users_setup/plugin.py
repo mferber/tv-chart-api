@@ -14,7 +14,9 @@ from .models import User
 from .services import UserService
 
 
-def configure_litestar_users_plugin(jwt_encoding_secret: str) -> LitestarUsersPlugin:
+def configure_litestar_users_plugin(
+    auth_backend_class: type[JWTCookieAuth], jwt_encoding_secret: str
+) -> LitestarUsersPlugin:
     """Creates main litestar-users plugin object with many, many configuration options.
 
     Args:

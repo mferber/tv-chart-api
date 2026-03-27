@@ -1,3 +1,5 @@
+from typing import Literal
+
 from advanced_alchemy.config import AsyncSessionConfig
 from advanced_alchemy.extensions.litestar import (
     AlembicAsyncConfig,
@@ -8,6 +10,7 @@ from litestar import Litestar
 from litestar.config.cors import CORSConfig
 from litestar.config.csrf import CSRFConfig
 from litestar.middleware.rate_limit import RateLimitConfig
+from litestar.security.jwt import JWTCookieAuth
 
 import app_config
 import litestar_users_setup.plugin
@@ -22,6 +25,18 @@ Main app: API backend for TV tracker
 # These are the defaults, but making it explicit for ease of reference
 CSRF_COOKIE_NAME = "csrftoken"
 CSRF_HEADER_NAME = "X-CSRFToken"
+
+
+cookie_domain = (
+    "couchpotato.robotpie.net" if app_config.get_app_env() == "production" else None
+)
+
+
+class MyJWTCookieAuth(JWTCookieAuth):
+    domain: str | None = cookie_domain
+    secure: bool = True
+    samesite: Literal["lax", "strict", "none"] = "lax"
+
 
 # Rate limiting: maximum number of requests permitted to a client per minute
 RATE_LIMIT_REQ_PER_MIN = 50
@@ -55,11 +70,7 @@ def create_app() -> Litestar:
         secret=app_config.get_csrf_secret(),
         header_name=CSRF_HEADER_NAME,
         cookie_name=CSRF_COOKIE_NAME,
-        cookie_domain=(
-            "api.couchpotato.robotpie.net"
-            if app_config.get_app_env() == "production"
-            else None
-        ),
+        cookie_domain=cookie_domain,
         cookie_secure=True,
         cookie_samesite="lax",
     )
@@ -70,7 +81,8 @@ def create_app() -> Litestar:
             SQLAlchemyPlugin(config=sqlAlchemyConfig),
             # litestar-users plugin implements user management and authentication endpoints
             litestar_users_setup.plugin.configure_litestar_users_plugin(
-                app_config.get_jwt_encoding_secret()
+                auth_backend_class=MyJWTCookieAuth,
+                jwt_encoding_secret=app_config.get_jwt_encoding_secret(),
             ),
         ],
         cors_config=cors_config,
