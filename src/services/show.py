@@ -30,6 +30,7 @@ class ShowService:
     episodes_cache: TTLCache[UUID, list[list[EpisodeDetails]]] = TTLCache(
         maxsize=500, ttl=86400
     )
+    episodes_cache_lock = asyncio.Lock()
 
     def __init__(self, db_session: AsyncSession, user_id: UUID):
         self.db_session = db_session
@@ -73,7 +74,10 @@ class ShowService:
         show = await self.add_show(addable)
 
         # Cache episode details for future use
-        ShowService.episodes_cache[show.id] = episodes_rsp.to_episode_details_models()
+        async with ShowService.episodes_cache_lock:
+            ShowService.episodes_cache[show.id] = (
+                episodes_rsp.to_episode_details_models()
+            )
 
         return show
 
@@ -89,7 +93,8 @@ class ShowService:
         self, show: Show, force_refresh: bool = False
     ) -> list[list[EpisodeDetails]]:
         if not force_refresh:
-            cached = ShowService.episodes_cache.get(show.id)
+            async with ShowService.episodes_cache_lock:
+                cached = ShowService.episodes_cache.get(show.id)
             if cached:
                 return cached
 
@@ -98,7 +103,9 @@ class ShowService:
         episodes = tvmaze_episodes.to_episode_details_models()
 
         # always update cache with freshly reloaded episodes
-        ShowService.episodes_cache[show.id] = episodes
+        async with ShowService.episodes_cache_lock:
+            ShowService.episodes_cache[show.id] = episodes
+
         return episodes
 
     async def toggle_episodes(
