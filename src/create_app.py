@@ -46,16 +46,22 @@ def create_app() -> Litestar:
     )
 
     cors_config = CORSConfig(
+        # FIXME: replace allowed origins with config setting
         allow_origins=["http://localhost:5173", "https://tv-chart-react.vercel.app"],
         allow_credentials=True,
     )
 
     csrf_config = CSRFConfig(
         secret=app_config.get_csrf_secret(),
-        cookie_name=CSRF_COOKIE_NAME,
-        cookie_secure=True,
-        cookie_samesite="none",
         header_name=CSRF_HEADER_NAME,
+        cookie_name=CSRF_COOKIE_NAME,
+        cookie_domain=(
+            "api.couchpotato.robotpie.net"
+            if app_config.get_app_env() == "production"
+            else None
+        ),
+        cookie_secure=True,
+        cookie_samesite="lax",
     )
 
     return Litestar(

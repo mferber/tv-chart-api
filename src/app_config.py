@@ -5,9 +5,10 @@ Defines:
 - JWT_ENCODING_SECRET: for signing JWTs
 """
 
+import json
 import os
 
-from dotenv import load_dotenv
+from dotenv import load_dotenv, dotenv_values
 
 from exceptions import ConfigurationError
 
@@ -20,6 +21,16 @@ def load() -> None:
     global _loaded
 
     if not _loaded:
+        values = dotenv_values()
+        if values is None:
+            print("LOADING ENVIRONMENT VARIABLES: none found")
+        else:
+            print("LOADING ENVIRONMENT VARIABLES:")
+            for k in sorted(values):
+                val = values[k]
+                if "secret" in k.casefold():
+                    val = k[0] + "****"
+                print(f"  {k}: {repr(val)}")
         load_dotenv()
     _loaded = True
 
