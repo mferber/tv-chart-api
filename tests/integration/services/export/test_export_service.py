@@ -7,7 +7,7 @@ from pydantic import HttpUrl
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from models.show import EpisodeType, Show
-from services.export import ExportService
+from services.export_shows import ExportService
 from services.show import ShowService
 
 
