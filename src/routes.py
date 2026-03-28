@@ -1,3 +1,4 @@
+import datetime
 from dataclasses import dataclass
 from uuid import UUID
 
@@ -10,6 +11,10 @@ from models.show import EpisodeDetails, Show
 from services.export_shows import ExportService
 from services.search import SearchService
 from services.show import ShowService
+
+
+def datetime_filename_suffix() -> str:
+    return datetime.datetime.now(datetime.UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 # Health check
@@ -94,7 +99,12 @@ async def toggle_watched_status(
     return await svc.toggle_episodes(data.show_id, data.episodes)
 
 
-@get(path="/data/export")
+@get(
+    path="/data/export",
+    response_headers={
+        "Content-Disposition": f'attachment; filename="couch-potato-backup-{datetime_filename_suffix()}.json"'
+    },
+)
 async def export_data(db_session: AsyncSession, request: Request) -> str:
     svc = ExportService(show_service=ShowService(db_session, request.user.id))
     return await svc.export()
