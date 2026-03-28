@@ -4,6 +4,8 @@ from helpers.testing_data.mock_responses.reader import SampleFileReader
 from helpers.testing_data.types import FakeUser
 from litestar.testing import TestClient
 
+from services.import_shows import ImportService
+
 
 @pytest.mark.parametrize("login_as_user", ["test_user1"], indirect=True)
 def test_user1_sees_own_shows(test_client: TestClient, login_as_user: FakeUser) -> None:
@@ -176,3 +178,12 @@ def test_toggle_watched_status(
 
     assert not (updated_json["seasons"][0][0]["watched"])
     assert updated_json["seasons"][1][0]["watched"]
+
+
+@pytest.mark.parametrize("login_as_user", ["test_user2"], indirect=True)
+def test_export_show_data(test_client: TestClient, login_as_user: FakeUser) -> None:
+    exported_data = test_client.get("/data/export").json()
+
+    # validate as if we were importing
+    ImportService.validate_import_data(exported_data)
+    # integration test checks details of exported data
