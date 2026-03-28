@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from models.show import EpisodeType, Show
 from services.export_shows import ExportService
+from services.import_shows import ImportService
 from services.show import ShowService
 
 
@@ -21,6 +22,11 @@ async def test_export_service(autorollback_db_session: AsyncSession) -> None:
     export = await sut.export()
 
     exported_shows = json.loads(export)
+
+    # validate the export as if we were importing it
+    ImportService.validate_import_data(exported_shows)
+
+    # check all fields against the source Show objects
     orig_shows = await show_service.get_shows()
 
     assert len(exported_shows) == 2
@@ -42,20 +48,6 @@ async def test_export_service(autorollback_db_session: AsyncSession) -> None:
         (exported_pluribus, pluribus),
         (exported_severance, severance),
     ]:
-        for key in exported_show:
-            assert key in [
-                "title",
-                "favorite",
-                "tvmaze_id",
-                "source",
-                "duration",
-                "image_sm_url",
-                "image_lg_url",
-                "imdb_id",
-                "thetvdb_id",
-                "seasons",
-            ]
-
         assert exported_show["title"] == original_show.title
         assert exported_show["favorite"] == original_show.favorite
         assert exported_show["tvmaze_id"] == original_show.tvmaze_id
