@@ -6,7 +6,7 @@ from helpers.testing_data.users import get_user_id
 from pydantic import HttpUrl
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from models.show import EpisodeType, Show
+from models.show import Show
 from services.export_shows import ExportService
 from services.import_shows import ImportService
 from services.show import ShowService
@@ -66,8 +66,5 @@ async def test_export_service(autorollback_db_session: AsyncSession) -> None:
             for ep_idx, exported_episode in enumerate(season):
                 episode = original_show.seasons[s_idx][ep_idx]
                 assert exported_episode["title"] == episode.title
-                assert exported_episode["display_number"] == episode.displayNumber
-                assert exported_episode["type"] == (
-                    "special" if episode.type == EpisodeType.SPECIAL else "episode"
-                )
+                assert exported_episode["ep_num"] == episode.ep_num
                 assert exported_episode["watched"] == episode.watched

@@ -41,17 +41,12 @@ _import_json_schema = {
                         "required": [
                             "title",
                             "watched",
-                            "display_number",
-                            "type",
+                            "ep_num",
                         ],
                         "properties": {
                             "title": {"type": "string"},
                             "watched": {"type": "boolean"},
-                            "display_number": {"type": ["integer", "null"]},
-                            "type": {
-                                "type": "string",
-                                "enum": ["episode", "special"],
-                            },
+                            "ep_num": {"type": ["integer", "null"]},
                         },
                         "additionalProperties": False,
                     },

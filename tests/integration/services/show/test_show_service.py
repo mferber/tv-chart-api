@@ -40,8 +40,7 @@ async def test_get_shows(autorollback_db_session: AsyncSession) -> None:
         assert len(season) == 7
         for idx, ep in enumerate(season):
             assert ep.title != "Untitled"
-            assert ep.displayNumber == (idx + 1 if idx < 6 else None)
-            assert ep.type == ("special" if idx == 6 else "episode")
+            assert ep.ep_num == (idx + 1 if idx < 6 else None)
             assert ep.watched == (True if season_idx == 0 else False)
 
 
@@ -107,28 +106,24 @@ async def test_add_show_adds_show_to_db(autorollback_db_session: AsyncSession) -
             [
                 EpisodeDescriptor(
                     title="Season 1 episode",
-                    type=EpisodeType.EPISODE,
-                    displayNumber=1,
+                    ep_num=1,
                     watched=True,
                 ),
                 EpisodeDescriptor(
                     title="Season 1 special",
-                    type=EpisodeType.SPECIAL,
-                    displayNumber=None,
+                    ep_num=None,
                     watched=True,
                 ),
             ],
             [
                 EpisodeDescriptor(
                     title="Season 2 episode",
-                    type=EpisodeType.EPISODE,
-                    displayNumber=1,
+                    ep_num=1,
                     watched=False,
                 ),
                 EpisodeDescriptor(
                     title="Season 2 special",
-                    type=EpisodeType.SPECIAL,
-                    displayNumber=None,
+                    ep_num=None,
                     watched=False,
                 ),
             ],
@@ -153,10 +148,10 @@ async def test_add_show_adds_show_to_db(autorollback_db_session: AsyncSession) -
     assert added_show.imdb_id == "tt999"
     assert added_show.thetvdb_id == 9999
     assert len(added_show.seasons) == 2
-    assert added_show.seasons[0][0].type == EpisodeType.EPISODE
-    assert added_show.seasons[0][1].type == EpisodeType.SPECIAL
-    assert added_show.seasons[1][0].type == EpisodeType.EPISODE
-    assert added_show.seasons[1][1].type == EpisodeType.SPECIAL
+    assert added_show.seasons[0][0].ep_num is not None
+    assert added_show.seasons[0][1].ep_num is None
+    assert added_show.seasons[1][0].ep_num is not None
+    assert added_show.seasons[1][1].ep_num is None
     assert added_show.seasons[0][0].watched
     assert added_show.seasons[0][1].watched
     assert not added_show.seasons[1][0].watched

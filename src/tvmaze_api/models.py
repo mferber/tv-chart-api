@@ -50,16 +50,10 @@ class TVmazeEpisode(BaseModel):
     runtime: int | None
     summary: str | None
 
-    def to_episode_descriptor_model(
-        self, displayNumber: int | None
-    ) -> EpisodeDescriptor:
-        episode_type = (
-            EpisodeType.EPISODE if self.type == "regular" else EpisodeType.SPECIAL
-        )
+    def to_episode_descriptor_model(self, ep_num: int | None) -> EpisodeDescriptor:
         return EpisodeDescriptor(
             title=self.name,
-            type=episode_type,
-            displayNumber=displayNumber,
+            ep_num=ep_num,
             watched=False,
         )
 

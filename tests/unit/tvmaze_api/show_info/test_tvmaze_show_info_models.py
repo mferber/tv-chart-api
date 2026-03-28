@@ -149,7 +149,7 @@ def test_tvmaze_show_to_show_create_model_conversion() -> None:
     assert len(show_create.seasons[0]) == 10
     assert len(show_create.seasons[1]) == 10
     for season in show_create.seasons:
-        assert all(episode.type == EpisodeType.EPISODE for episode in season)
+        assert all(episode.ep_num is not None for episode in season)
         assert all(not episode.watched for episode in season)
 
 
@@ -167,11 +167,10 @@ def test_tvmaze_episode_to_episode_descriptor_model_conversion() -> None:
         summary="Episode summary",
     )
 
-    episode = tvmaze_episode.to_episode_descriptor_model(displayNumber=1)
+    episode = tvmaze_episode.to_episode_descriptor_model(ep_num=1)
 
     assert episode.title == "Episode Title"
-    assert episode.type == EpisodeType.EPISODE
-    assert episode.displayNumber == 1
+    assert episode.ep_num == 1
     assert not episode.watched
 
 
@@ -189,8 +188,8 @@ def test_tvmaze_episodes_to_episode_descriptors_model_conversion() -> None:
     assert len(results[0]) == 10
     assert len(results[1]) == 10
 
-    assert all(ep.type == EpisodeType.EPISODE for ep in results[0])
-    assert all(ep.type == EpisodeType.EPISODE for ep in results[1])
+    assert all(ep.ep_num is not None for ep in results[0])
+    assert all(ep.ep_num is not None for ep in results[1])
     assert all(not ep.watched for ep in results[0])
     assert all(not ep.watched for ep in results[1])
 
@@ -211,8 +210,8 @@ def test_tvmaze_episodes_to_episode_descriptors_model_conversion_skips_missing_s
     assert len(results[0]) == 2
     assert len(results[1]) == 0
     assert len(results[2]) == 2
-    assert all(ep.type == EpisodeType.EPISODE for ep in results[0])
-    assert all(ep.type == EpisodeType.EPISODE for ep in results[2])
+    assert all(ep.ep_num is not None for ep in results[0])
+    assert all(ep.ep_num is not None for ep in results[2])
 
 
 def test_tvmaze_episode_to_episode_detail_model_conversion() -> None:
@@ -326,8 +325,8 @@ def test_show_with_complicated_episodes() -> None:
     # spot check season 6: it has lots of specials interspersed
     season6 = show_create.seasons[5]
     assert len(season6) == 20
-    assert len(list(filter(lambda ep: ep.type == EpisodeType.SPECIAL, season6))) == 7
-    assert season6[0].type == EpisodeType.SPECIAL
-    assert season6[1].type == EpisodeType.EPISODE
-    assert season6[2].type == EpisodeType.EPISODE
-    assert season6[3].type == EpisodeType.SPECIAL
+    assert len(list(filter(lambda ep: ep.ep_num is None, season6))) == 7
+    assert season6[0].ep_num is None
+    assert season6[1].ep_num is not None
+    assert season6[2].ep_num is not None
+    assert season6[3].ep_num is None

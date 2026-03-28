@@ -1,7 +1,7 @@
 import json
 from typing import Any
 
-from models.show import EpisodeDescriptor, EpisodeType, Show
+from models.show import EpisodeDescriptor, Show
 from services.show import ShowService
 
 
@@ -29,6 +29,5 @@ class ExportService:
         return {
             "title": episode.title,
             "watched": episode.watched,
-            "display_number": episode.displayNumber,
-            "type": "special" if episode.type == EpisodeType.SPECIAL else "episode",
+            "ep_num": episode.ep_num,
         }

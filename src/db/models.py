@@ -9,7 +9,7 @@ from sqlalchemy.dialects.postgresql import UUID as SQLA_UUID
 from sqlalchemy.ext.mutable import MutableList
 from sqlalchemy.orm import Mapped, mapped_column
 
-from models.show import EpisodeDescriptor, EpisodeType, Show, ShowCreate
+from models.show import EpisodeDescriptor, Show, ShowCreate
 
 
 class DbShow(UUIDAuditBase):
@@ -37,8 +37,7 @@ class DbShow(UUIDAuditBase):
             [
                 {
                     "title": episode_descriptor.title,
-                    "type": episode_descriptor.type.value,
-                    "displayNumber": episode_descriptor.displayNumber,
+                    "ep_num": episode_descriptor.ep_num,
                     "watched": episode_descriptor.watched,
                 }
                 for episode_descriptor in season
@@ -69,17 +68,11 @@ class DbShow(UUIDAuditBase):
         for season in self.seasons:
             current_season_descriptors: list[EpisodeDescriptor] = []
             for episode in season:
-                type = (
-                    EpisodeType.SPECIAL
-                    if episode["type"] == "special"
-                    else EpisodeType.EPISODE
-                )
                 current_season_descriptors.append(
                     EpisodeDescriptor(
                         title=episode["title"],
-                        type=type,
+                        ep_num=episode["ep_num"],
                         watched=episode["watched"],
-                        displayNumber=episode["displayNumber"],
                     )
                 )
             model_seasons.append(current_season_descriptors)

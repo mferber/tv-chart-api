@@ -32,20 +32,17 @@ def create_users(db_session: AsyncSession) -> list[User]:
 
 
 def create_shows(db_session: AsyncSession, owning_user: User) -> None:
-    def make_episode(
-        index: int, special: bool, displayNumber: int | None, watched: bool
-    ) -> dict:
+    def make_episode(index: int, episode_number: int | None, watched: bool) -> dict:
         return {
             "title": f"Episode index {index} title",
-            "type": "special" if special else "episode",
-            "displayNumber": displayNumber,
+            "ep_num": episode_number,
             "watched": watched,
         }
 
     # Pluribus
 
     pluribus_seasons = [
-        [make_episode(i, False, i + 1, i < 8) for i in range(0, 9)],
+        [make_episode(i, i + 1, i < 8) for i in range(0, 9)],
     ]
 
     pluribus = DbShow(
@@ -67,19 +64,18 @@ def create_shows(db_session: AsyncSession, owning_user: User) -> None:
 
     def all_creatures_season(sn: int) -> list[dict]:
         season = []
-        next_display_number = 1
+        next_episode_number = 1
         for i in range(0, 7):
             is_special = i == 6
             if is_special:
-                displayNumber = None
+                episode_number = None
             else:
-                displayNumber = next_display_number
-                next_display_number += 1
+                episode_number = next_episode_number
+                next_episode_number += 1
             season.append(
                 make_episode(
                     index=i,
-                    special=(i == 6),
-                    displayNumber=displayNumber,
+                    episode_number=episode_number,
                     watched=sn <= 2,
                 )
             )
@@ -105,7 +101,7 @@ def create_shows(db_session: AsyncSession, owning_user: User) -> None:
     # The Americans
 
     the_americans_seasons = [
-        [make_episode(i, False, i + 1, i < 8) for i in range(0, 9)],
+        [make_episode(i, i + 1, i < 8) for i in range(0, 9)],
     ]
 
     the_americans = DbShow(
@@ -127,15 +123,12 @@ def create_shows(db_session: AsyncSession, owning_user: User) -> None:
     # BoJack Horseman
 
     bojack_seasons = [
-        [
-            make_episode(i, i < 12, i + 1 if i < 12 else None, True)
-            for i in range(0, 13)
-        ],
-        [make_episode(i, i < 11, i + 1, True) for i in range(0, 12)],
-        [make_episode(i, i < 11, i + 1, True) for i in range(0, 12)],
-        [make_episode(i, i < 11, i + 1, i < 2) for i in range(0, 12)],
-        [make_episode(i, i < 11, i + 1, False) for i in range(0, 12)],
-        [make_episode(i, i < 11, i + 1, False) for i in range(0, 16)],
+        [make_episode(i, i + 1 if i < 12 else None, True) for i in range(0, 13)],
+        [make_episode(i, i + 1, True) for i in range(0, 12)],
+        [make_episode(i, i + 1, True) for i in range(0, 12)],
+        [make_episode(i, i + 1, i < 2) for i in range(0, 12)],
+        [make_episode(i, i + 1, False) for i in range(0, 12)],
+        [make_episode(i, i + 1, False) for i in range(0, 16)],
     ]
 
     bojack = DbShow(

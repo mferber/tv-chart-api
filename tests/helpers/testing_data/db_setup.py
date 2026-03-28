@@ -55,21 +55,18 @@ async def _add_show(
     for season_idx, season_length in enumerate(season_lengths):
         season = season_idx + 1
         season_contents = []
-        next_display_number = 1
+        next_episode_number = 1
         for ep_idx in range(0, season_length):
             if is_special(season, ep_idx):
-                type = "special"
-                display_number = None
+                episode_number = None
             else:
-                type = "episode"
-                display_number = next_display_number
-                next_display_number += 1
+                episode_number = next_episode_number
+                next_episode_number += 1
 
             season_contents.append(
                 {
                     "title": f"Episode index {ep_idx} title",
-                    "type": type,
-                    "displayNumber": display_number,
+                    "ep_num": episode_number,
                     "watched": is_watched(season, ep_idx),
                 }
             )
