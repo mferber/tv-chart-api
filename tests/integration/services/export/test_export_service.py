@@ -1,4 +1,3 @@
-import json
 from typing import Any
 
 import pytest
@@ -21,10 +20,8 @@ async def test_export_service(autorollback_db_session: AsyncSession) -> None:
 
     export = await sut.export()
 
-    exported_shows = json.loads(export)
-
     # validate the export as if we were importing it
-    ImportService.schema_validate_import_data(exported_shows)
+    exported_shows = ImportService.schema_validate_import_data(export)
 
     # check all fields against the source Show objects
     orig_shows = await show_service.get_shows()

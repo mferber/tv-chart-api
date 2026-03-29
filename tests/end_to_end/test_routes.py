@@ -182,8 +182,8 @@ def test_toggle_watched_status(
 
 @pytest.mark.parametrize("login_as_user", ["test_user2"], indirect=True)
 def test_export_show_data(test_client: TestClient, login_as_user: FakeUser) -> None:
-    exported_data = test_client.get("/data/export").json()
+    exported_data = test_client.get("/data/export").text
 
     # validate as if we were importing
-    ImportService.validate_import_data(exported_data)
-    # integration test checks details of exported data
+    ImportService.schema_validate_import_data(exported_data)
+    # see integration test for checks on full details of exported data
