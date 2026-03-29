@@ -24,7 +24,7 @@ async def test_export_service(autorollback_db_session: AsyncSession) -> None:
     exported_shows = json.loads(export)
 
     # validate the export as if we were importing it
-    ImportService.validate_import_data(exported_shows)
+    ImportService.schema_validate_import_data(exported_shows)
 
     # check all fields against the source Show objects
     orig_shows = await show_service.get_shows()

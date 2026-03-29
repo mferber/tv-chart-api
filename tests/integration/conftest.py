@@ -39,7 +39,7 @@ async def autorollback_db_session(
 
     async with test_db_engine.connect() as connection:
         async with connection.begin() as outer_transaction:
-            session = AsyncSession(connection)
+            session = AsyncSession(connection, expire_on_commit=False)
             await session.begin_nested()
 
             yield session

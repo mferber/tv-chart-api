@@ -1,6 +1,16 @@
-import jsonschema
+import json
+from typing import Any, cast
 
+import jsonschema
+from pydantic import HttpUrl
+
+from models.show import ShowCreate
 from services.show import ShowService
+
+
+class InvalidImportDataError(Exception):
+    pass
+
 
 _import_json_schema = {
     "$schema": "http://json-schema.org/draft-07/schema#",
@@ -59,16 +69,61 @@ _import_json_schema = {
 
 
 class ImportService:
+    """Service for importing previously updated data files, replacing the user's
+    current show data.
+    """
+
     @classmethod
-    def validate_import_data(cls, json: str) -> None:
-        """Validates an import data style against the JSON schema.
-        Raises an error if validation fails.
+    def schema_validate_import_data(cls, json_data: str) -> list[dict[str, Any]]:
+        """Validates an import data file (string) against the JSON schema.
+
+        Publicly accessible for use in export tests. Otherwise should not ordinarily
+        be called from outside this class.
+
+        Returns:
+            The parsed, validated JSON object.
+
+        Raises:
+            InvalidImportDataException: if the import data is malformed JSON or fails
+            schema validation
         """
-        jsonschema.validate(instance=json, schema=_import_json_schema)
+
+        instance = json.loads(json_data)
+        jsonschema.validate(instance=json.loads(json_data), schema=_import_json_schema)
+
+        # once it's passed validation, we know it's a list of dicts, so this is a safe cast
+        return cast(list[dict[str, Any]], instance)
 
     def __init__(self, show_service: ShowService):
         self.show_service = show_service
 
-    def import_shows(self, json: str) -> None:
-        self.validate_import_data(json)
-        print("importing")
+    async def import_shows(self, data: str) -> None:
+        try:
+            data_parsed: list[dict[str, Any]] = self.schema_validate_import_data(data)
+        except Exception as e:
+            raise InvalidImportDataError() from e
+
+        # map JSON show serializations to ShowCreate objs we can add to the db
+        new_shows = [
+            ShowCreate(
+                tvmaze_id=json_show["tvmaze_id"],
+                title=json_show["title"],
+                favorite=json_show["favorite"],
+                source=json_show["source"],
+                duration=json_show["duration"],
+                image_sm_url=HttpUrl(
+                    json_show["image_sm_url"],
+                ),
+                image_lg_url=HttpUrl(
+                    json_show["image_lg_url"],
+                ),
+                imdb_id=json_show["imdb_id"],
+                thetvdb_id=json_show["thetvdb_id"],
+                seasons=json_show["seasons"],
+            )
+            for json_show in data_parsed
+        ]
+
+        # replace all saved shows with the new ones
+        await self.show_service.delete_all_shows()
+        await self.show_service.add_many_shows(new_shows)

@@ -88,7 +88,7 @@ async def test_user_get_other_users_show_fails(
 
 
 @pytest.mark.asyncio
-async def test_add_show_adds_show_to_db(autorollback_db_session: AsyncSession) -> None:
+async def test_add_show(autorollback_db_session: AsyncSession) -> None:
     sess = autorollback_db_session
     user_id = await get_user_id("test_user1", sess)
     sut = ShowService(db_session=sess, user_id=user_id)
@@ -141,6 +141,7 @@ async def test_add_show_adds_show_to_db(autorollback_db_session: AsyncSession) -
     assert not hasattr(added_show, "user_id")
     assert added_show.tvmaze_id == 1001
     assert added_show.title == "Fictional Show"
+    assert added_show.favorite
     assert added_show.source == "HBO"
     assert added_show.duration == 60
     assert added_show.image_sm_url == HttpUrl("https://images.com/fictional/sm")
@@ -148,6 +149,8 @@ async def test_add_show_adds_show_to_db(autorollback_db_session: AsyncSession) -
     assert added_show.imdb_id == "tt999"
     assert added_show.thetvdb_id == 9999
     assert len(added_show.seasons) == 2
+    assert len(added_show.seasons[0]) == 2
+    assert len(added_show.seasons[1]) == 2
     assert added_show.seasons[0][0].ep_num is not None
     assert added_show.seasons[0][1].ep_num is None
     assert added_show.seasons[1][0].ep_num is not None
@@ -156,6 +159,107 @@ async def test_add_show_adds_show_to_db(autorollback_db_session: AsyncSession) -
     assert added_show.seasons[0][1].watched
     assert not added_show.seasons[1][0].watched
     assert not added_show.seasons[1][1].watched
+
+
+@pytest.mark.asyncio
+async def test_add_many_shows(autorollback_db_session: AsyncSession) -> None:
+    sess = autorollback_db_session
+    user_id = await get_user_id("test_user1", sess)
+    sut = ShowService(db_session=sess, user_id=user_id)
+    new_show1 = ShowCreate(
+        tvmaze_id=1001,
+        title="Fictional Show 1",
+        favorite=True,
+        source="Source1",
+        duration=1,
+        image_sm_url=HttpUrl("https://images.com/fictional1/sm"),
+        image_lg_url=HttpUrl("https://images.com/fictional1/lg"),
+        imdb_id="tt1",
+        thetvdb_id=1,
+        seasons=[
+            [
+                EpisodeDescriptor(
+                    title="Show 1 Season 1 Episode 1",
+                    ep_num=1,
+                    watched=False,
+                ),
+            ],
+        ],
+    )
+    new_show2 = ShowCreate(
+        tvmaze_id=1002,
+        title="Fictional Show 2",
+        favorite=False,
+        source="Source2",
+        duration=2,
+        image_sm_url=HttpUrl("https://images.com/fictional2/sm"),
+        image_lg_url=HttpUrl("https://images.com/fictional2/lg"),
+        imdb_id="tt2",
+        thetvdb_id=2,
+        seasons=[
+            [
+                EpisodeDescriptor(
+                    title="Show 2 Season 1 Episode 1",
+                    ep_num=1,
+                    watched=True,
+                ),
+            ],
+        ],
+    )
+
+    # to make sure another user's shows aren't affected
+    other_user_id = await get_user_id("test_user2", sess)
+    other_user_service = ShowService(db_session=sess, user_id=other_user_id)
+    other_user_show_count_before = len(await other_user_service.get_shows())
+    assert other_user_show_count_before != 0
+
+    results = await sut.add_many_shows([new_show1, new_show2])
+
+    assert isinstance(results, list)
+    assert isinstance(results[0], Show)
+    assert isinstance(results[1], Show)
+
+    all_shows = await sut.get_shows()
+    assert len(all_shows) == 3
+    added_show1 = all_shows[results[0].id]
+    assert added_show1 is not None
+    assert added_show1 in results
+    added_show2 = all_shows[results[1].id]
+    assert added_show2 is not None
+    assert added_show2 in results
+
+    assert not hasattr(added_show1, "user_id")
+    assert added_show1.tvmaze_id == 1001
+    assert added_show1.title == "Fictional Show 1"
+    assert added_show1.source == "Source1"
+    assert added_show1.duration == 1
+    assert added_show1.image_sm_url == HttpUrl("https://images.com/fictional1/sm")
+    assert added_show1.image_lg_url == HttpUrl("https://images.com/fictional1/lg")
+    assert added_show1.imdb_id == "tt1"
+    assert added_show1.thetvdb_id == 1
+    assert len(added_show1.seasons) == 1
+    assert len(added_show1.seasons[0]) == 1
+    assert added_show1.seasons[0][0].title == "Show 1 Season 1 Episode 1"
+    assert added_show1.seasons[0][0].ep_num is not None
+    assert not added_show1.seasons[0][0].watched
+
+    assert not hasattr(added_show2, "user_id")
+    assert added_show2.tvmaze_id == 1002
+    assert added_show2.title == "Fictional Show 2"
+    assert added_show2.source == "Source2"
+    assert added_show2.duration == 2
+    assert added_show2.image_sm_url == HttpUrl("https://images.com/fictional2/sm")
+    assert added_show2.image_lg_url == HttpUrl("https://images.com/fictional2/lg")
+    assert added_show2.imdb_id == "tt2"
+    assert added_show2.thetvdb_id == 2
+    assert len(added_show2.seasons) == 1
+    assert len(added_show2.seasons[0]) == 1
+    assert added_show2.seasons[0][0].title == "Show 2 Season 1 Episode 1"
+    assert added_show2.seasons[0][0].ep_num is not None
+    assert added_show2.seasons[0][0].watched
+
+    other_user_show_count_after = len(await other_user_service.get_shows())
+    assert other_user_show_count_after == other_user_show_count_before
 
 
 @pytest.mark.asyncio
@@ -247,6 +351,29 @@ async def test_delete_show(autorollback_db_session: AsyncSession) -> None:
     shows_after = await sut.get_shows()
     assert len(shows_after) == len(shows_before) - 1
     assert id_to_remove not in [show.id for show in shows_after.values()]
+
+
+@pytest.mark.asyncio
+async def test_delete_all_shows(autorollback_db_session: AsyncSession) -> None:
+    sess = autorollback_db_session
+    user_id = await get_user_id("test_user1", sess)
+    sut = ShowService(db_session=sess, user_id=user_id)
+    shows_before = await sut.get_shows()
+    assert len(shows_before) != 0  # precondition
+
+    # to make sure another user's shows aren't affected
+    other_user_id = await get_user_id("test_user2", sess)
+    other_user_service = ShowService(db_session=sess, user_id=other_user_id)
+    other_user_show_count_before = len(await other_user_service.get_shows())
+    assert other_user_show_count_before != 0
+
+    await sut.delete_all_shows()
+
+    shows_after = await sut.get_shows()
+    assert len(shows_after) == 0
+
+    other_user_show_count_after = len(await other_user_service.get_shows())
+    assert other_user_show_count_after == other_user_show_count_before
 
 
 @pytest.mark.asyncio

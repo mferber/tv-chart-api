@@ -58,6 +58,14 @@ class ShowService:
         )
         return db_show.to_show_model()
 
+    async def add_many_shows(self, shows: list[ShowCreate]) -> list[Show]:
+        repository = DbShowRepository(session=self.db_session)
+        db_shows = [
+            DbShow.from_show_model(show, owner_id=self.user_id) for show in shows
+        ]
+        created_db_shows = await repository.add_many(db_shows, auto_commit=True)
+        return [db_show.to_show_model() for db_show in created_db_shows]
+
     async def add_show_from_tvmaze(self, tvmaze_id: int) -> Show:
         client = TVmazeAPIClient()
 
@@ -88,6 +96,10 @@ class ShowService:
         )
         if not deleted:
             raise ShowNotFound()
+
+    async def delete_all_shows(self) -> None:
+        repository = DbShowRepository(session=self.db_session)
+        await repository.delete_where(DbShow.user_id == self.user_id, auto_commit=True)
 
     async def get_episodes(
         self, show: Show, force_refresh: bool = False
