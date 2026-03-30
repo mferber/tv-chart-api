@@ -4,7 +4,7 @@ from typing import Any, cast
 import jsonschema
 from pydantic import HttpUrl
 
-from models.show import ShowCreate
+from models.show import Show, ShowCreate
 from services.show import ShowService
 
 
@@ -97,7 +97,7 @@ class ImportService:
     def __init__(self, show_service: ShowService):
         self.show_service = show_service
 
-    async def import_shows(self, data: str) -> None:
+    async def import_shows(self, data: str) -> list[Show]:
         try:
             data_parsed: list[dict[str, Any]] = self.schema_validate_import_data(data)
         except Exception as e:
@@ -126,4 +126,5 @@ class ImportService:
 
         # replace all saved shows with the new ones
         await self.show_service.delete_all_shows()
-        await self.show_service.add_many_shows(new_shows)
+        shows = await self.show_service.add_many_shows(new_shows)
+        return shows

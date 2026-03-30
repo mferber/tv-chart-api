@@ -2,11 +2,11 @@ import json
 
 import jsonschema
 import pytest
+from helpers.testing_data.import_data.reader import SampleFileReader
 from helpers.testing_data.users import get_user_id
 from pydantic import HttpUrl
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from integration.helpers.testing_data.import_data.reader import SampleFileReader
 from services.import_shows import ImportService, InvalidImportDataError
 from services.show import ShowService
 

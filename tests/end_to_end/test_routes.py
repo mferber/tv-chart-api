@@ -1,7 +1,13 @@
 import pytest
 import respx
-from helpers.testing_data.mock_responses.reader import SampleFileReader
+from helpers.testing_data.import_data.reader import (
+    SampleFileReader as SampleImportFileReader,
+)
+from helpers.testing_data.mock_responses.reader import (
+    SampleFileReader as SampleResponseFileReader,
+)
 from helpers.testing_data.types import FakeUser
+from litestar.status_codes import HTTP_400_BAD_REQUEST
 from litestar.testing import TestClient
 
 from services.import_shows import ImportService
@@ -48,7 +54,7 @@ def test_add_show_adds_show_to_db(
     test_client: TestClient, login_as_user: FakeUser, respx_mock: respx.MockRouter
 ) -> None:
     # this test uses TVmazeClient: mock out TVmaze URLs
-    sample_file_reader = SampleFileReader("sample_tvmaze_show_responses")
+    sample_file_reader = SampleResponseFileReader("sample_tvmaze_show_responses")
 
     show_json = sample_file_reader.read("network_show.json")
     respx_mock.get("https://api.tvmaze.com/shows/6456").respond(text=show_json)
@@ -86,7 +92,7 @@ def test_get_episodes(
     test_client: TestClient, login_as_user: FakeUser, respx_mock: respx.MockRouter
 ) -> None:
     # this test uses TVmazeClient: mock out TVmaze URLs
-    sample_file_reader = SampleFileReader("sample_tvmaze_show_responses")
+    sample_file_reader = SampleResponseFileReader("sample_tvmaze_show_responses")
     fake_episodes_json = sample_file_reader.read("network_show_episodes.json")
     respx_mock.get("https://api.tvmaze.com/shows/42836/episodes").respond(
         text=fake_episodes_json
@@ -120,7 +126,7 @@ def test_get_episodes_with_force_refresh(
     test_client: TestClient, login_as_user: FakeUser, respx_mock: respx.MockRouter
 ) -> None:
     # this test uses TVmazeClient: mock out TVmaze URLs
-    sample_file_reader = SampleFileReader("sample_tvmaze_show_responses")
+    sample_file_reader = SampleResponseFileReader("sample_tvmaze_show_responses")
     fake_episodes_json = sample_file_reader.read("network_show_episodes.json")
     route = respx_mock.get("https://api.tvmaze.com/shows/42836/episodes").respond(
         text=fake_episodes_json
@@ -186,4 +192,77 @@ def test_export_show_data(test_client: TestClient, login_as_user: FakeUser) -> N
 
     # validate as if we were importing
     ImportService.schema_validate_import_data(exported_data)
-    # see integration test for checks on full details of exported data
+    # see integration tests for checks on full details of exported data
+
+
+@pytest.mark.parametrize("login_as_user", ["test_user1"], indirect=True)
+def test_import_show_data(
+    test_client: TestClient, login_as_user: FakeUser, csrf_token_header: dict[str, str]
+) -> None:
+    shows_before = test_client.get("/shows").json()
+    assert len(shows_before) != 2  # precondition
+
+    import_file = SampleImportFileReader().read("import.json")
+    rsp = test_client.post(
+        "/data/import",
+        files={"file": import_file.encode("utf-8")},
+        headers=csrf_token_header,
+    )
+    rsp.raise_for_status()
+
+    shows_after = test_client.get("/shows").json()
+    assert len(shows_after) == 2
+    imported_titles = [show["title"] for show in shows_after.values()]
+    assert "Sherlock" in imported_titles
+    assert "Battlestar Galactica" in imported_titles
+    # see integration tests for checks on full details of imported data
+
+
+@pytest.mark.parametrize("login_as_user", ["test_user1"], indirect=True)
+def test_import_show_data_invalid_UTF_8(
+    test_client: TestClient, login_as_user: FakeUser, csrf_token_header: dict[str, str]
+) -> None:
+    rsp = test_client.post(
+        "/data/import",
+        files={"file": b"\xff\xfe"},
+        headers=csrf_token_header,
+    )
+
+    assert rsp.status_code == HTTP_400_BAD_REQUEST
+    rsp_json = rsp.json()
+    assert rsp_json["error"] == "invalid UTF-8 content"
+    assert rsp_json["detail"] != ""
+
+
+@pytest.mark.parametrize("login_as_user", ["test_user1"], indirect=True)
+def test_import_show_data_malformed_JSON(
+    test_client: TestClient, login_as_user: FakeUser, csrf_token_header: dict[str, str]
+) -> None:
+    rsp = test_client.post(
+        "/data/import",
+        files={"file": b'{malformed: "data"}'},
+        headers=csrf_token_header,
+    )
+
+    assert rsp.status_code == HTTP_400_BAD_REQUEST
+    rsp_json = rsp.json()
+    assert rsp_json["error"] == "invalid or malformed JSON"
+    assert rsp_json["detail"] != ""
+
+
+@pytest.mark.parametrize("login_as_user", ["test_user1"], indirect=True)
+def test_import_show_data_invalid_JSON(
+    test_client: TestClient, login_as_user: FakeUser, csrf_token_header: dict[str, str]
+) -> None:
+    import_file = SampleImportFileReader().read("import_schema_invalid.json")
+
+    rsp = test_client.post(
+        "/data/import",
+        files={"file": import_file.encode("utf-8")},
+        headers=csrf_token_header,
+    )
+
+    assert rsp.status_code == HTTP_400_BAD_REQUEST
+    rsp_json = rsp.json()
+    assert rsp_json["error"] == "invalid or malformed JSON"
+    assert rsp_json["detail"] != ""

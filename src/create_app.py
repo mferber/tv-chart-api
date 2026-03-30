@@ -30,6 +30,9 @@ CSRF_HEADER_NAME = "X-CSRFToken"
 # Rate limiting: maximum number of requests permitted to a client per minute
 RATE_LIMIT_REQ_PER_MIN = 50
 
+# Maximum size of upload (import) file
+MAX_FILE_UPLOAD_BYTES = 50_000_000
+
 
 # --- app ---
 
@@ -88,5 +91,6 @@ def create_app() -> Litestar:
         middleware=[
             RateLimitConfig(rate_limit=("minute", RATE_LIMIT_REQ_PER_MIN)).middleware
         ],
+        request_max_body_size=MAX_FILE_UPLOAD_BYTES,
         route_handlers=all_routes,
     )

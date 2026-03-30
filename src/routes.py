@@ -1,14 +1,20 @@
 import datetime
 from dataclasses import dataclass
+from typing import Annotated
 from uuid import UUID
 
 from litestar import Request, Response, get, post
+from litestar.datastructures import UploadFile
+from litestar.enums import RequestEncodingType
+from litestar.params import Body
+from litestar.status_codes import HTTP_400_BAD_REQUEST
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import app_config
 from models.search import SearchResults
 from models.show import EpisodeDetails, Show
 from services.export_shows import ExportService
+from services.import_shows import ImportService, InvalidImportDataError
 from services.search import SearchService
 from services.show import ShowService
 
@@ -110,6 +116,44 @@ async def export_data(db_session: AsyncSession, request: Request) -> str:
     return await svc.export()
 
 
+@post(
+    path="/data/import",
+)
+async def import_data(
+    data: Annotated[UploadFile, Body(media_type=RequestEncodingType.MULTI_PART)],
+    db_session: AsyncSession,
+    request: Request,
+) -> dict | Response:
+    raw = await data.read()
+    try:
+        json_text = raw.decode("utf-8")
+    except UnicodeDecodeError as e:
+        return Response(
+            {"error": "invalid UTF-8 content", "detail": e.reason},
+            status_code=HTTP_400_BAD_REQUEST,
+        )
+
+    try:
+        svc = ImportService(show_service=ShowService(db_session, request.user.id))
+        imported = await svc.import_shows(json_text)
+        return {"imported_count": len(imported)}
+    except Exception as e:
+        if isinstance(e, InvalidImportDataError):
+            exc_detail = (
+                getattr(e.__cause__, "message", None)
+                or getattr(e.__cause__, "msg", None)
+                or "none available"
+            )
+            return Response(
+                {"error": "invalid or malformed JSON", "detail": exc_detail},
+                status_code=HTTP_400_BAD_REQUEST,
+            )
+        else:
+            return Response(
+                {"error": "unknown error"}, status_code=HTTP_400_BAD_REQUEST
+            )
+
+
 all_routes = [
     health,
     env,
@@ -121,4 +165,5 @@ all_routes = [
     get_episodes,
     toggle_watched_status,
     export_data,
+    import_data,
 ]
