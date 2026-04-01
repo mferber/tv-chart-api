@@ -187,6 +187,22 @@ def test_toggle_watched_status(
 
 
 @pytest.mark.parametrize("login_as_user", ["test_user2"], indirect=True)
+def test_delete_show(
+    test_client: TestClient, login_as_user: FakeUser, csrf_token_header: dict[str, str]
+) -> None:
+    shows_before = test_client.get("/shows").json()
+    show_to_delete = next(iter(shows_before.values()))
+
+    deleted_show = test_client.delete(
+        f"/shows/{show_to_delete['id']}", headers=csrf_token_header
+    ).json()
+
+    shows_after = test_client.get("/shows").json()
+    assert len(shows_after) == len(shows_before) - 1
+    assert deleted_show == show_to_delete
+
+
+@pytest.mark.parametrize("login_as_user", ["test_user2"], indirect=True)
 def test_export_show_data(test_client: TestClient, login_as_user: FakeUser) -> None:
     exported_data = test_client.get("/data/export").text
 

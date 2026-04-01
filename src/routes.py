@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import Annotated
 from uuid import UUID
 
-from litestar import Request, Response, get, post
+from litestar import Request, Response, delete, get, post
 from litestar.datastructures import UploadFile
 from litestar.enums import RequestEncodingType
 from litestar.params import Body
@@ -105,6 +105,15 @@ async def toggle_watched_status(
     return await svc.toggle_episodes(data.show_id, data.episodes)
 
 
+# FIXME: arguably shouldn't be DELETE since this isn't a very RESTish API
+@delete(path="/shows/{show_id:uuid}", status_code=200)
+async def delete_show(
+    show_id: UUID, db_session: AsyncSession, request: Request
+) -> Show:
+    svc = ShowService(db_session, request.user.id)
+    return await svc.delete_show(show_id)
+
+
 @get(
     path="/data/export",
     response_headers={
@@ -164,6 +173,7 @@ all_routes = [
     add_show,
     get_episodes,
     toggle_watched_status,
+    delete_show,
     export_data,
     import_data,
 ]
