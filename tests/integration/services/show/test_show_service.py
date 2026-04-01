@@ -10,7 +10,7 @@ from pytest_mock import MockerFixture
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from models.show import EpisodeDescriptor, EpisodeType, Show, ShowCreate
-from services.show import EpisodeNotFound, ShowNotFound, ShowService
+from services.show_service import EpisodeNotFound, ShowNotFound, ShowService
 
 
 @pytest.mark.asyncio

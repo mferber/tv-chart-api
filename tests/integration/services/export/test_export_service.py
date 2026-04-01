@@ -6,9 +6,9 @@ from pydantic import HttpUrl
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from models.show import Show
-from services.export_shows import ExportService
-from services.import_shows import ImportService
-from services.show import ShowService
+from services.export_service import ExportService
+from services.import_service import ImportService
+from services.show_service import ShowService
 
 
 @pytest.mark.asyncio

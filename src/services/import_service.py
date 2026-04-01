@@ -5,7 +5,7 @@ import jsonschema
 from pydantic import HttpUrl
 
 from models.show import Show, ShowCreate
-from services.show import ShowService
+from services.show_service import ShowService
 
 
 class InvalidImportDataError(Exception):

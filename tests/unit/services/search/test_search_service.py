@@ -2,7 +2,7 @@ import pytest
 import respx
 from pydantic import HttpUrl
 
-from services.search import SearchError, SearchService
+from services.search_service import SearchError, SearchService
 
 from .sample_tvmaze_responses.reader import read_sample
 

@@ -2,7 +2,7 @@ import json
 from typing import Any
 
 from models.show import EpisodeDescriptor, Show
-from services.show import ShowService
+from services.show_service import ShowService
 
 
 class ExportService:

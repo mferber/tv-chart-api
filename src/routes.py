@@ -13,10 +13,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 import app_config
 from models.search import SearchResults
 from models.show import EpisodeDetails, Show
-from services.export_shows import ExportService
-from services.import_shows import ImportService, InvalidImportDataError
-from services.search import SearchService
-from services.show import ShowService
+from services.export_service import ExportService
+from services.import_service import ImportService, InvalidImportDataError
+from services.search_service import SearchService
+from services.show_service import ShowService
 
 
 def datetime_filename_suffix() -> str:

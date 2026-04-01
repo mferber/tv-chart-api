@@ -10,7 +10,7 @@ from helpers.testing_data.types import FakeUser
 from litestar.status_codes import HTTP_400_BAD_REQUEST
 from litestar.testing import TestClient
 
-from services.import_shows import ImportService
+from services.import_service import ImportService
 
 
 @pytest.mark.parametrize("login_as_user", ["test_user1"], indirect=True)

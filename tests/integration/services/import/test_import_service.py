@@ -7,8 +7,8 @@ from helpers.testing_data.users import get_user_id
 from pydantic import HttpUrl
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from services.import_shows import ImportService, InvalidImportDataError
-from services.show import ShowService
+from services.import_service import ImportService, InvalidImportDataError
+from services.show_service import ShowService
 
 
 @pytest.mark.asyncio
