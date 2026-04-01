@@ -89,13 +89,14 @@ class ShowService:
 
         return show
 
-    async def delete_show(self, show_id: UUID) -> None:
+    async def delete_show(self, show_id: UUID) -> Show:
         repository = DbShowRepository(session=self.db_session)
-        deleted = await repository.delete_where(
+        deleted_shows = await repository.delete_where(
             DbShow.user_id == self.user_id, DbShow.id == show_id, auto_commit=True
         )
-        if not deleted:
+        if not deleted_shows:
             raise ShowNotFound()
+        return deleted_shows[0].to_show_model()
 
     async def delete_all_shows(self) -> None:
         repository = DbShowRepository(session=self.db_session)

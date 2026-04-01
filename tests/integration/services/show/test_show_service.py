@@ -344,13 +344,16 @@ async def test_delete_show(autorollback_db_session: AsyncSession) -> None:
     user_id = await get_user_id("test_user1", sess)
     sut = ShowService(db_session=sess, user_id=user_id)
     shows_before = await sut.get_shows()
-    id_to_remove = next(iter(shows_before.values())).id
+    show_to_delete = next(iter(shows_before.values()))
+    assert show_to_delete in shows_before.values()
 
-    await sut.delete_show(id_to_remove)
+    deleted_show = await sut.delete_show(show_to_delete.id)
 
     shows_after = await sut.get_shows()
     assert len(shows_after) == len(shows_before) - 1
-    assert id_to_remove not in [show.id for show in shows_after.values()]
+    assert show_to_delete not in shows_after.values()
+
+    assert deleted_show == show_to_delete
 
 
 @pytest.mark.asyncio
