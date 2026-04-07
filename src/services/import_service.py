@@ -9,7 +9,9 @@ from services.show_service import ShowService
 
 
 class InvalidImportDataError(Exception):
-    pass
+    def __init__(self, message: str, source: Any) -> None:
+        self.message = message
+        self.source = source
 
 
 _import_json_schema = {
@@ -101,7 +103,15 @@ class ImportService:
         try:
             data_parsed: list[dict[str, Any]] = self.schema_validate_import_data(data)
         except Exception as e:
-            raise InvalidImportDataError() from e
+            message = ""
+            source: Any = {}
+            if isinstance(e, json.decoder.JSONDecodeError):
+                message = e.msg
+                source = e.doc
+            if isinstance(e, jsonschema.ValidationError):
+                message = e.message
+                source = e.instance
+            raise InvalidImportDataError(message=message, source=source) from e
 
         # map JSON show serializations to ShowCreate objs we can add to the db
         new_shows = [

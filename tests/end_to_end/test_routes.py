@@ -247,7 +247,8 @@ def test_import_show_data_invalid_UTF_8(
     assert rsp.status_code == HTTP_400_BAD_REQUEST
     rsp_json = rsp.json()
     assert rsp_json["error"] == "invalid UTF-8 content"
-    assert rsp_json["detail"] != ""
+    assert rsp_json["message"] != ""
+    assert rsp_json["source"] != ""
 
 
 @pytest.mark.parametrize("login_as_user", ["test_user1"], indirect=True)
@@ -263,7 +264,8 @@ def test_import_show_data_malformed_JSON(
     assert rsp.status_code == HTTP_400_BAD_REQUEST
     rsp_json = rsp.json()
     assert rsp_json["error"] == "invalid or malformed JSON"
-    assert rsp_json["detail"] != ""
+    assert rsp_json["message"] != ""
+    assert rsp_json["source"] != ""
 
 
 @pytest.mark.parametrize("login_as_user", ["test_user1"], indirect=True)
@@ -281,4 +283,5 @@ def test_import_show_data_invalid_JSON(
     assert rsp.status_code == HTTP_400_BAD_REQUEST
     rsp_json = rsp.json()
     assert rsp_json["error"] == "invalid or malformed JSON"
-    assert rsp_json["detail"] != ""
+    assert rsp_json["message"] != ""
+    assert rsp_json["source"] != ""

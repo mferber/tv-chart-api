@@ -138,7 +138,7 @@ async def import_data(
         json_text = raw.decode("utf-8")
     except UnicodeDecodeError as e:
         return Response(
-            {"error": "invalid UTF-8 content", "detail": e.reason},
+            {"error": "invalid UTF-8 content", "message": e.reason, "source": None},
             status_code=HTTP_400_BAD_REQUEST,
         )
 
@@ -148,18 +148,18 @@ async def import_data(
         return {"imported_count": len(imported)}
     except Exception as e:
         if isinstance(e, InvalidImportDataError):
-            exc_detail = (
-                getattr(e.__cause__, "message", None)
-                or getattr(e.__cause__, "msg", None)
-                or "none available"
-            )
             return Response(
-                {"error": "invalid or malformed JSON", "detail": exc_detail},
+                {
+                    "error": "invalid or malformed JSON",
+                    "message": e.message,
+                    "source": e.source,
+                },
                 status_code=HTTP_400_BAD_REQUEST,
             )
         else:
             return Response(
-                {"error": "unknown error"}, status_code=HTTP_400_BAD_REQUEST
+                {"error": "unknown error", "message": None, "source": None},
+                status_code=HTTP_400_BAD_REQUEST,
             )
 
 

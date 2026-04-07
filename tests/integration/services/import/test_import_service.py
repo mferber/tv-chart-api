@@ -105,7 +105,10 @@ async def test_import_service_raises_on_malformed_json(
     data = '[{ malformed: "data" }]'
     with pytest.raises(InvalidImportDataError) as excinfo:
         await sut.import_shows(data)
-    assert isinstance(excinfo.value.__cause__, json.decoder.JSONDecodeError)
+    ex = excinfo.value
+    assert isinstance(ex.__cause__, json.decoder.JSONDecodeError)
+    assert ex.message == "Expecting property name enclosed in double quotes"
+    assert ex.source == data
 
 
 @pytest.mark.asyncio
@@ -120,7 +123,10 @@ async def test_import_service_raises_on_nonarray_json(
     data = '{"not an array": "value"}'
     with pytest.raises(InvalidImportDataError) as excinfo:
         await sut.import_shows(data)
-    assert isinstance(excinfo.value.__cause__, jsonschema.exceptions.ValidationError)
+    ex = excinfo.value
+    assert isinstance(ex.__cause__, jsonschema.exceptions.ValidationError)
+    assert ex.message == "{'not an array': 'value'} is not of type 'array'"
+    assert ex.source == {"not an array": "value"}
 
 
 @pytest.mark.asyncio
@@ -135,4 +141,10 @@ async def test_import_service_raises_on_schema_invalid_data(
 
     with pytest.raises(InvalidImportDataError) as excinfo:
         await sut.import_shows(data)
-    assert isinstance(excinfo.value.__cause__, jsonschema.exceptions.ValidationError)
+    ex = excinfo.value
+    assert isinstance(ex.__cause__, jsonschema.exceptions.ValidationError)
+    assert (
+        ex.message
+        == "Additional properties are not allowed ('invalid_key' was unexpected)"
+    )
+    assert ex.source.items() >= {"invalid_key": "invalid_value"}.items()
