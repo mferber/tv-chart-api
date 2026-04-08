@@ -357,6 +357,24 @@ async def test_delete_show(autorollback_db_session: AsyncSession) -> None:
 
 
 @pytest.mark.asyncio
+async def test_delete_other_users_show_fails(
+    autorollback_db_session: AsyncSession,
+) -> None:
+    sess = autorollback_db_session
+    user_id1 = await get_user_id("test_user1", sess)
+    user_id2 = await get_user_id("test_user2", sess)
+    sut = ShowService(db_session=sess, user_id=user_id1)
+    other_user_svc = ShowService(db_session=sess, user_id=user_id2)
+    shows_before = await sut.get_shows()
+    id_to_remove = next(iter(shows_before.values())).id
+
+    with pytest.raises(ShowNotFound):
+        await other_user_svc.delete_show(id_to_remove)
+    shows_after = await sut.get_shows()
+    assert len(shows_after) == len(shows_before), "delete attempt should have failed"
+
+
+@pytest.mark.asyncio
 async def test_delete_all_shows(autorollback_db_session: AsyncSession) -> None:
     sess = autorollback_db_session
     user_id = await get_user_id("test_user1", sess)
@@ -512,24 +530,6 @@ async def test_get_episodes_cached_with_force_refresh(
     assert episodes2[0][0].type == EpisodeType.EPISODE
     assert episodes2[0][0].duration == 60
     assert episodes2[0][0].release_date == datetime.date(2017, 12, 10)
-
-
-@pytest.mark.asyncio
-async def test_delete_other_users_show_fails(
-    autorollback_db_session: AsyncSession,
-) -> None:
-    sess = autorollback_db_session
-    user_id1 = await get_user_id("test_user1", sess)
-    user_id2 = await get_user_id("test_user2", sess)
-    sut = ShowService(db_session=sess, user_id=user_id1)
-    other_user_svc = ShowService(db_session=sess, user_id=user_id2)
-    shows_before = await sut.get_shows()
-    id_to_remove = next(iter(shows_before.values())).id
-
-    with pytest.raises(ShowNotFound):
-        await other_user_svc.delete_show(id_to_remove)
-    shows_after = await sut.get_shows()
-    assert len(shows_after) == len(shows_before), "delete attempt should have failed"
 
 
 @pytest.mark.asyncio
