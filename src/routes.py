@@ -114,6 +114,14 @@ async def delete_show(
     return await svc.delete_show(show_id)
 
 
+@post(path="/shows/{show_id:uuid}/toggle-favorite")
+async def toggle_favorite(
+    show_id: UUID, db_session: AsyncSession, request: Request
+) -> Show:
+    svc = ShowService(db_session, request.user.id)
+    return await svc.toggle_favorite(show_id)
+
+
 @get(
     path="/data/export",
     response_headers={
@@ -174,6 +182,7 @@ all_routes = [
     get_episodes,
     toggle_watched_status,
     delete_show,
+    toggle_favorite,
     export_data,
     import_data,
 ]

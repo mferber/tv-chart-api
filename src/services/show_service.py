@@ -143,3 +143,15 @@ class ShowService:
             DbShow.from_show_model(show, owner_id=self.user_id), auto_commit=True
         )
         return updated_db_show.to_show_model()
+
+    async def toggle_favorite(self, show_id: UUID) -> Show:
+        shows = await self.get_shows()
+        show = shows[show_id]
+
+        show.favorite = not show.favorite
+
+        repository = DbShowRepository(session=self.db_session)
+        updated_db_show = await repository.update(
+            DbShow.from_show_model(show, owner_id=self.user_id), auto_commit=True
+        )
+        return updated_db_show.to_show_model()

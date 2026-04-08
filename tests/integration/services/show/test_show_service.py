@@ -582,3 +582,35 @@ async def test_toggle_nonexistent_episodes_fails(
 
     with pytest.raises(EpisodeNotFound):
         await sut.toggle_episodes(show_to_modify.id, [(1000, 2000)])
+
+
+@pytest.mark.asyncio
+async def test_mark_show_as_favorite(autorollback_db_session: AsyncSession) -> None:
+    sess = autorollback_db_session
+    user_id = await get_user_id("test_user2", sess)
+    sut = ShowService(db_session=sess, user_id=user_id)
+    shows_before = await sut.get_shows()
+
+    # find an unfavorited show
+    show_to_mark = next(
+        iter(filter(lambda show: not show.favorite, shows_before.values()))
+    )
+
+    await sut.toggle_favorite(show_to_mark.id)
+
+    assert (await sut.get_show(show_to_mark.id)).favorite
+
+
+@pytest.mark.asyncio
+async def test_unmark_show_as_favorite(autorollback_db_session: AsyncSession) -> None:
+    sess = autorollback_db_session
+    user_id = await get_user_id("test_user2", sess)
+    sut = ShowService(db_session=sess, user_id=user_id)
+    shows_before = await sut.get_shows()
+
+    # find a favorited show
+    show_to_mark = next(iter(filter(lambda show: show.favorite, shows_before.values())))
+
+    await sut.toggle_favorite(show_to_mark.id)
+
+    assert not (await sut.get_show(show_to_mark.id)).favorite

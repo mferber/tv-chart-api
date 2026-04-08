@@ -203,6 +203,24 @@ def test_delete_show(
 
 
 @pytest.mark.parametrize("login_as_user", ["test_user2"], indirect=True)
+def test_toggle_favorite(
+    test_client: TestClient, login_as_user: FakeUser, csrf_token_header: dict[str, str]
+) -> None:
+    shows_before = test_client.get("/shows").json()
+    show_to_toggle = next(iter(shows_before.values()))
+    orig_favorite = show_to_toggle["favorite"]
+
+    returned_show = test_client.post(
+        f"/shows/{show_to_toggle['id']}/toggle-favorite", headers=csrf_token_header
+    )
+
+    returned_show.raise_for_status()
+    assert (returned_show.json())["favorite"] != orig_favorite
+    show_after = test_client.get(f"/shows/{show_to_toggle['id']}").json()
+    assert show_after["favorite"] != orig_favorite
+
+
+@pytest.mark.parametrize("login_as_user", ["test_user2"], indirect=True)
 def test_export_show_data(test_client: TestClient, login_as_user: FakeUser) -> None:
     exported_data = test_client.get("/data/export").text
 
