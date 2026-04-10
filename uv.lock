@@ -6,6 +6,10 @@ resolution-markers = [
     "python_full_version < '3.14'",
 ]
 
+[options]
+exclude-newer = "2026-04-03T14:48:53.970831Z"
+exclude-newer-span = "P7D"
+
 [[package]]
 name = "advanced-alchemy"
 version = "1.9.1"
