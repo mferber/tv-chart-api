@@ -14,58 +14,70 @@ class InvalidImportDataError(Exception):
         self.source = source
 
 
+class InvalidImportVersionError(Exception):
+    pass
+
+
 _import_json_schema = {
     "$schema": "http://json-schema.org/draft-07/schema#",
-    "type": "array",
-    "items": {
-        "type": "object",
-        "required": [
-            "tvmaze_id",
-            "title",
-            "favorite",
-            "source",
-            "duration",
-            "image_sm_url",
-            "image_lg_url",
-            "imdb_id",
-            "thetvdb_id",
-            "seasons",
-        ],
-        "properties": {
-            "tvmaze_id": {"type": "integer"},
-            "title": {"type": "string"},
-            "favorite": {"type": "boolean"},
-            "source": {"type": "string"},
-            "duration": {
-                "type": "integer",
-                "description": "Episode duration in minutes",
-            },
-            "image_sm_url": {"type": "string", "format": "uri"},
-            "image_lg_url": {"type": "string", "format": "uri"},
-            "imdb_id": {"type": "string"},
-            "thetvdb_id": {"type": "integer"},
-            "seasons": {
-                "type": "array",
-                "items": {
-                    "type": "array",
-                    "items": {
-                        "type": "object",
-                        "required": [
-                            "title",
-                            "watched",
-                            "ep_num",
-                        ],
-                        "properties": {
-                            "title": {"type": "string"},
-                            "watched": {"type": "boolean"},
-                            "ep_num": {"type": ["integer", "null"]},
+    "type": "object",
+    "required": ["shows"],
+    "additionalProperties": False,
+    "properties": {
+        "version": {"type": "string"},
+        "shows": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": [
+                    "tvmaze_id",
+                    "title",
+                    "favorite",
+                    "source",
+                    "duration",
+                    "image_sm_url",
+                    "image_lg_url",
+                    "imdb_id",
+                    "thetvdb_id",
+                    "seasons",
+                ],
+                "properties": {
+                    "tvmaze_id": {"type": "integer"},
+                    "title": {"type": "string"},
+                    "favorite": {"type": "boolean"},
+                    "source": {"type": "string"},
+                    "duration": {
+                        "type": "integer",
+                        "description": "Episode duration in minutes",
+                    },
+                    "image_sm_url": {"type": "string", "format": "uri"},
+                    "image_lg_url": {"type": "string", "format": "uri"},
+                    "imdb_id": {"type": "string"},
+                    "thetvdb_id": {"type": "integer"},
+                    "seasons": {
+                        "type": "array",
+                        "items": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "required": [
+                                    "title",
+                                    "watched",
+                                    "ep_num",
+                                ],
+                                "properties": {
+                                    "title": {"type": "string"},
+                                    "watched": {"type": "boolean"},
+                                    "ep_num": {"type": ["integer", "null"]},
+                                },
+                                "additionalProperties": False,
+                            },
                         },
-                        "additionalProperties": False,
                     },
                 },
+                "additionalProperties": False,
             },
         },
-        "additionalProperties": False,
     },
 }
 
@@ -76,7 +88,7 @@ class ImportService:
     """
 
     @classmethod
-    def schema_validate_import_data(cls, json_data: str) -> list[dict[str, Any]]:
+    def schema_validate_import_data(cls, json_data: str) -> dict[str, Any]:
         """Validates an import data file (string) against the JSON schema.
 
         Publicly accessible for use in export tests. Otherwise should not ordinarily
@@ -93,15 +105,24 @@ class ImportService:
         instance = json.loads(json_data)
         jsonschema.validate(instance=json.loads(json_data), schema=_import_json_schema)
 
-        # once it's passed validation, we know it's a list of dicts, so this is a safe cast
-        return cast(list[dict[str, Any]], instance)
+        # once it's passed validation, this is a safe cast
+        return cast(dict[str, Any], instance)
 
     def __init__(self, show_service: ShowService):
         self.show_service = show_service
 
     async def import_shows(self, data: str) -> list[Show]:
         try:
-            data_parsed: list[dict[str, Any]] = self.schema_validate_import_data(data)
+            data_parsed: dict[str, Any] = self.schema_validate_import_data(data)
+            if data_parsed["version"] is None:
+                data_parsed["version"] = "0.0.1"
+
+            match data_parsed["version"]:
+                case "0.0.1":
+                    return await self._import_shows_v0_0_1(data_parsed)
+                case _:
+                    raise InvalidImportVersionError
+
         except Exception as e:
             message = ""
             source: Any = {}
@@ -111,9 +132,14 @@ class ImportService:
             if isinstance(e, jsonschema.ValidationError):
                 message = e.message
                 source = e.instance
+            if isinstance(e, InvalidImportVersionError):
+                message = f'Unknown import file version identifier: "{data_parsed["version"]}"'
+                source = None
             raise InvalidImportDataError(message=message, source=source) from e
 
+    async def _import_shows_v0_0_1(self, data_parsed: dict[str, Any]) -> list[Show]:
         # map JSON show serializations to ShowCreate objs we can add to the db
+        json_shows = cast(list[dict[str, Any]], data_parsed["shows"])
         new_shows = [
             ShowCreate(
                 tvmaze_id=json_show["tvmaze_id"],
@@ -131,7 +157,7 @@ class ImportService:
                 thetvdb_id=json_show["thetvdb_id"],
                 seasons=json_show["seasons"],
             )
-            for json_show in data_parsed
+            for json_show in json_shows
         ]
 
         # replace all saved shows with the new ones

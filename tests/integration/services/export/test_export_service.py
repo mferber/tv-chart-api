@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, cast
 
 import pytest
 from helpers.testing_data.users import get_user_id
@@ -6,7 +6,7 @@ from pydantic import HttpUrl
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from models.show import Show
-from services.export_service import ExportService
+from services.export_service import EXPORT_VERSION, ExportService
 from services.import_service import ImportService
 from services.show_service import ShowService
 
@@ -21,7 +21,9 @@ async def test_export_service(autorollback_db_session: AsyncSession) -> None:
     export = await sut.export()
 
     # validate the export as if we were importing it
-    exported_shows = ImportService.schema_validate_import_data(export)
+    exported = ImportService.schema_validate_import_data(export)
+    assert exported["version"] == EXPORT_VERSION
+    exported_shows = cast(list[dict[str, Any]], exported["shows"])
 
     # check all fields against the source Show objects
     orig_shows = await show_service.get_shows()

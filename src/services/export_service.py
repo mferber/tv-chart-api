@@ -4,6 +4,8 @@ from typing import Any
 from models.show import EpisodeDescriptor, Show
 from services.show_service import ShowService
 
+EXPORT_VERSION = "0.0.1"
+
 
 class ExportService:
     def __init__(self, show_service: ShowService):
@@ -11,7 +13,10 @@ class ExportService:
 
     async def export(self) -> str:
         shows = await self.show_service.get_shows()
-        exportable = [self.__exportable_show(show) for show in shows.values()]
+        exportable = {
+            "version": EXPORT_VERSION,
+            "shows" : [self.__exportable_show(show) for show in shows.values()]
+        }
         return json.dumps(exportable)
 
     def __exportable_show(self, show: Show) -> dict[str, Any]:

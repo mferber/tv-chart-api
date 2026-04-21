@@ -7,7 +7,11 @@ from helpers.testing_data.users import get_user_id
 from pydantic import HttpUrl
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from services.import_service import ImportService, InvalidImportDataError
+from services.import_service import (
+    ImportService,
+    InvalidImportDataError,
+    InvalidImportVersionError,
+)
 from services.show_service import ShowService
 
 
@@ -17,7 +21,7 @@ async def test_import_service(autorollback_db_session: AsyncSession) -> None:
     user_id = await get_user_id("test_user2", sess)
     show_service = ShowService(db_session=sess, user_id=user_id)
     sut = ImportService(show_service=show_service)
-    data = SampleFileReader().read("import.json")
+    data = SampleFileReader().read("import_v0.0.1.json")
 
     await sut.import_shows(data)
 
@@ -112,24 +116,6 @@ async def test_import_service_raises_on_malformed_json(
 
 
 @pytest.mark.asyncio
-async def test_import_service_raises_on_nonarray_json(
-    autorollback_db_session: AsyncSession,
-) -> None:
-    sess = autorollback_db_session
-    user_id = await get_user_id("test_user2", sess)
-    show_service = ShowService(db_session=sess, user_id=user_id)
-    sut = ImportService(show_service=show_service)
-
-    data = '{"not an array": "value"}'
-    with pytest.raises(InvalidImportDataError) as excinfo:
-        await sut.import_shows(data)
-    ex = excinfo.value
-    assert isinstance(ex.__cause__, jsonschema.exceptions.ValidationError)
-    assert ex.message == "{'not an array': 'value'} is not of type 'array'"
-    assert ex.source == {"not an array": "value"}
-
-
-@pytest.mark.asyncio
 async def test_import_service_raises_on_schema_invalid_data(
     autorollback_db_session: AsyncSession,
 ) -> None:
@@ -137,7 +123,7 @@ async def test_import_service_raises_on_schema_invalid_data(
     user_id = await get_user_id("test_user2", sess)
     show_service = ShowService(db_session=sess, user_id=user_id)
     sut = ImportService(show_service=show_service)
-    data = SampleFileReader().read("import_schema_invalid.json")
+    data = SampleFileReader().read("import_schema_invalid_v0.0.1.json")
 
     with pytest.raises(InvalidImportDataError) as excinfo:
         await sut.import_shows(data)
@@ -148,3 +134,20 @@ async def test_import_service_raises_on_schema_invalid_data(
         == "Additional properties are not allowed ('invalid_key' was unexpected)"
     )
     assert ex.source.items() >= {"invalid_key": "invalid_value"}.items()
+
+
+@pytest.mark.asyncio
+async def test_import_service_raises_on_invalid_version_identifier(
+    autorollback_db_session: AsyncSession,
+) -> None:
+    sess = autorollback_db_session
+    user_id = await get_user_id("test_user2", sess)
+    show_service = ShowService(db_session=sess, user_id=user_id)
+    sut = ImportService(show_service=show_service)
+
+    with pytest.raises(InvalidImportDataError) as excinfo:
+        await sut.import_shows('{"version": "nope", "shows": []}')
+    ex = excinfo.value
+    assert isinstance(ex.__cause__, InvalidImportVersionError)
+    assert ex.message == 'Unknown import file version identifier: "nope"'
+    assert ex.source is None
