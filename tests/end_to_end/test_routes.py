@@ -236,7 +236,7 @@ def test_import_show_data(
     shows_before = test_client.get("/shows").json()
     assert len(shows_before) != 2  # precondition
 
-    import_file = SampleImportFileReader().read("import.json")
+    import_file = SampleImportFileReader().read("import_v0.0.1.json")
     rsp = test_client.post(
         "/data/import",
         files={"file": import_file.encode("utf-8")},
@@ -290,7 +290,7 @@ def test_import_show_data_malformed_JSON(
 def test_import_show_data_invalid_JSON(
     test_client: TestClient, login_as_user: FakeUser, csrf_token_header: dict[str, str]
 ) -> None:
-    import_file = SampleImportFileReader().read("import_schema_invalid.json")
+    import_file = SampleImportFileReader().read("import_schema_invalid_v0.0.1.json")
 
     rsp = test_client.post(
         "/data/import",
