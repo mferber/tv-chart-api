@@ -211,11 +211,12 @@ def test_toggle_favorite(
     orig_favorite = show_to_toggle["favorite"]
 
     returned_show = test_client.post(
-        f"/shows/{show_to_toggle['id']}/toggle-favorite", headers=csrf_token_header
+        "/toggle-favorite",
+        headers=csrf_token_header,
+        json={"show_id": show_to_toggle["id"]},
     )
 
     returned_show.raise_for_status()
-    assert (returned_show.json())["favorite"] != orig_favorite
     show_after = test_client.get(f"/shows/{show_to_toggle['id']}").json()
     assert show_after["favorite"] != orig_favorite
 

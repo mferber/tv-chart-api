@@ -114,13 +114,15 @@ async def delete_show(
     return await svc.delete_show(show_id)
 
 
-# FIXME: put show id in body instead of URL
-@post(path="/shows/{show_id:uuid}/toggle-favorite")
-async def toggle_favorite(
-    show_id: UUID, db_session: AsyncSession, request: Request
-) -> Show:
+@dataclass
+class ToggleFavoriteBody:
+    show_id: UUID
+
+
+@post(path="/toggle-favorite")
+async def toggle_favorite(data: ToggleFavoriteBody, db_session: AsyncSession, request: Request, ) -> Show:
     svc = ShowService(db_session, request.user.id)
-    return await svc.toggle_favorite(show_id)
+    await svc.toggle_favorite(data.show_id)
 
 
 @get(
