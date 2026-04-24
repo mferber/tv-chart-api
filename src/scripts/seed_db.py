@@ -57,6 +57,7 @@ def create_shows(db_session: AsyncSession, owning_user: User) -> None:
         imdb_id="tt22202452",
         thetvdb_id=436457,
         seasons=pluribus_seasons,
+        user_notes="Not quite as good as Breaking Bad or Better Call Saul",
     )
     db_session.add(pluribus)
 
@@ -116,6 +117,7 @@ def create_shows(db_session: AsyncSession, owning_user: User) -> None:
         thetvdb_id=261690,
         imdb_id="tt2149175",
         seasons=the_americans_seasons,
+        user_channel="Hulu",
     )
 
     db_session.add(the_americans)
@@ -126,7 +128,7 @@ def create_shows(db_session: AsyncSession, owning_user: User) -> None:
         [make_episode(i, i + 1 if i < 12 else None, True) for i in range(0, 13)],
         [make_episode(i, i + 1, True) for i in range(0, 12)],
         [make_episode(i, i + 1, True) for i in range(0, 12)],
-        [make_episode(i, i + 1, i < 2) for i in range(0, 12)],
+        [make_episode(i, i + 1, i < 7) for i in range(0, 12)],
         [make_episode(i, i + 1, False) for i in range(0, 12)],
         [make_episode(i, i + 1, False) for i in range(0, 16)],
     ]
@@ -143,8 +145,38 @@ def create_shows(db_session: AsyncSession, owning_user: User) -> None:
         thetvdb_id=282254,
         imdb_id="tt3398228",
         seasons=bojack_seasons,
+        user_notes="Masterful combination of tones",
     )
     db_session.add(bojack)
+
+    # Mad Men
+
+    mad_men_seasons = [
+        [make_episode(i, i + 1 if i < 12 else None, True) for i in range(0, 13)],
+        [make_episode(i, i + 1, True) for i in range(0, 13)],
+        [make_episode(i, i + 1, True) for i in range(0, 13)],
+        [make_episode(i, i + 1, i < 2) for i in range(0, 13)],
+        [make_episode(i, i + 1, False) for i in range(0, 13)],
+        [make_episode(i, i + 1, False) for i in range(0, 13)],
+        [make_episode(i, i + 1, False) for i in range(0, 14)],
+    ]
+
+    mad_men = DbShow(
+        user_id=owning_user.id,
+        tvmaze_id=385,
+        title="Mad Men",
+        favorite=True,
+        source="AMC",
+        duration=60,
+        image_sm_url="https://static.tvmaze.com/uploads/images/medium_portrait/2/5589.jpg",
+        image_lg_url="https://static.tvmaze.com/uploads/images/original_untouched/2/5589.jpg",
+        thetvdb_id=80337,
+        imdb_id="tt0804503",
+        seasons=mad_men_seasons,
+        user_channel="HBO",
+        user_notes="Great show but a little slow-paced; don't binge",
+    )
+    db_session.add(mad_men)
 
 
 async def main() -> None:
