@@ -5,10 +5,9 @@ Defines:
 - JWT_ENCODING_SECRET: for signing JWTs
 """
 
-import json
 import os
 
-from dotenv import load_dotenv, dotenv_values
+from dotenv import dotenv_values, load_dotenv
 
 from exceptions import ConfigurationError
 
@@ -29,7 +28,7 @@ def load() -> None:
             for k in sorted(values):
                 val = values[k]
                 if "secret" in k.casefold():
-                    val = k[0] + "****"
+                    val = "**SECRET**"
                 print(f"  {k}: {repr(val)}")
         load_dotenv()
     _loaded = True
