@@ -2,13 +2,13 @@ from collections.abc import Callable
 from uuid import UUID
 
 from advanced_alchemy.base import UUIDAuditBase
-from helpers.testing_data.users import test_users
 from litestar_users.password import PasswordManager
 from sqlalchemy import NullPool
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from testcontainers.postgres import PostgresContainer  # type: ignore
 
 from db.models import DbShow
+from helpers.testing_data.users import test_users
 from litestar_users_setup.models import User
 
 
@@ -40,6 +40,8 @@ async def _add_show(
     image_lg_url: str,
     imdb_id: str,
     thetvdb_id: int,
+    user_channel: str | None,
+    user_notes: str | None,
     season_lengths: list[int],
     is_special: Callable[[int, int], bool],
     is_watched: Callable[[int, int], bool],
@@ -85,6 +87,8 @@ async def _add_show(
             imdb_id=imdb_id,
             thetvdb_id=thetvdb_id,
             seasons=seasons,
+            user_channel=user_channel,
+            user_notes=user_notes,
         )
     )
     await db_session.flush()
@@ -116,6 +120,8 @@ async def seed_test_db(test_db_container: PostgresContainer) -> None:
             image_lg_url="https://tvimages.com/all_creatures/lg",
             imdb_id="tt123",
             thetvdb_id=1234,
+            user_channel="PBS",
+            user_notes="All Creatures notes",
             season_lengths=[7, 7, 7, 7],
             # final episode of every season is a special
             is_special=lambda seasonNum, ep_idx: ep_idx == 6,
@@ -136,6 +142,8 @@ async def seed_test_db(test_db_container: PostgresContainer) -> None:
             image_lg_url="https://tvimages.com/pluribus/lg",
             imdb_id="tt456",
             thetvdb_id=4567,
+            user_channel=None,
+            user_notes=None,
             season_lengths=[9],
             is_special=lambda seasonNum, ep_idx: (
                 ep_idx == 0
@@ -154,6 +162,8 @@ async def seed_test_db(test_db_container: PostgresContainer) -> None:
             image_lg_url="https://tvimages.com/pluribus/lg",
             imdb_id="tt11280740",
             thetvdb_id=371980,
+            user_channel="Apple TV",
+            user_notes="Severance notes",
             season_lengths=[9, 10],
             is_special=lambda seasonNum, ep_idx: (
                 ep_idx == 0

@@ -56,6 +56,8 @@ async def test_export_service(autorollback_db_session: AsyncSession) -> None:
         assert HttpUrl(exported_show["image_lg_url"]) == original_show.image_lg_url
         assert exported_show["imdb_id"] == original_show.imdb_id
         assert exported_show["thetvdb_id"] == original_show.thetvdb_id
+        assert exported_show["user_channel"] == original_show.user_channel
+        assert exported_show["user_notes"] == original_show.user_notes
 
         assert len(exported_show["seasons"]) == len(original_show.seasons)
 

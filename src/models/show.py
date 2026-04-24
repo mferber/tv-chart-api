@@ -37,6 +37,8 @@ class ShowCreate(BaseModel):
     imdb_id: str | None
     thetvdb_id: int | None
     seasons: list[list[EpisodeDescriptor]]
+    user_channel: str | None
+    user_notes: str | None
 
 
 class Show(ShowCreate):

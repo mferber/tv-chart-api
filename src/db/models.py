@@ -4,7 +4,7 @@ from uuid import UUID
 from advanced_alchemy.base import UUIDAuditBase
 from advanced_alchemy.types import JsonB
 from pydantic import HttpUrl
-from sqlalchemy import Boolean, ForeignKey, Integer, String
+from sqlalchemy import Boolean, ForeignKey, Integer, String, Text
 from sqlalchemy.dialects.postgresql import UUID as SQLA_UUID
 from sqlalchemy.ext.mutable import MutableList
 from sqlalchemy.orm import Mapped, mapped_column
@@ -30,6 +30,8 @@ class DbShow(UUIDAuditBase):
     seasons: Mapped[list[list[dict]]] = mapped_column(
         MutableList.as_mutable(JsonB), default=list
     )
+    user_channel: Mapped[str] = mapped_column(String(50), nullable=True)
+    user_notes: Mapped[str] = mapped_column(Text, nullable=True)
 
     @classmethod
     def from_show_model(cls, show: Show | ShowCreate, owner_id: UUID) -> Self:
@@ -60,6 +62,8 @@ class DbShow(UUIDAuditBase):
             imdb_id=show.imdb_id,
             thetvdb_id=show.thetvdb_id,
             seasons=json_seasons,
+            user_channel=show.user_channel,
+            user_notes=show.user_notes,
         )
 
     def to_show_model(self) -> Show:
@@ -89,4 +93,6 @@ class DbShow(UUIDAuditBase):
             imdb_id=self.imdb_id,
             thetvdb_id=self.thetvdb_id,
             seasons=model_seasons,
+            user_channel=self.user_channel,
+            user_notes=self.user_notes,
         )

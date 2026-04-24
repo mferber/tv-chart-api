@@ -34,8 +34,10 @@ async def test_get_shows(autorollback_db_session: AsyncSession) -> None:
     )
     assert all_creatures.imdb_id == "tt123"
     assert all_creatures.thetvdb_id == 1234
-    assert len(all_creatures.seasons) == 4
+    assert all_creatures.user_channel == "PBS"
+    assert all_creatures.user_notes == "All Creatures notes"
 
+    assert len(all_creatures.seasons) == 4
     for season_idx, season in enumerate(all_creatures.seasons):
         assert len(season) == 7
         for idx, ep in enumerate(season):
@@ -128,6 +130,8 @@ async def test_add_show(autorollback_db_session: AsyncSession) -> None:
                 ),
             ],
         ],
+        user_channel="Netflix",
+        user_notes="notes",
     )
     result = await sut.add_show(new_show)
     assert isinstance(result, Show)
@@ -159,6 +163,8 @@ async def test_add_show(autorollback_db_session: AsyncSession) -> None:
     assert added_show.seasons[0][1].watched
     assert not added_show.seasons[1][0].watched
     assert not added_show.seasons[1][1].watched
+    assert added_show.user_channel == "Netflix"
+    assert added_show.user_notes == "notes"
 
 
 @pytest.mark.asyncio
@@ -185,6 +191,8 @@ async def test_add_many_shows(autorollback_db_session: AsyncSession) -> None:
                 ),
             ],
         ],
+        user_channel="Channel 1",
+        user_notes="notes 1",
     )
     new_show2 = ShowCreate(
         tvmaze_id=1002,
@@ -205,6 +213,8 @@ async def test_add_many_shows(autorollback_db_session: AsyncSession) -> None:
                 ),
             ],
         ],
+        user_channel="Channel 2",
+        user_notes="notes 2",
     )
 
     # to make sure another user's shows aren't affected
@@ -242,6 +252,8 @@ async def test_add_many_shows(autorollback_db_session: AsyncSession) -> None:
     assert added_show1.seasons[0][0].title == "Show 1 Season 1 Episode 1"
     assert added_show1.seasons[0][0].ep_num is not None
     assert not added_show1.seasons[0][0].watched
+    assert added_show1.user_channel == "Channel 1"
+    assert added_show1.user_notes == "notes 1"
 
     assert not hasattr(added_show2, "user_id")
     assert added_show2.tvmaze_id == 1002
@@ -257,6 +269,8 @@ async def test_add_many_shows(autorollback_db_session: AsyncSession) -> None:
     assert added_show2.seasons[0][0].title == "Show 2 Season 1 Episode 1"
     assert added_show2.seasons[0][0].ep_num is not None
     assert added_show2.seasons[0][0].watched
+    assert added_show2.user_channel == "Channel 2"
+    assert added_show2.user_notes == "notes 2"
 
     other_user_show_count_after = len(await other_user_service.get_shows())
     assert other_user_show_count_after == other_user_show_count_before
@@ -302,6 +316,8 @@ async def test_add_show_from_tvmaze_adds_show_to_db(
     assert len(added_show.seasons) == 2
     assert len(added_show.seasons[0]) == 10
     assert len(added_show.seasons[1]) == 10
+    assert added_show.user_channel is None
+    assert added_show.user_notes is None
 
 
 @pytest.mark.asyncio
@@ -417,6 +433,8 @@ async def test_get_episodes_uncached(
         imdb_id=None,
         thetvdb_id=None,
         seasons=[],
+        user_channel=None,
+        user_notes=None,
     )
     ShowService.episodes_cache.clear()
 
@@ -455,6 +473,8 @@ async def test_get_episodes_cached(
         imdb_id=None,
         thetvdb_id=None,
         seasons=[],
+        user_channel=None,
+        user_notes=None,
     )
 
     ShowService.episodes_cache.clear()
@@ -504,6 +524,8 @@ async def test_get_episodes_cached_with_force_refresh(
         imdb_id=None,
         thetvdb_id=None,
         seasons=[],
+        user_channel=None,
+        user_notes=None,
     )
 
     ShowService.episodes_cache.clear()

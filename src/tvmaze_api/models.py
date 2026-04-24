@@ -158,6 +158,8 @@ class TVmazeShow(BaseModel):
             imdb_id=self.externals.imdb if self.externals else None,
             thetvdb_id=self.externals.thetvdb if self.externals else None,
             seasons=with_episodes,
+            user_channel=None,
+            user_notes=None,
         )
 
 

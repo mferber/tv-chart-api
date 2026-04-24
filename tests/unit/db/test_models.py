@@ -24,6 +24,8 @@ def test_domain_show_to_db_show_conversion() -> None:
                 EpisodeDescriptor("Special episode", None, False),
             ]
         ],
+        user_channel="Netflix",
+        user_notes="Not bad for a fictional show",
     )
 
     user_id = uuid4()
@@ -54,6 +56,8 @@ def test_domain_show_to_db_show_conversion() -> None:
             },
         ]
     ]
+    assert db_show.user_channel == show.user_channel
+    assert db_show.user_notes == show.user_notes
 
 
 def test_domain_show_create_to_db_show_conversion() -> None:
@@ -73,6 +77,8 @@ def test_domain_show_create_to_db_show_conversion() -> None:
                 EpisodeDescriptor("Special episode", None, False),
             ]
         ],
+        user_channel="Netflix",
+        user_notes="Not bad for a fictional show",
     )
     user_id = uuid4()
     db_show = DbShow.from_show_model(show, owner_id=user_id)
@@ -102,6 +108,8 @@ def test_domain_show_create_to_db_show_conversion() -> None:
             },
         ]
     ]
+    assert db_show.user_channel == show.user_channel
+    assert db_show.user_notes == show.user_notes
 
 
 def test_db_show_to_show_conversion() -> None:
@@ -131,6 +139,8 @@ def test_db_show_to_show_conversion() -> None:
                 },
             ]
         ],
+        user_channel="Netflix",
+        user_notes="Not bad for a fictional show",
     )
 
     show = db_show.to_show_model()
@@ -151,3 +161,5 @@ def test_db_show_to_show_conversion() -> None:
             EpisodeDescriptor("Special episode", None, False),
         ]
     ]
+    assert show.user_channel == db_show.user_channel
+    assert show.user_notes == db_show.user_notes

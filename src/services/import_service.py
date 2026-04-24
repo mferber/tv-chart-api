@@ -40,6 +40,8 @@ _import_json_schema = {
                     "imdb_id",
                     "thetvdb_id",
                     "seasons",
+                    # user_channel is optional for backwards compatibility
+                    # user_notes is optional for backwards compatibility
                 ],
                 "properties": {
                     "tvmaze_id": {"type": "integer"},
@@ -74,6 +76,8 @@ _import_json_schema = {
                             },
                         },
                     },
+                    "user_channel": {"type": ["string", "null"]},
+                    "user_notes": {"type": ["string", "null"]},
                 },
                 "additionalProperties": False,
             },
@@ -146,7 +150,13 @@ class ImportService:
                 title=json_show["title"],
                 favorite=json_show["favorite"],
                 source=json_show["source"],
+                user_channel=json_show.get(
+                    "user_channel"
+                ),  # may be omitted in older exports
                 duration=json_show["duration"],
+                user_notes=json_show.get(
+                    "user_notes"
+                ),  # may be omitted in older exports
                 image_sm_url=HttpUrl(
                     json_show["image_sm_url"],
                 ),
