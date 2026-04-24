@@ -120,7 +120,11 @@ class ToggleFavoriteBody:
 
 
 @post(path="/toggle-favorite")
-async def toggle_favorite(data: ToggleFavoriteBody, db_session: AsyncSession, request: Request, ) -> Show:
+async def toggle_favorite(
+    data: ToggleFavoriteBody,
+    db_session: AsyncSession,
+    request: Request,
+) -> None:
     svc = ShowService(db_session, request.user.id)
     await svc.toggle_favorite(data.show_id)
 
