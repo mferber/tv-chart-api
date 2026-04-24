@@ -222,6 +222,32 @@ def test_toggle_favorite(
 
 
 @pytest.mark.parametrize("login_as_user", ["test_user2"], indirect=True)
+def test_update_user_fields(
+    test_client: TestClient, login_as_user: FakeUser, csrf_token_header: dict[str, str]
+) -> None:
+    shows_before = test_client.get("/shows").json()
+    print(shows_before)
+    show_to_edit = next(
+        iter(filter(lambda show: show["title"] == "Pluribus", shows_before.values()))
+    )
+
+    returned_show = test_client.post(
+        "/update-user-fields",
+        headers=csrf_token_header,
+        json={
+            "show_id": show_to_edit["id"],
+            "user_channel": "new channel",
+            "user_notes": "new notes",
+        },
+    )
+
+    returned_show.raise_for_status()
+    show_after = test_client.get(f"/shows/{show_to_edit['id']}").json()
+    assert show_after["user_channel"] == "new channel"
+    assert show_after["user_notes"] == "new notes"
+
+
+@pytest.mark.parametrize("login_as_user", ["test_user2"], indirect=True)
 def test_export_show_data(test_client: TestClient, login_as_user: FakeUser) -> None:
     exported_data = test_client.get("/data/export").text
 

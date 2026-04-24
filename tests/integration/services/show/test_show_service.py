@@ -636,3 +636,41 @@ async def test_unmark_show_as_favorite(autorollback_db_session: AsyncSession) ->
     await sut.toggle_favorite(show_to_mark.id)
 
     assert not (await sut.get_show(show_to_mark.id)).favorite
+
+
+@pytest.mark.asyncio
+async def test_update_show_user_fields(autorollback_db_session: AsyncSession) -> None:
+    sess = autorollback_db_session
+    user_id = await get_user_id("test_user2", sess)
+    sut = ShowService(db_session=sess, user_id=user_id)
+    shows_before = await sut.get_shows()
+    pluribus = next(
+        iter(filter(lambda show: show.title == "Pluribus", shows_before.values()))
+    )
+
+    await sut.update_user_fields(
+        pluribus.id, user_channel="channel", user_notes="notes"
+    )
+
+    pluribus_after = await sut.get_show(pluribus.id)
+    assert pluribus_after.user_channel == "channel"
+    assert pluribus_after.user_notes == "notes"
+
+
+@pytest.mark.asyncio
+async def test_update_clear_user_fields(autorollback_db_session: AsyncSession) -> None:
+    sess = autorollback_db_session
+    user_id = await get_user_id("test_user2", sess)
+    sut = ShowService(db_session=sess, user_id=user_id)
+    shows_before = await sut.get_shows()
+    severance = next(
+        iter(filter(lambda show: show.title == "Severance", shows_before.values()))
+    )
+    assert severance.user_channel is not None  # preconditions
+    assert severance.user_notes is not None
+
+    await sut.update_user_fields(severance.id, user_channel=None, user_notes=None)
+
+    severance_after = await sut.get_show(severance.id)
+    assert severance_after.user_channel is None
+    assert severance_after.user_notes is None

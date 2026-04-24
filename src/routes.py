@@ -129,6 +129,25 @@ async def toggle_favorite(
     await svc.toggle_favorite(data.show_id)
 
 
+@dataclass
+class UpdateUserFieldsBody:
+    show_id: UUID
+    user_channel: str | None
+    user_notes: str | None
+
+
+@post(path="/update-user-fields")
+async def update_user_fields(
+    data: UpdateUserFieldsBody,
+    db_session: AsyncSession,
+    request: Request,
+) -> None:
+    svc = ShowService(db_session, request.user.id)
+    await svc.update_user_fields(
+        show_id=data.show_id, user_channel=data.user_channel, user_notes=data.user_notes
+    )
+
+
 @get(
     path="/data/export",
     response_headers={
@@ -190,6 +209,7 @@ all_routes = [
     toggle_watched_status,
     delete_show,
     toggle_favorite,
+    update_user_fields,
     export_data,
     import_data,
 ]
