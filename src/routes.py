@@ -7,7 +7,7 @@ from litestar import Request, Response, delete, get, post
 from litestar.datastructures import UploadFile
 from litestar.enums import RequestEncodingType
 from litestar.params import Body
-from litestar.status_codes import HTTP_400_BAD_REQUEST
+from litestar.status_codes import HTTP_204_NO_CONTENT, HTTP_400_BAD_REQUEST
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import app_config
@@ -119,7 +119,7 @@ class ToggleFavoriteBody:
     show_id: UUID
 
 
-@post(path="/toggle-favorite")
+@post(path="/toggle-favorite", status_code=HTTP_204_NO_CONTENT)
 async def toggle_favorite(
     data: ToggleFavoriteBody,
     db_session: AsyncSession,
@@ -136,7 +136,7 @@ class UpdateUserFieldsBody:
     user_notes: str | None
 
 
-@post(path="/update-user-fields")
+@post(path="/update-user-fields", status_code=HTTP_204_NO_CONTENT)
 async def update_user_fields(
     data: UpdateUserFieldsBody,
     db_session: AsyncSession,
