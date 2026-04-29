@@ -96,3 +96,12 @@ class DbShow(UUIDAuditBase):
             user_channel=self.user_channel,
             user_notes=self.user_notes,
         )
+
+
+class DbUserPreference(UUIDAuditBase):
+    __tablename__ = "user_prefs"
+
+    user_id: Mapped[UUID] = mapped_column(
+        SQLA_UUID(as_uuid=True), ForeignKey("user_account.id")
+    )
+    show_favorites_only: Mapped[bool] = mapped_column(Boolean, default=False)
