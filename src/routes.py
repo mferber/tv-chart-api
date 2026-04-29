@@ -45,6 +45,7 @@ async def logout() -> Response[str]:
 
 
 # Run a search against TVmaze for shows by title
+# Possible new URI: /tvmaze/search
 @get("/search")
 async def search(q: str) -> SearchResults:
     result = await SearchService().search(q)
@@ -69,6 +70,8 @@ async def get_show(request: Request, db_session: AsyncSession, id: UUID) -> Show
 
 
 # Add a show to the user's saved shows from TVmaze
+# Possible new URI: POST /shows/from-tvmaze/{tvmaze_id} (empty body)
+# FIXME: send 409 if selected show already exists
 @get(path="/add-show")
 async def add_show(tvmaze_id: int, request: Request, db_session: AsyncSession) -> Show:
     svc = ShowService(db_session, request.user.id)
@@ -78,6 +81,7 @@ async def add_show(tvmaze_id: int, request: Request, db_session: AsyncSession) -
 # FIXME: when part of a user-instigated "refresh show" action, should also refetch show and
 # update at least the image URLs, maybe the source or other metadata, if they've changed
 # (might as well do the external IDs too)
+# Possible new URI: /shows/{show_id}/episodes
 @get(path="/episodes/{show_id:uuid}")
 async def get_episodes(
     request: Request,
@@ -97,6 +101,8 @@ class SetWatchedStatusBody:
     episodes: list[tuple[int, int]]  # (season_num, ep_index)
 
 
+# Possible new URL: POST /shows/{show_id}/toggle-watched (empty body)
+# Return new value in some form
 @post(path="/toggle-watched-status")
 async def toggle_watched_status(
     data: SetWatchedStatusBody, db_session: AsyncSession, request: Request
@@ -105,7 +111,8 @@ async def toggle_watched_status(
     return await svc.toggle_episodes(data.show_id, data.episodes)
 
 
-# FIXME: arguably shouldn't be DELETE since this isn't a very RESTish API
+# FIXME ensure no error is raised when a deleted resources is deleted again
+# (should be idempotent)
 @delete(path="/shows/{show_id:uuid}", status_code=200)
 async def delete_show(
     show_id: UUID, db_session: AsyncSession, request: Request
@@ -119,6 +126,8 @@ class ToggleFavoriteBody:
     show_id: UUID
 
 
+# Possible new URL: POST /shows/{show-id}/toggle-favorite
+# Return new value in some form
 @post(path="/toggle-favorite", status_code=HTTP_204_NO_CONTENT)
 async def toggle_favorite(
     data: ToggleFavoriteBody,
@@ -136,6 +145,9 @@ class UpdateUserFieldsBody:
     user_notes: str | None
 
 
+# Possible new URL: GET/PUT /shows/{show_id}/user-fields (NB: add GET)
+# Requires putting user fields in a sub-object at deserialization time
+# Conceptually good to isolate them in the database too in a join table but not critical
 @post(path="/update-user-fields", status_code=HTTP_204_NO_CONTENT)
 async def update_user_fields(
     data: UpdateUserFieldsBody,
@@ -148,6 +160,7 @@ async def update_user_fields(
     )
 
 
+# Possible new URL: /shows/export
 @get(
     path="/data/export",
     response_headers={
@@ -159,6 +172,7 @@ async def export_data(db_session: AsyncSession, request: Request) -> str:
     return await svc.export()
 
 
+# Possible new URL: /shows/import
 @post(
     path="/data/import",
 )
