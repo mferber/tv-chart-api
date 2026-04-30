@@ -19,9 +19,6 @@ from services.show_service import ShowService
 async def test_import_service(
     autorollback_db_session: AsyncSession,
 ) -> None:
-    """Tests an import file where the user_channel and user_notes fields are missing
-    (backwards compatibility test)"""
-
     sess = autorollback_db_session
     user_id = await get_user_id("test_user2", sess)
     show_service = ShowService(db_session=sess, user_id=user_id)
