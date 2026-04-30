@@ -226,7 +226,6 @@ def test_update_user_fields(
     test_client: TestClient, login_as_user: FakeUser, csrf_token_header: dict[str, str]
 ) -> None:
     shows_before = test_client.get("/shows").json()
-    print(shows_before)
     show_to_edit = next(
         iter(filter(lambda show: show["title"] == "Pluribus", shows_before.values()))
     )
