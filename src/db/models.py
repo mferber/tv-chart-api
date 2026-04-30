@@ -9,6 +9,7 @@ from sqlalchemy.dialects.postgresql import UUID as SQLA_UUID
 from sqlalchemy.ext.mutable import MutableList
 from sqlalchemy.orm import Mapped, mapped_column
 
+from models.prefs import UserPrefs
 from models.show import EpisodeDescriptor, Show, ShowCreate
 
 
@@ -98,10 +99,17 @@ class DbShow(UUIDAuditBase):
         )
 
 
-class DbUserPreference(UUIDAuditBase):
+class DbUserPrefs(UUIDAuditBase):
     __tablename__ = "user_prefs"
 
     user_id: Mapped[UUID] = mapped_column(
         SQLA_UUID(as_uuid=True), ForeignKey("user_account.id")
     )
     show_favorites_only: Mapped[bool] = mapped_column(Boolean, default=False)
+
+    def to_user_prefs_model(self) -> UserPrefs:
+        return UserPrefs(show_favorites_only=self.show_favorites_only)
+
+    @classmethod
+    def from_user_prefs_model(cls, user_prefs: UserPrefs, owner_id: UUID) -> Self:
+        return cls(user_id=owner_id, show_favorites_only=user_prefs.show_favorites_only)

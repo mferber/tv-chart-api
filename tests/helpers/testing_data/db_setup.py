@@ -7,12 +7,14 @@ from sqlalchemy import NullPool
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from testcontainers.postgres import PostgresContainer  # type: ignore
 
-from db.models import DbShow
+from db.models import DbShow, DbUserPrefs
 from helpers.testing_data.users import test_users
 from litestar_users_setup.models import User
 
 
-async def _add_user(db_session: AsyncSession, email: str, password: str) -> UUID:
+async def _add_user(
+    db_session: AsyncSession, email: str, password: str, show_favorites_only: bool
+) -> UUID:
     """Adds user with given email and password, and returns its UUID"""
 
     hashed_pw = PasswordManager().hash(password)
@@ -24,6 +26,11 @@ async def _add_user(db_session: AsyncSession, email: str, password: str) -> UUID
     )
     db_session.add(user)
     await db_session.flush()
+
+    db_session.add(
+        DbUserPrefs(user_id=user.id, show_favorites_only=show_favorites_only)
+    )
+
     return user.id
 
 
@@ -105,7 +112,14 @@ async def seed_test_db(test_db_container: PostgresContainer) -> None:
         db_user_ids: dict[str, UUID] = {}
         for test_user_id, user_info in test_users.items():
             [email, password] = user_info
-            db_user_ids[test_user_id] = await _add_user(db_session, email, password)
+
+            # user 1 has show-favorites-only turned off
+            # user 2 has show-favorites-only turned on
+            show_favorites_only = email == "testuser2@example.com"
+
+            db_user_ids[test_user_id] = await _add_user(
+                db_session, email, password, show_favorites_only
+            )
 
         # user 1 is watching "All Creatures Great & Small"
         await _add_show(
