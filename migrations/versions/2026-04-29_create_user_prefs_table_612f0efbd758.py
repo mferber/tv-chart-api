@@ -95,7 +95,7 @@ def schema_upgrades() -> None:
     op.create_table(
         "user_prefs",
         sa.Column("id", sa.GUID(length=16), nullable=False),
-        sa.Column("user_id", sa.UUID(), nullable=False),
+        sa.Column("user_id", sa.UUID(), nullable=False, unique=True),
         sa.Column("show_favorites_only", sa.Boolean(), nullable=False),
         sa.Column("sa_orm_sentinel", sa.Integer(), nullable=True),
         sa.Column("created_at", sa.DateTimeUTC(timezone=True), nullable=False),
