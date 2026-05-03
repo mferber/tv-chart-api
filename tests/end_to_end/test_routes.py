@@ -10,6 +10,7 @@ from helpers.testing_data.types import FakeUser
 from litestar.status_codes import HTTP_400_BAD_REQUEST
 from litestar.testing import TestClient
 
+from models.prefs import UserPrefs
 from services.import_service import ImportService
 
 
@@ -244,6 +245,33 @@ def test_update_user_fields(
     show_after = test_client.get(f"/shows/{show_to_edit['id']}").json()
     assert show_after["user_channel"] == "new channel"
     assert show_after["user_notes"] == "new notes"
+
+
+@pytest.mark.parametrize("login_as_user", ["test_user2"], indirect=True)
+def test_get_user_prefs(test_client: TestClient, login_as_user: FakeUser) -> None:
+    prefs = test_client.get("/user-prefs").raise_for_status().json()
+    print(prefs)
+
+    assert prefs["show_favorites_only"]
+
+
+@pytest.mark.parametrize("login_as_user", ["test_user2"], indirect=True)
+def test_update_user_prefs(
+    test_client: TestClient, login_as_user: FakeUser, csrf_token_header: dict[str, str]
+) -> None:
+    orig_prefs = UserPrefs.model_validate_json(
+        test_client.get("/user-prefs").raise_for_status().text
+    )
+    update_prefs = UserPrefs(show_favorites_only=(not orig_prefs.show_favorites_only))
+
+    test_client.put(
+        "/user-prefs", json=update_prefs.model_dump(), headers=csrf_token_header
+    ).raise_for_status()
+
+    new_prefs = UserPrefs.model_validate_json(
+        test_client.get("/user-prefs").raise_for_status().text
+    )
+    assert new_prefs.show_favorites_only == update_prefs.show_favorites_only
 
 
 @pytest.mark.parametrize("login_as_user", ["test_user2"], indirect=True)

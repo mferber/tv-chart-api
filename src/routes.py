@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import Annotated
 from uuid import UUID
 
-from litestar import Request, Response, delete, get, post
+from litestar import Request, Response, delete, get, post, put
 from litestar.datastructures import UploadFile
 from litestar.enums import RequestEncodingType
 from litestar.params import Body
@@ -11,10 +11,12 @@ from litestar.status_codes import HTTP_204_NO_CONTENT, HTTP_400_BAD_REQUEST
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import app_config
+from models.prefs import UserPrefs
 from models.search import SearchResults
 from models.show import EpisodeDetails, Show
 from services.export_service import ExportService
 from services.import_service import ImportService, InvalidImportDataError
+from services.prefs_service import PrefsService
 from services.search_service import SearchService
 from services.show_service import ShowService
 
@@ -160,6 +162,20 @@ async def update_user_fields(
     )
 
 
+@get(path="/user-prefs")
+async def get_user_prefs(db_session: AsyncSession, request: Request) -> UserPrefs:
+    prefsService = PrefsService(db_session=db_session, user_id=request.user.id)
+    return await prefsService.get_prefs()
+
+
+@put(path="/user-prefs")
+async def update_user_prefs(
+    data: UserPrefs, db_session: AsyncSession, request: Request
+) -> None:
+    prefsService = PrefsService(db_session=db_session, user_id=request.user.id)
+    return await prefsService.update_prefs(data)
+
+
 # Possible new URL: /shows/export
 @get(
     path="/data/export",
@@ -224,6 +240,8 @@ all_routes = [
     delete_show,
     toggle_favorite,
     update_user_fields,
+    get_user_prefs,
+    update_user_prefs,
     export_data,
     import_data,
 ]
