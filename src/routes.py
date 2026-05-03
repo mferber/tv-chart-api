@@ -105,6 +105,7 @@ class SetWatchedStatusBody:
 
 # Possible new URL: POST /shows/{show_id}/toggle-watched (empty body)
 # Return new value in some form
+# FIXME: any need to return the updated show in full?
 @post(path="/toggle-watched-status")
 async def toggle_watched_status(
     data: SetWatchedStatusBody, db_session: AsyncSession, request: Request
@@ -176,7 +177,7 @@ async def update_user_prefs(
     return await prefsService.update_prefs(data)
 
 
-# Possible new URL: /shows/export
+# Possible new URL: /data/export
 @get(
     path="/data/export",
     response_headers={
@@ -188,7 +189,7 @@ async def export_data(db_session: AsyncSession, request: Request) -> str:
     return await svc.export()
 
 
-# Possible new URL: /shows/import
+# Possible new URL: /data/import
 @post(
     path="/data/import",
 )
