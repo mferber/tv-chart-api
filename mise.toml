@@ -9,6 +9,10 @@ PYTHONPATH = "src"
 description = "Start the development webapp running locally, with --reload"
 run = "litestar run --reload"
 
+[tasks.devup-lan]
+description = "Start the development webapp running locally, with --reload, binding to 0.0.0.0"
+run = "litestar run --reload --host 0.0.0.0"
+
 [tasks.dbup]
 description = "Start a PostgreSQL instance in a docker container"
 run = "docker run --name tvchartdb -e POSTGRES_DB=tvchartdb -e POSTGRES_PASSWORD=postgres -d -p 5432:5432 postgres"  # no persistent volume yet
