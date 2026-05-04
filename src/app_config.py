@@ -5,6 +5,7 @@ Defines:
 - JWT_ENCODING_SECRET: for signing JWTs
 """
 
+import json
 import os
 
 from dotenv import dotenv_values, load_dotenv
@@ -48,7 +49,7 @@ def get_app_env() -> str:
 
 
 def get_db_url() -> str:
-    """Construct DB url from environment vars"""
+    """Read DB url from environment vars"""
     check_loaded()
 
     if full_url := os.getenv("DATABASE_URL"):
@@ -56,6 +57,26 @@ def get_db_url() -> str:
     raise ConfigurationError(
         "Database configuration must be set in the environment: DATABASE_URL is missing"
     )
+
+
+def get_cors_allowed_origins() -> list[str]:
+    check_loaded()
+
+    try:
+        allowed_origins = json.loads(os.getenv("CORS_ALLOWED_ORIGINS") or "[]")
+    except json.decoder.JSONDecodeError:
+        raise ConfigurationError(
+            "CORS_ALLOWED_ORIGINS must be a JSON array of string URLs"
+        )
+    if (
+        not isinstance(allowed_origins, list)
+        or len(allowed_origins) == 0
+        or not all(isinstance(itm, str) for itm in allowed_origins)
+    ):
+        raise ConfigurationError(
+            "CORS_ALLOWED_ORIGINS must be a JSON array of string URLs"
+        )
+    return allowed_origins
 
 
 def get_jwt_encoding_secret() -> str:

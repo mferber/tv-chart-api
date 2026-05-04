@@ -63,7 +63,7 @@ def create_app() -> Litestar:
 
     cors_config = CORSConfig(
         # FIXME: replace allowed origins with config setting
-        allow_origins=["http://localhost:5173", "https://couchpotato.robotpie.net"],
+        allow_origins=app_config.get_cors_allowed_origins(),
         allow_credentials=True,
     )
 
