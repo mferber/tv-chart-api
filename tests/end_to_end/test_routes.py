@@ -279,7 +279,7 @@ def test_export_show_data(test_client: TestClient, login_as_user: FakeUser) -> N
     exported_data = test_client.get("/data/export").text
 
     # validate as if we were importing
-    ImportService.schema_validate_import_data(exported_data)
+    ImportService.validate_import_data(exported_data)
     # see integration tests for checks on full details of exported data
 
 
@@ -320,7 +320,7 @@ def test_import_show_data_invalid_UTF_8(
     rsp_json = rsp.json()
     assert rsp_json["error"] == "invalid UTF-8 content"
     assert rsp_json["message"] != ""
-    assert rsp_json["source"] != ""
+    assert rsp_json["details"] != ""
 
 
 @pytest.mark.parametrize("login_as_user", ["test_user1"], indirect=True)
@@ -337,7 +337,7 @@ def test_import_show_data_malformed_JSON(
     rsp_json = rsp.json()
     assert rsp_json["error"] == "invalid or malformed JSON"
     assert rsp_json["message"] != ""
-    assert rsp_json["source"] != ""
+    assert rsp_json["details"] != ""
 
 
 @pytest.mark.parametrize("login_as_user", ["test_user1"], indirect=True)
@@ -356,4 +356,4 @@ def test_import_show_data_invalid_JSON(
     rsp_json = rsp.json()
     assert rsp_json["error"] == "invalid or malformed JSON"
     assert rsp_json["message"] != ""
-    assert rsp_json["source"] != ""
+    assert rsp_json["details"] != ""

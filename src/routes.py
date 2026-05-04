@@ -203,13 +203,13 @@ async def import_data(
         json_text = raw.decode("utf-8")
     except UnicodeDecodeError as e:
         return Response(
-            {"error": "invalid UTF-8 content", "message": e.reason, "source": None},
+            {"error": "invalid UTF-8 content", "message": e.reason, "details": None},
             status_code=HTTP_400_BAD_REQUEST,
         )
 
     try:
         svc = ImportService(show_service=ShowService(db_session, request.user.id))
-        imported = await svc.import_shows(json_text)
+        imported = await svc.import_(json_text)
         return {"imported_count": len(imported)}
     except Exception as e:
         if isinstance(e, InvalidImportDataError):
@@ -217,13 +217,13 @@ async def import_data(
                 {
                     "error": "invalid or malformed JSON",
                     "message": e.message,
-                    "source": e.source,
+                    "details": e.details,
                 },
                 status_code=HTTP_400_BAD_REQUEST,
             )
         else:
             return Response(
-                {"error": "unknown error", "message": None, "source": None},
+                {"error": "unknown error", "message": None, "details": None},
                 status_code=HTTP_400_BAD_REQUEST,
             )
 

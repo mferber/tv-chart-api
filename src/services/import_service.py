@@ -1,89 +1,24 @@
-import json
-from typing import Any, cast
+from typing import Any
 
-import jsonschema
-from pydantic import HttpUrl
+from pydantic import BaseModel, ValidationError
 
 from models.show import Show, ShowCreate
 from services.show_service import ShowService
 
 
 class InvalidImportDataError(Exception):
-    def __init__(self, message: str, source: Any) -> None:
+    def __init__(self, message: str, details: Any) -> None:
         self.message = message
-        self.source = source
+        self.details = details
 
 
 class InvalidImportVersionError(Exception):
     pass
 
 
-_import_json_schema = {
-    "$schema": "http://json-schema.org/draft-07/schema#",
-    "type": "object",
-    "required": ["shows"],
-    "additionalProperties": False,
-    "properties": {
-        "version": {"type": "string"},
-        "shows": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "required": [
-                    "tvmaze_id",
-                    "title",
-                    "favorite",
-                    "source",
-                    "duration",
-                    "image_sm_url",
-                    "image_lg_url",
-                    "imdb_id",
-                    "thetvdb_id",
-                    "seasons",
-                    # user_channel is optional for backwards compatibility
-                    # user_notes is optional for backwards compatibility
-                ],
-                "properties": {
-                    "tvmaze_id": {"type": "integer"},
-                    "title": {"type": "string"},
-                    "favorite": {"type": "boolean"},
-                    "source": {"type": "string"},
-                    "duration": {
-                        "type": "integer",
-                        "description": "Episode duration in minutes",
-                    },
-                    "image_sm_url": {"type": "string", "format": "uri"},
-                    "image_lg_url": {"type": "string", "format": "uri"},
-                    "imdb_id": {"type": "string"},
-                    "thetvdb_id": {"type": "integer"},
-                    "seasons": {
-                        "type": "array",
-                        "items": {
-                            "type": "array",
-                            "items": {
-                                "type": "object",
-                                "required": [
-                                    "title",
-                                    "watched",
-                                    "ep_num",
-                                ],
-                                "properties": {
-                                    "title": {"type": "string"},
-                                    "watched": {"type": "boolean"},
-                                    "ep_num": {"type": ["integer", "null"]},
-                                },
-                                "additionalProperties": False,
-                            },
-                        },
-                    },
-                    "user_channel": {"type": ["string", "null"]},
-                    "user_notes": {"type": ["string", "null"]},
-                },
-                "additionalProperties": False,
-            },
-        },
-    },
-}
+class ImportModel(BaseModel):
+    version: str
+    shows: list[ShowCreate]
 
 
 class ImportService:
@@ -92,7 +27,7 @@ class ImportService:
     """
 
     @classmethod
-    def schema_validate_import_data(cls, json_data: str) -> dict[str, Any]:
+    def validate_import_data(cls, json_data: str) -> ImportModel:
         """Validates an import data file (string) against the JSON schema.
 
         Publicly accessible for use in export tests. Otherwise should not ordinarily
@@ -106,71 +41,36 @@ class ImportService:
             schema validation
         """
 
-        instance = json.loads(json_data)
-        jsonschema.validate(instance=json.loads(json_data), schema=_import_json_schema)
-
-        # once it's passed validation, this is a safe cast
-        return cast(dict[str, Any], instance)
+        return ImportModel.model_validate_json(json_data, strict=True, extra="forbid")
 
     def __init__(self, show_service: ShowService):
         self.show_service = show_service
 
-    async def import_shows(self, data: str) -> list[Show]:
+    async def import_(self, data: str) -> list[Show]:
         try:
-            data_parsed: dict[str, Any] = self.schema_validate_import_data(data)
-            if data_parsed["version"] is None:
-                data_parsed["version"] = "0.0.1"
+            data_parsed = self.validate_import_data(data)
 
-            match data_parsed["version"]:
+            match data_parsed.version:
                 case "0.0.1":
-                    return await self._import_shows_v0_0_1(data_parsed)
+                    return await self._import_v0_0_1(data_parsed)
                 case _:
                     raise InvalidImportVersionError
 
         except Exception as e:
             message = ""
-            source: Any = {}
-            if isinstance(e, json.decoder.JSONDecodeError):
-                message = e.msg
-                source = e.doc
-            if isinstance(e, jsonschema.ValidationError):
-                message = e.message
-                source = e.instance
+            details: str | None = None
+            if isinstance(e, ValidationError):
+                message = "Import file validation failed"
+                details = str(e)
             if isinstance(e, InvalidImportVersionError):
-                message = f'Unknown import file version identifier: "{data_parsed["version"]}"'
-                source = None
-            raise InvalidImportDataError(message=message, source=source) from e
+                message = (
+                    f'Unknown import file version identifier: "{data_parsed.version}"'
+                )
+                details = None
+            raise InvalidImportDataError(message=message, details=details) from e
 
-    async def _import_shows_v0_0_1(self, data_parsed: dict[str, Any]) -> list[Show]:
-        # map JSON show serializations to ShowCreate objs we can add to the db
-        json_shows = cast(list[dict[str, Any]], data_parsed["shows"])
-        new_shows = [
-            ShowCreate(
-                tvmaze_id=json_show["tvmaze_id"],
-                title=json_show["title"],
-                favorite=json_show["favorite"],
-                source=json_show["source"],
-                user_channel=json_show.get(
-                    "user_channel"
-                ),  # may be omitted in older exports
-                duration=json_show["duration"],
-                user_notes=json_show.get(
-                    "user_notes"
-                ),  # may be omitted in older exports
-                image_sm_url=HttpUrl(
-                    json_show["image_sm_url"],
-                ),
-                image_lg_url=HttpUrl(
-                    json_show["image_lg_url"],
-                ),
-                imdb_id=json_show["imdb_id"],
-                thetvdb_id=json_show["thetvdb_id"],
-                seasons=json_show["seasons"],
-            )
-            for json_show in json_shows
-        ]
-
+    async def _import_v0_0_1(self, data_parsed: ImportModel) -> list[Show]:
         # replace all saved shows with the new ones
         await self.show_service.delete_all_shows()
-        shows = await self.show_service.add_many_shows(new_shows)
+        shows = await self.show_service.add_many_shows(data_parsed.shows)
         return shows

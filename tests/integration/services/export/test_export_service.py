@@ -1,8 +1,5 @@
-from typing import Any, cast
-
 import pytest
 from helpers.testing_data.users import get_user_id
-from pydantic import HttpUrl
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from models.show import Show
@@ -21,23 +18,22 @@ async def test_export_service(autorollback_db_session: AsyncSession) -> None:
     export = await sut.export()
 
     # validate the export as if we were importing it
-    exported = ImportService.schema_validate_import_data(export)
-    assert exported["version"] == EXPORT_VERSION
-    exported_shows = cast(list[dict[str, Any]], exported["shows"])
+    exported = ImportService.validate_import_data(export)
+    assert exported.version == EXPORT_VERSION
 
     # check all fields against the source Show objects
     orig_shows = await show_service.get_shows()
 
-    assert len(exported_shows) == 2
+    assert len(exported.shows) == 2
 
-    exported_pluribus: dict[str, Any] = next(
-        filter(lambda show: show["title"] == "Pluribus", exported_shows)
+    exported_pluribus = next(
+        filter(lambda show: show.title == "Pluribus", exported.shows)
     )
     pluribus: Show = next(
         filter(lambda show: show.title == "Pluribus", orig_shows.values())
     )
     exported_severance = next(
-        filter(lambda show: show["title"] == "Severance", exported_shows)
+        filter(lambda show: show.title == "Severance", exported.shows)
     )
     severance: Show = next(
         filter(lambda show: show.title == "Severance", orig_shows.values())
@@ -47,25 +43,25 @@ async def test_export_service(autorollback_db_session: AsyncSession) -> None:
         (exported_pluribus, pluribus),
         (exported_severance, severance),
     ]:
-        assert exported_show["title"] == original_show.title
-        assert exported_show["favorite"] == original_show.favorite
-        assert exported_show["tvmaze_id"] == original_show.tvmaze_id
-        assert exported_show["source"] == original_show.source
-        assert exported_show["duration"] == original_show.duration
-        assert HttpUrl(exported_show["image_sm_url"]) == original_show.image_sm_url
-        assert HttpUrl(exported_show["image_lg_url"]) == original_show.image_lg_url
-        assert exported_show["imdb_id"] == original_show.imdb_id
-        assert exported_show["thetvdb_id"] == original_show.thetvdb_id
-        assert exported_show["user_channel"] == original_show.user_channel
-        assert exported_show["user_notes"] == original_show.user_notes
+        assert exported_show.title == original_show.title
+        assert exported_show.favorite == original_show.favorite
+        assert exported_show.tvmaze_id == original_show.tvmaze_id
+        assert exported_show.source == original_show.source
+        assert exported_show.duration == original_show.duration
+        assert exported_show.image_sm_url == original_show.image_sm_url
+        assert exported_show.image_lg_url == original_show.image_lg_url
+        assert exported_show.imdb_id == original_show.imdb_id
+        assert exported_show.thetvdb_id == original_show.thetvdb_id
+        assert exported_show.user_channel == original_show.user_channel
+        assert exported_show.user_notes == original_show.user_notes
 
-        assert len(exported_show["seasons"]) == len(original_show.seasons)
+        assert len(exported_show.seasons) == len(original_show.seasons)
 
-        for s_idx, season in enumerate(exported_show["seasons"]):
+        for s_idx, season in enumerate(exported_show.seasons):
             assert len(season) == len(original_show.seasons[s_idx])
 
             for ep_idx, exported_episode in enumerate(season):
                 episode = original_show.seasons[s_idx][ep_idx]
-                assert exported_episode["title"] == episode.title
-                assert exported_episode["ep_num"] == episode.ep_num
-                assert exported_episode["watched"] == episode.watched
+                assert exported_episode.title == episode.title
+                assert exported_episode.ep_num == episode.ep_num
+                assert exported_episode.watched == episode.watched
