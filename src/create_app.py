@@ -41,7 +41,9 @@ def create_app() -> Litestar:
     app_config.load()
 
     cookie_domain = (
-        "couchpotato.robotpie.net" if app_config.get_app_env() == "production" else None
+        None
+        if app_config.get_app_env() == "development"
+        else "couchpotato.robotpie.net"
     )
 
     class MyJWTCookieAuth(JWTCookieAuth):
@@ -72,7 +74,7 @@ def create_app() -> Litestar:
         header_name=CSRF_HEADER_NAME,
         cookie_name=CSRF_COOKIE_NAME,
         cookie_domain=cookie_domain,
-        cookie_secure=True,
+        cookie_secure=False if app_config.get_app_env() == "development" else True,
         cookie_samesite="lax",
     )
 
