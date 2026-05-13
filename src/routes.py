@@ -178,15 +178,15 @@ async def update_user_prefs(
 
 
 # Possible new URL: /data/export
-@get(
-    path="/data/export",
-    response_headers={
-        "Content-Disposition": f'attachment; filename="couch-potato-backup-{datetime_filename_suffix()}.json"'
-    },
-)
-async def export_data(db_session: AsyncSession, request: Request) -> str:
+@get(path="/data/export")
+async def export_data(db_session: AsyncSession, request: Request) -> Response:
     svc = ExportService(show_service=ShowService(db_session, request.user.id))
-    return await svc.export()
+    result = await svc.export()
+    filename = f"couch-potato-backup-{datetime_filename_suffix()}.json"
+    return Response(
+        content=result,
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
 
 
 # Possible new URL: /data/import
