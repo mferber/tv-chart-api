@@ -7,7 +7,7 @@ from sqlalchemy import delete
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 
 import app_config
-from db.models import DbShow
+from db.models import DbShow, DbUserPrefs
 from litestar_users_setup.models import User
 
 password_manager = PasswordManager()
@@ -185,6 +185,7 @@ async def main() -> None:
 
     async with AsyncSession(engine) as db_session:
         try:
+            await db_session.execute(delete(DbUserPrefs))
             await db_session.execute(delete(DbShow))
             await db_session.execute(delete(User))
 
