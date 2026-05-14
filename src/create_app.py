@@ -40,9 +40,11 @@ MAX_FILE_UPLOAD_BYTES = 50_000_000
 def create_app() -> Litestar:
     app_config.load()
 
+    # FIXME make this a config setting instead of logic
+    app_env = app_config.get_app_env()
     cookie_domain = (
         None
-        if app_config.get_app_env() == "development"
+        if app_env == "development" or app_env == "testing"
         else "couchpotato.robotpie.net"
     )
 
