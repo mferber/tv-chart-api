@@ -1,0 +1,1 @@
+Test files representing show data returned by TVmaze show info requests.

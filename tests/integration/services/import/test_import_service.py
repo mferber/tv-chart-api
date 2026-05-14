@@ -1,5 +1,5 @@
 import pytest
-from helpers.testing_data.import_data.reader import SampleFileReader
+from helpers.sample_file_reader import SampleFileReader
 from helpers.testing_data.users import get_user_id
 from pydantic import HttpUrl, ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -11,16 +11,19 @@ from services.import_service import (
 )
 from services.show_service import ShowService
 
+"""Source directory for test files read by SampleFileReader"""
+TEST_DATA_DIR = "import_data_files"
+
 
 @pytest.mark.asyncio
 async def test_import_service(
-    autorollback_db_session: AsyncSession,
+    autorollback_db_session: AsyncSession, reader: SampleFileReader
 ) -> None:
     sess = autorollback_db_session
     user_id = await get_user_id("test_user2", sess)
     show_service = ShowService(db_session=sess, user_id=user_id)
     sut = ImportService(show_service=show_service)
-    data = SampleFileReader().read("import_v0.0.1.json")
+    data = reader.read("import_v0.0.1.json")
 
     await sut.import_(data)
 
@@ -120,13 +123,13 @@ async def test_import_service_raises_on_malformed_json(
 
 @pytest.mark.asyncio
 async def test_import_service_raises_on_schema_invalid_data(
-    autorollback_db_session: AsyncSession,
+    autorollback_db_session: AsyncSession, reader: SampleFileReader
 ) -> None:
     sess = autorollback_db_session
     user_id = await get_user_id("test_user2", sess)
     show_service = ShowService(db_session=sess, user_id=user_id)
     sut = ImportService(show_service=show_service)
-    data = SampleFileReader().read("import_schema_invalid_v0.0.1.json")
+    data = reader.read("import_schema_invalid_v0.0.1.json")
 
     with pytest.raises(InvalidImportDataError) as excinfo:
         await sut.import_(data)

@@ -2,7 +2,7 @@ import datetime
 
 import pytest
 import respx
-from helpers.testing_data.mock_responses.reader import SampleFileReader
+from helpers.sample_file_reader import SampleFileReader
 from pydantic import HttpUrl
 
 from tvmaze_api.client import InvalidResponseError, TVmazeAPIClient
@@ -14,12 +14,15 @@ from tvmaze_api.models import (
     TVmazeSearchResultShow,
 )
 
-sample_file_reader = SampleFileReader("sample_tvmaze_search_results")
+"""Source directory for test files read by SampleFileReader"""
+TEST_DATA_DIR = "mock_responses/tvmaze/basic_responses"
 
 
 @pytest.mark.asyncio
-async def test_search_request(respx_mock: respx.MockRouter) -> None:
-    text = sample_file_reader.read("multiple_results.json")
+async def test_search_request(
+    respx_mock: respx.MockRouter, reader: SampleFileReader
+) -> None:
+    text = reader.read("multiple_results.json")
     route = respx_mock.route(method="GET").respond(text=text)
     client = TVmazeAPIClient()
 
@@ -37,8 +40,10 @@ async def test_search_request(respx_mock: respx.MockRouter) -> None:
 
 
 @pytest.mark.asyncio
-async def test_invalid_response_raises(respx_mock: respx.MockRouter) -> None:
-    text = sample_file_reader.read("multiple_results_invalid.json")
+async def test_invalid_response_raises(
+    respx_mock: respx.MockRouter, reader: SampleFileReader
+) -> None:
+    text = reader.read("multiple_results_invalid.json")
     route = respx_mock.route(method="GET").respond(text=text)
 
     with pytest.raises(InvalidResponseError):

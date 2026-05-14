@@ -2,7 +2,7 @@ import datetime
 
 import pydantic
 import pytest
-from helpers.testing_data.mock_responses.reader import SampleFileReader
+from helpers.sample_file_reader import SampleFileReader
 from pydantic import HttpUrl
 
 from tvmaze_api.models import (
@@ -12,11 +12,11 @@ from tvmaze_api.models import (
     TVmazeSearchResult,
 )
 
-sample_file_reader = SampleFileReader("sample_tvmaze_search_results")
+"""Source directory for test files read by SampleFileReader"""
+TEST_DATA_DIR = "mock_responses/tvmaze/search_result_responses"
 
-
-def test_response_validation() -> None:
-    response_json = sample_file_reader.read("result.json")
+def test_response_validation(reader: SampleFileReader) -> None:
+    response_json = reader.read("result.json")
     r = TVmazeSearchResult.model_validate_json(response_json)
 
     assert r.show
@@ -43,7 +43,7 @@ def test_response_validation() -> None:
     assert show.summary == "<p>Summary 1 truncated</p>"
 
 
-def test_response_validation_failure() -> None:
+def test_response_validation_failure(reader: SampleFileReader) -> None:
     with pytest.raises(pydantic.ValidationError):
-        response_json = sample_file_reader.read("result_invalid.json")
+        response_json = reader.read("result_invalid.json")
         _ = TVmazeSearchResult.model_validate_json(response_json)

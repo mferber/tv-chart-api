@@ -1,15 +1,19 @@
 import pytest
 import respx
+from helpers.sample_file_reader import SampleFileReader
 from pydantic import HttpUrl
 
 from services.search_service import SearchError, SearchService
 
-from .sample_tvmaze_responses.reader import read_sample
+"""Source directory for test files read by SampleFileReader"""
+TEST_DATA_DIR = "mock_responses/tvmaze/basic_responses"
 
 
 @pytest.mark.asyncio
-async def test_search_service(respx_mock: respx.MockRouter) -> None:
-    text = read_sample("multiple_results.json")
+async def test_search_service(
+    respx_mock: respx.MockRouter, reader: SampleFileReader
+) -> None:
+    text = reader.read("multiple_results.json")
     respx_mock.route(method="GET").respond(text=text)
     svc = SearchService()
 

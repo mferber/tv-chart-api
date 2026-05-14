@@ -1,17 +1,18 @@
 import pytest
 import respx
-from helpers.testing_data.mock_responses.reader import SampleFileReader
+from helpers.sample_file_reader import SampleFileReader
 from pydantic import HttpUrl
 
 from tvmaze_api.client import InvalidResponseError, TVmazeAPIClient
 from tvmaze_api.models import TVmazeExternals, TVmazeImage, TVmazeShow
 
-sample_file_reader = SampleFileReader("sample_tvmaze_show_responses")
+"""Source directory for test files read by SampleFileReader"""
+TEST_DATA_DIR = "mock_responses/tvmaze/show_request_responses"
 
 
 @pytest.mark.asyncio
-async def test_show_request(respx_mock: respx.MockRouter) -> None:
-    text = sample_file_reader.read("network_show.json")
+async def test_show_request(respx_mock: respx.MockRouter, reader: SampleFileReader) -> None:
+    text = reader.read("network_show.json")
     route = respx_mock.route(method="GET").respond(text=text)
     client = TVmazeAPIClient()
 
@@ -40,8 +41,8 @@ async def test_show_request(respx_mock: respx.MockRouter) -> None:
 
 
 @pytest.mark.asyncio
-async def test_invalid_show_request_fails(respx_mock: respx.MockRouter) -> None:
-    text = sample_file_reader.read("network_show_invalid.json")
+async def test_invalid_show_request_fails(respx_mock: respx.MockRouter, reader: SampleFileReader) -> None:
+    text = reader.read("network_show_invalid.json")
     respx_mock.route(method="GET").respond(text=text)
     client = TVmazeAPIClient()
 
@@ -50,8 +51,8 @@ async def test_invalid_show_request_fails(respx_mock: respx.MockRouter) -> None:
 
 
 @pytest.mark.asyncio
-async def test_show_episodes_request(respx_mock: respx.MockRouter) -> None:
-    text = sample_file_reader.read("network_show_episodes.json")
+async def test_show_episodes_request(respx_mock: respx.MockRouter, reader: SampleFileReader) -> None:
+    text = reader.read("network_show_episodes.json")
     route = respx_mock.route(method="GET").respond(text=text)
     client = TVmazeAPIClient()
 
@@ -86,9 +87,9 @@ async def test_show_episodes_request(respx_mock: respx.MockRouter) -> None:
 
 @pytest.mark.asyncio
 async def test_invalid_show_episodes_request_fails(
-    respx_mock: respx.MockRouter,
+    respx_mock: respx.MockRouter, reader: SampleFileReader
 ) -> None:
-    text = sample_file_reader.read("network_show_episodes_invalid.json")
+    text = reader.read("network_show_episodes_invalid.json")
     respx_mock.route(method="GET").respond(text=text)
     client = TVmazeAPIClient()
 

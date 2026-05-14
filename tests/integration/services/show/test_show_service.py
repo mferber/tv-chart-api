@@ -3,7 +3,7 @@ from uuid import uuid4
 
 import pytest
 import respx
-from helpers.testing_data.mock_responses.reader import SampleFileReader
+from helpers.sample_file_reader import SampleFileReader
 from helpers.testing_data.users import get_user_id
 from pydantic import HttpUrl
 from pytest_mock import MockerFixture
@@ -12,6 +12,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from models.show import EpisodeDescriptor, EpisodeType, Show, ShowCreate
 from services.show_service import EpisodeNotFound, ShowNotFound, ShowService
 
+"""Source directory for test files read by SampleFileReader"""
+TEST_DATA_DIR = "mock_responses/tvmaze/show_request_responses"
 
 @pytest.mark.asyncio
 async def test_get_shows(autorollback_db_session: AsyncSession) -> None:
@@ -279,17 +281,18 @@ async def test_add_many_shows(autorollback_db_session: AsyncSession) -> None:
 @pytest.mark.asyncio
 @respx.mock(assert_all_mocked=True)
 async def test_add_show_from_tvmaze_adds_show_to_db(
-    autorollback_db_session: AsyncSession, respx_mock: respx.MockRouter
+    autorollback_db_session: AsyncSession,
+    respx_mock: respx.MockRouter,
+    reader: SampleFileReader,
 ) -> None:
     sess = autorollback_db_session
     user_id = await get_user_id("test_user1", sess)
     sut = ShowService(db_session=sess, user_id=user_id)
 
     # this test uses TVmazeClient: mock out TVmaze URLs
-    sample_file_reader = SampleFileReader("sample_tvmaze_show_responses")
-    show_json = sample_file_reader.read("network_show.json")
+    show_json = reader.read("network_show.json")
     respx_mock.get("https://api.tvmaze.com/shows/6456").respond(text=show_json)
-    episodes_json = sample_file_reader.read("network_show_episodes.json")
+    episodes_json = reader.read("network_show_episodes.json")
     respx_mock.get("https://api.tvmaze.com/shows/6456/episodes").respond(
         text=episodes_json
     )
@@ -322,7 +325,7 @@ async def test_add_show_from_tvmaze_adds_show_to_db(
 
 @pytest.mark.asyncio
 async def test_add_show_caches_episode_list(
-    autorollback_db_session: AsyncSession, respx_mock: respx.MockRouter
+    autorollback_db_session: AsyncSession, respx_mock: respx.MockRouter, reader: SampleFileReader
 ) -> None:
     sess = autorollback_db_session
     user_id = await get_user_id("test_user1", sess)
@@ -331,10 +334,9 @@ async def test_add_show_caches_episode_list(
     ShowService.episodes_cache.clear()
 
     # this test uses TVmazeClient: mock out TVmaze URLs
-    sample_file_reader = SampleFileReader("sample_tvmaze_show_responses")
-    show_json = sample_file_reader.read("network_show.json")
+    show_json = reader.read("network_show.json")
     respx_mock.get("https://api.tvmaze.com/shows/6456").respond(text=show_json)
-    episodes_json = sample_file_reader.read("network_show_episodes.json")
+    episodes_json = reader.read("network_show_episodes.json")
     respx_mock.get("https://api.tvmaze.com/shows/6456/episodes").respond(
         text=episodes_json
     )
@@ -416,7 +418,7 @@ async def test_delete_all_shows(autorollback_db_session: AsyncSession) -> None:
 @pytest.mark.asyncio
 @respx.mock(assert_all_mocked=True)
 async def test_get_episodes_uncached(
-    autorollback_db_session: AsyncSession, respx_mock: respx.MockRouter
+    autorollback_db_session: AsyncSession, reader: SampleFileReader, respx_mock: respx.MockRouter
 ) -> None:
     sess = autorollback_db_session
     user_id = await get_user_id("test_user1", sess)
@@ -439,8 +441,7 @@ async def test_get_episodes_uncached(
     ShowService.episodes_cache.clear()
 
     # fake TVmaze response
-    sample_file_reader = SampleFileReader("sample_tvmaze_show_responses")
-    show_json = sample_file_reader.read("network_show_episodes.json")
+    show_json = reader.read("network_show_episodes.json")
     respx_mock.route(method="GET").respond(text=show_json)
 
     episodes = await sut.get_episodes(show)
@@ -455,6 +456,7 @@ async def test_get_episodes_uncached(
 @respx.mock(assert_all_mocked=True)
 async def test_get_episodes_cached(
     autorollback_db_session: AsyncSession,
+    reader: SampleFileReader,
     respx_mock: respx.MockRouter,
     mocker: MockerFixture,
 ) -> None:
@@ -481,8 +483,7 @@ async def test_get_episodes_cached(
     cache_spy = mocker.spy(ShowService.episodes_cache, "get")
 
     # fake TVmaze response
-    sample_file_reader = SampleFileReader("sample_tvmaze_show_responses")
-    show_json = sample_file_reader.read("network_show_episodes.json")
+    show_json = reader.read("network_show_episodes.json")
     route = respx_mock.route(method="GET").respond(text=show_json)
 
     episodes1 = await sut.get_episodes(show)
@@ -506,6 +507,7 @@ async def test_get_episodes_cached(
 @respx.mock(assert_all_mocked=True)
 async def test_get_episodes_cached_with_force_refresh(
     autorollback_db_session: AsyncSession,
+    reader: SampleFileReader,
     respx_mock: respx.MockRouter,
     mocker: MockerFixture,
 ) -> None:
@@ -532,8 +534,7 @@ async def test_get_episodes_cached_with_force_refresh(
     cache_spy = mocker.spy(ShowService.episodes_cache, "get")
 
     # fake TVmaze response
-    sample_file_reader = SampleFileReader("sample_tvmaze_show_responses")
-    show_json = sample_file_reader.read("network_show_episodes.json")
+    show_json = reader.read("network_show_episodes.json")
     route = respx_mock.route(method="GET").respond(text=show_json)
 
     # run test

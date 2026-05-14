@@ -1,7 +1,7 @@
 import datetime
 
 import pytest
-from helpers.testing_data.mock_responses.reader import SampleFileReader
+from helpers.sample_file_reader import SampleFileReader
 from pydantic import HttpUrl, ValidationError
 
 from models.show import EpisodeType
@@ -14,13 +14,14 @@ from tvmaze_api.models import (
     TVmazeWebChannel,
 )
 
-sample_file_reader = SampleFileReader("sample_tvmaze_show_responses")
+"""Source directory for test files read by SampleFileReader"""
+TEST_DATA_DIR = "mock_responses/tvmaze/show_request_responses"
 
 
-def test_valid_network_show() -> None:
+def test_valid_network_show(reader: SampleFileReader) -> None:
     """Tests that a normal show from a network deserializes correctly"""
 
-    json = sample_file_reader.read("network_show.json")
+    json = reader.read("network_show.json")
 
     tvmaze_show = TVmazeShow.model_validate_json(json)
 
@@ -43,10 +44,10 @@ def test_valid_network_show() -> None:
     assert tvmaze_show.externals.thetvdb == 337302
 
 
-def test_valid_streaming_show() -> None:
+def test_valid_streaming_show(reader: SampleFileReader) -> None:
     """Tests that a normal show from a streaming service deserializes correctly"""
 
-    json = sample_file_reader.read("streaming_service_show.json")
+    json = reader.read("streaming_service_show.json")
 
     tvmaze_show = TVmazeShow.model_validate_json(json)
 
@@ -60,19 +61,19 @@ def test_valid_streaming_show() -> None:
     assert tvmaze_show.externals.thetvdb == 421974
 
 
-def test_invalid_show_fails() -> None:
+def test_invalid_show_fails(reader: SampleFileReader) -> None:
     """Tests that invalid JSON for a show fails deserialization"""
 
-    json = sample_file_reader.read("network_show_invalid.json")
+    json = reader.read("network_show_invalid.json")
 
     with pytest.raises(ValidationError):
         _ = TVmazeShow.model_validate_json(json)
 
 
-def test_valid_episode_list() -> None:
+def test_valid_episode_list(reader: SampleFileReader) -> None:
     """Tests that an episode list deserializes correctly"""
 
-    json = sample_file_reader.read("complicated_show_episodes.json")
+    json = reader.read("complicated_show_episodes.json")
 
     episode_list = TVmazeEpisodeList.model_validate_json(json)
     episodes = episode_list.root
@@ -111,23 +112,23 @@ def test_valid_episode_list() -> None:
     assert pond_life.number is None
 
 
-def test_invalid_episodes_fails() -> None:
+def test_invalid_episodes_fails(reader: SampleFileReader) -> None:
     """Tests that invalid JSON for episode list fails deserialization"""
 
-    json = sample_file_reader.read("invalid_episodes.json")
+    json = reader.read("invalid_episodes.json")
 
     with pytest.raises(ValidationError):
         _ = TVmazeShow.model_validate_json(json)
 
 
-def test_tvmaze_show_to_show_create_model_conversion() -> None:
+def test_tvmaze_show_to_show_create_model_conversion(reader: SampleFileReader) -> None:
     """Tests that a TVmaze show validates into a ShowCreate model"""
 
     tvmaze_show = TVmazeShow.model_validate_json(
-        sample_file_reader.read("network_show.json")
+        reader.read("network_show.json")
     )
     tvmaze_episode_list = TVmazeEpisodeList.model_validate_json(
-        sample_file_reader.read("network_show_episodes.json")
+        reader.read("network_show_episodes.json")
     )
 
     episodes = tvmaze_episode_list.to_episode_descriptor_models()
@@ -153,7 +154,7 @@ def test_tvmaze_show_to_show_create_model_conversion() -> None:
         assert all(not episode.watched for episode in season)
 
 
-def test_tvmaze_episode_to_episode_descriptor_model_conversion() -> None:
+def test_tvmaze_episode_to_episode_descriptor_model_conversion(reader: SampleFileReader) -> None:
     """Tests that a TVmaze episode validates into an EpisodeDescriptor model"""
 
     tvmaze_episode = TVmazeEpisode(
@@ -174,12 +175,12 @@ def test_tvmaze_episode_to_episode_descriptor_model_conversion() -> None:
     assert not episode.watched
 
 
-def test_tvmaze_episodes_to_episode_descriptors_model_conversion() -> None:
+def test_tvmaze_episodes_to_episode_descriptors_model_conversion(reader: SampleFileReader) -> None:
     """Tests that a flat TVmaze episode list validates into a structured list of
     EpisodeDescriptors in seasons"""
 
     tvmaze_episode_list = TVmazeEpisodeList.model_validate_json(
-        sample_file_reader.read("network_show_episodes.json")
+        reader.read("network_show_episodes.json")
     )
 
     results = tvmaze_episode_list.to_episode_descriptor_models()
@@ -194,14 +195,14 @@ def test_tvmaze_episodes_to_episode_descriptors_model_conversion() -> None:
     assert all(not ep.watched for ep in results[1])
 
 
-def test_tvmaze_episodes_to_episode_descriptors_model_conversion_skips_missing_season() -> (
+def test_tvmaze_episodes_to_episode_descriptors_model_conversion_skips_missing_season(reader: SampleFileReader) -> (
     None
 ):
     """Tests that a missing season in TVmaze episode list validates into an empty season in
     structured list of EpisodeDescriptors"""
 
     tvmaze_episode_list = TVmazeEpisodeList.model_validate_json(
-        sample_file_reader.read("network_show_episodes_skip_season.json")
+        reader.read("network_show_episodes_skip_season.json")
     )
 
     results = tvmaze_episode_list.to_episode_descriptor_models()
@@ -214,7 +215,7 @@ def test_tvmaze_episodes_to_episode_descriptors_model_conversion_skips_missing_s
     assert all(ep.ep_num is not None for ep in results[2])
 
 
-def test_tvmaze_episode_to_episode_detail_model_conversion() -> None:
+def test_tvmaze_episode_to_episode_detail_model_conversion(reader: SampleFileReader) -> None:
     """Tests that a TVmaze episode validates into an EpisodeDetails model"""
 
     tvmaze_episode = TVmazeEpisode(
@@ -237,7 +238,7 @@ def test_tvmaze_episode_to_episode_detail_model_conversion() -> None:
     assert episode.summary == "Episode summary"
 
 
-def test_tvmaze_episode_to_episode_detail_model_conversion_with_missing_or_invalid_data() -> (
+def test_tvmaze_episode_to_episode_detail_model_conversion_with_missing_or_invalid_data(reader: SampleFileReader) -> (
     None
 ):
     """Tests that a TVmaze episode validates into an EpisodeDetails model with None for
@@ -263,7 +264,7 @@ def test_tvmaze_episode_to_episode_detail_model_conversion_with_missing_or_inval
     assert episode.summary is None
 
 
-def test_tvmaze_episode_to_episode_detail_model_conversion_sanitizes_summary() -> None:
+def test_tvmaze_episode_to_episode_detail_model_conversion_sanitizes_summary(reader: SampleFileReader) -> None:
     """Tests that episode summary is sanitized when validating into an EpisodeDetails model"""
 
     tvmaze_episode = TVmazeEpisode(
@@ -285,14 +286,14 @@ def test_tvmaze_episode_to_episode_detail_model_conversion_sanitizes_summary() -
     )
 
 
-def test_tvmaze_episodes_to_episode_details_model_conversion_skips_missing_season() -> (
+def test_tvmaze_episodes_to_episode_details_model_conversion_skips_missing_season(reader: SampleFileReader) -> (
     None
 ):
     """Tests that a missing season in TVmaze episode list validates into an empty season in
     structured list of EpisodeDetails models"""
 
     tvmaze_episode_list = TVmazeEpisodeList.model_validate_json(
-        sample_file_reader.read("network_show_episodes_skip_season.json")
+        reader.read("network_show_episodes_skip_season.json")
     )
 
     results = tvmaze_episode_list.to_episode_details_models()
@@ -305,15 +306,15 @@ def test_tvmaze_episodes_to_episode_details_model_conversion_skips_missing_seaso
     assert all(ep.type == EpisodeType.EPISODE for ep in results[2])
 
 
-def test_show_with_complicated_episodes() -> None:
+def test_show_with_complicated_episodes(reader: SampleFileReader) -> None:
     """Tests against Doctor Who, a long complicated show with lots of specials
     interspersed among the regular episodes"""
 
     tvmaze_show = TVmazeShow.model_validate_json(
-        sample_file_reader.read("complicated_show.json")
+        reader.read("complicated_show.json")
     )
     tvmaze_episode_list = TVmazeEpisodeList.model_validate_json(
-        sample_file_reader.read("complicated_show_episodes.json")
+        reader.read("complicated_show_episodes.json")
     )
 
     show_create = tvmaze_show.to_show_create_model(

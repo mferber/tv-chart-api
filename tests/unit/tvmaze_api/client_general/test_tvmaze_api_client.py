@@ -10,7 +10,6 @@ the service layer, where we also test conversion to app domain models.
 import httpx
 import pytest
 import respx
-from helpers.testing_data.mock_responses.reader import SampleFileReader
 from pytest_mock import MockerFixture
 
 from tvmaze_api.client import (
@@ -19,7 +18,9 @@ from tvmaze_api.client import (
     TVmazeAPIClient,
 )
 
-sample_file_reader = SampleFileReader("sample_tvmaze_search_results")
+
+"""Source directory for test files read by SampleFileReader"""
+TEST_DATA_DIR = "mock_responses/tvmaze/search_result_responses"
 
 
 @pytest.mark.asyncio

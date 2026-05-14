@@ -5,15 +5,19 @@ expected.
 """
 
 import pytest
+from helpers.sample_file_reader import SampleFileReader
 from pydantic import HttpUrl, ValidationError
 
 from models.search import SearchResult
+from tvmaze_api.models import TVmazeSearchResultList
 
-from ..sample_tvmaze_responses.reader import get_TVmaze_responses_from_json
+"""Source directory for test files read by SampleFileReader"""
+TEST_DATA_DIR = "mock_responses/tvmaze/basic_responses"
 
 
-def test_valid_result_set() -> None:
-    results = get_TVmaze_responses_from_json("multiple_results.json")
+def test_valid_result_set(reader: SampleFileReader) -> None:
+    json = reader.read("multiple_results.json")
+    results = TVmazeSearchResultList.model_validate_json(json)
 
     model = results.to_search_results_model()
 
@@ -56,14 +60,16 @@ def test_valid_result_set() -> None:
     )
 
 
-def test_invalid_result_set_fails_validation() -> None:
+def test_invalid_result_set_fails_validation(reader: SampleFileReader) -> None:
     with pytest.raises(ValidationError):
-        results = get_TVmaze_responses_from_json("multiple_results_invalid.json")
+        json = reader.read("multiple_results_invalid.json")
+        results = TVmazeSearchResultList.model_validate_json(json)
         _ = results.to_search_results_model()
 
 
-def test_result_with_all_optional_fields_missing() -> None:
-    results = get_TVmaze_responses_from_json("optional_fields_missing.json")
+def test_result_with_all_optional_fields_missing(reader: SampleFileReader) -> None:
+    json = reader.read("optional_fields_missing.json")
+    results = TVmazeSearchResultList.model_validate_json(json)
 
     model = results.to_search_results_model()
 
@@ -81,8 +87,9 @@ def test_result_with_all_optional_fields_missing() -> None:
     assert result.image_lg_url is None
 
 
-def test_result_with_US_network() -> None:
-    results = get_TVmaze_responses_from_json("us_network.json")
+def test_result_with_US_network(reader: SampleFileReader) -> None:
+    json = reader.read("us_network.json")
+    results = TVmazeSearchResultList.model_validate_json(json)
 
     model = results.to_search_results_model()
 
@@ -92,8 +99,9 @@ def test_result_with_US_network() -> None:
     assert result.network_country == "United States"
 
 
-def test_result_with_foreign_network() -> None:
-    results = get_TVmaze_responses_from_json("foreign_network.json")
+def test_result_with_foreign_network(reader: SampleFileReader) -> None:
+    json = reader.read("foreign_network.json")
+    results = TVmazeSearchResultList.model_validate_json(json)
 
     model = results.to_search_results_model()
 
@@ -103,9 +111,10 @@ def test_result_with_foreign_network() -> None:
     assert result.network_country == "United Kingdom"
 
 
-def test_result_with_network_with_no_country() -> None:
+def test_result_with_network_with_no_country(reader: SampleFileReader) -> None:
     # probably won't occur in real data
-    results = get_TVmaze_responses_from_json("network_no_country.json")
+    json = reader.read("network_no_country.json")
+    results = TVmazeSearchResultList.model_validate_json(json)
 
     model = results.to_search_results_model()
 
@@ -115,8 +124,9 @@ def test_result_with_network_with_no_country() -> None:
     assert result.network_country is None
 
 
-def test_result_with_streaming_service_with_country() -> None:
-    results = get_TVmaze_responses_from_json("streaming_service.json")
+def test_result_with_streaming_service_with_country(reader: SampleFileReader) -> None:
+    json = reader.read("streaming_service.json")
+    results = TVmazeSearchResultList.model_validate_json(json)
 
     model = results.to_search_results_model()
 
@@ -126,8 +136,9 @@ def test_result_with_streaming_service_with_country() -> None:
     assert result.streaming_service_country == "United Kingdom"
 
 
-def test_result_with_streaming_service_with_no_country() -> None:
-    results = get_TVmaze_responses_from_json("streaming_service_no_country.json")
+def test_result_with_streaming_service_with_no_country(reader: SampleFileReader) -> None:
+    json = reader.read("streaming_service_no_country.json")
+    results = TVmazeSearchResultList.model_validate_json(json)
 
     model = results.to_search_results_model()
 
@@ -137,8 +148,9 @@ def test_result_with_streaming_service_with_no_country() -> None:
     assert result.streaming_service_country is None
 
 
-def test_result_with_no_start_or_end_date() -> None:  # unlikely in real data
-    results = get_TVmaze_responses_from_json("no_start_or_end_date.json")
+def test_result_with_no_start_or_end_date(reader: SampleFileReader) -> None:  # unlikely in real data
+    json = reader.read("no_start_or_end_date.json")
+    results = TVmazeSearchResultList.model_validate_json(json)
 
     model = results.to_search_results_model()
 
@@ -148,8 +160,9 @@ def test_result_with_no_start_or_end_date() -> None:  # unlikely in real data
     assert result.end_year is None
 
 
-def test_result_with_no_start_date() -> None:  # unlikely in real data
-    results = get_TVmaze_responses_from_json("no_start_date.json")
+def test_result_with_no_start_date(reader: SampleFileReader) -> None:  # unlikely in real data
+    json = reader.read("no_start_date.json")
+    results = TVmazeSearchResultList.model_validate_json(json)
 
     model = results.to_search_results_model()
 
@@ -159,8 +172,9 @@ def test_result_with_no_start_date() -> None:  # unlikely in real data
     assert result.end_year is not None
 
 
-def test_result_with_no_end_date() -> None:
-    results = get_TVmaze_responses_from_json("no_end_date.json")
+def test_result_with_no_end_date(reader: SampleFileReader) -> None:
+    json = reader.read("no_end_date.json")
+    results = TVmazeSearchResultList.model_validate_json(json)
 
     model = results.to_search_results_model()
 
@@ -170,8 +184,9 @@ def test_result_with_no_end_date() -> None:
     assert result.end_year is None
 
 
-def test_summary_html_is_sanitized() -> None:
-    results = get_TVmaze_responses_from_json("unsafe_html_summary.json")
+def test_summary_html_is_sanitized(reader: SampleFileReader) -> None:
+    json = reader.read("unsafe_html_summary.json")
+    results = TVmazeSearchResultList.model_validate_json(json)
 
     model = results.to_search_results_model()
 
